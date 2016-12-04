@@ -1,17 +1,18 @@
 {% extends "authentic2/base-page.html" %}
-{% load i18n gadjo %}
+{% load i18n gadjo static %}
 
 {% block page-title %}
   {{ block.super }} - {% trans "Logout" %}
 {% endblock %}
 
+{% block bodyargs %}
+  data-next-url="{{next_url}}" data-redir-timeout="{{redir_timeout}}"
+{% endblock %}
+
 {% block extrascripts %}
   {{ block.super }}
   <script src="{% xstatic 'jquery' 'jquery.min.js' %}"></script>
-  <script>
-    window.iframe_count = 1;
-    $(window).on('load', function () {window.iframe_count -= 1});
-  </script>
+  <script type="text/javascript" src="{% static "authentic2/js/logout.js" %}"></script>
 {% endblock %}
 
 {% block user-links %}
@@ -24,18 +25,6 @@
           {{ fragment|safe }}
       {% endfor %}
   </ul>
-  <script>
-    window.iframe_count += document.getElementsByTagName("iframe").length;
-    var refresh_launched = 0;
-    setInterval(function () {
-      if (iframe_count == 0) {
-        if (refresh_launched == 0) {
-          refresh_launched = 1;
-          setTimeout(function () { window.location = '{{ next_url }}' }, 300);
-        }
-      }
-    }, {{ redir_timeout }})
-  </script>
 
   <div id="continue-link">
     <a href="{{ next_url }}">{% trans "Continue logout" %}</a>
