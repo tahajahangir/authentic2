@@ -229,7 +229,7 @@ def register_issuer(name, issuer=None, openid_configuration=None, verify=True, t
         raise ValueError(_('Invalid OpenID Connect configuration for %(issuer)s: '
                            '%(error)s') % (issuer, e))
     if 'code' not in openid_configuration['response_types_supported']:
-        raise ValueError(_('auhtorization code flow is unsupported: code response type is '
+        raise ValueError(_('authorization code flow is unsupported: code response type is '
                            'unsupported'))
     try:
         response = requests.get(openid_configuration['jwks_uri'], verify=verify, timeout=None)
