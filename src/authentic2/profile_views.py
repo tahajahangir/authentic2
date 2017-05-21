@@ -35,8 +35,10 @@ class PasswordResetView(cbv.NextURLViewMixin, FormView):
     def form_valid(self, form):
         form.save()
         # return to next URL
-        messages.info(self.request, _('A mail was sent to you with '
-                                      'instructions to reset your password'))
+        messages.info(self.request, _('If your email address exists in our '
+                                      'database, you will receive an email '
+                                      'containing instructions to reset '
+                                      'your password'))
         return super(PasswordResetView, self).form_valid(form)
 
 password_reset = PasswordResetView.as_view()
