@@ -6,6 +6,7 @@ import os
 
 import django
 
+from gadjo.templatetags.gadjo import xstatic
 from . import plugins, logger
 
 BASE_DIR = os.path.dirname(__file__)
@@ -308,6 +309,10 @@ DJANGO_RBAC_PERMISSIONS_HIERARCHY = {
 }
 
 SILENCED_SYSTEM_CHECKS = ["auth.W004"]
+
+# Get select2 from local copy.
+SELECT2_JS = xstatic('select2', 'select2.min.js')
+SELECT2_CSS = xstatic('select2', 'select2.min.css')
 
 #
 # Load configuration file
