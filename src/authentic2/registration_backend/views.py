@@ -4,32 +4,29 @@ import logging
 import random
 
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib import messages
-from django.contrib.auth import logout, REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core import signing
 from django.views.generic.edit import FormView, CreateView
-from django.views.generic.base import TemplateView
 from django.contrib.auth import get_user_model
 from django.forms import CharField, Form
 from django.core.urlresolvers import reverse_lazy
 from django.template import RequestContext
-from django.core import signing
 from django.http import HttpResponseBadRequest
 
 from authentic2.utils import (import_module_or_class, redirect, make_url, get_fields_and_labels,
-                              login, simulate_authentication)
+                              simulate_authentication)
 from authentic2.a2_rbac.utils import get_default_ou
 from authentic2 import hooks
 
 from django_rbac.utils import get_ou_model
 
-from .. import models, app_settings, compat, cbv, views, forms, validators, utils, constants
+from .. import models, app_settings, compat, cbv, forms, validators, utils, constants
 from .forms import RegistrationCompletionForm, DeleteAccountForm
 from .forms import RegistrationCompletionFormNoPassword
 from authentic2.a2_rbac.models import OrganizationalUnit
-from authentic2.a2_rbac.utils import get_default_ou
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +37,7 @@ def valid_token(method):
     def f(request, *args, **kwargs):
         try:
             request.token = signing.loads(kwargs['registration_token'].replace(' ', ''),
-                                                max_age=settings.ACCOUNT_ACTIVATION_DAYS*3600*24)
+                                          max_age=settings.ACCOUNT_ACTIVATION_DAYS * 3600 * 24)
         except signing.SignatureExpired:
             messages.warning(request, _('Your activation key is expired'))
             return redirect(request, 'registration_register')
@@ -159,8 +156,7 @@ class RegistrationCompletionView(CreateView):
             models.Attribute.objects.filter(required=True).values_list('name', flat=True))
         help_texts = {}
         if app_settings.A2_REGISTRATION_FORM_USERNAME_LABEL:
-            labels['username'] = \
-                    app_settings.A2_REGISTRATION_FORM_USERNAME_LABEL
+            labels['username'] = app_settings.A2_REGISTRATION_FORM_USERNAME_LABEL
         if app_settings.A2_REGISTRATION_FORM_USERNAME_HELP_TEXT:
             help_texts['username'] = \
                 app_settings.A2_REGISTRATION_FORM_USERNAME_HELP_TEXT
@@ -192,8 +188,11 @@ class RegistrationCompletionView(CreateView):
         if 'username' in self.fields and app_settings.A2_REGISTRATION_FORM_USERNAME_REGEX:
             # Keep existing field label and help_text
             old_field = form_class.base_fields['username']
-            field = CharField(max_length=256, label=old_field.label, help_text=old_field.help_text,
-                    validators=[validators.UsernameValidator()])
+            field = CharField(
+                max_length=256,
+                label=old_field.label,
+                help_text=old_field.help_text,
+                validators=[validators.UsernameValidator()])
             form_class = type('RegistrationForm', (form_class,), {'username': field})
         return form_class
 
@@ -278,8 +277,7 @@ class RegistrationCompletionView(CreateView):
                 user = form.save()
                 return self.registration_success(request, user, form)
             self.get_form = lambda *args, **kwargs: form
-        return super(RegistrationCompletionView, self).get(request, *args,
-                                                           **kwargs)
+        return super(RegistrationCompletionView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if self.users and self.email_is_unique:
@@ -304,9 +302,9 @@ class RegistrationCompletionView(CreateView):
             if av.verified and av.attribute.name in form.fields:
                 del form.fields[av.attribute.name]
 
-        if 'email' in self.request.POST and (not 'email' in self.token or
-                                             self.request.POST['email'] !=
-                                             self.token['email']) and not self.token.get('skip_email_check'):
+        if ('email' in self.request.POST
+                and (not 'email' in self.token or self.request.POST['email'] != self.token['email'])
+                and not self.token.get('skip_email_check')):
             # If an email is submitted it must be validated or be the same as in the token
             data = form.cleaned_data
             data['no_password'] = self.token.get('no_password', False)
@@ -379,7 +377,8 @@ class DeleteView(FormView):
         self.request.user.save(update_fields=['email', 'email_verified'])
         logger.info(u'deletion of account %s requested', self.request.user)
         hooks.call_hooks('event', name='delete-account', user=self.request.user)
-        messages.info(self.request, _('Your account has been scheduled for deletion. You cannot use it anymore.'))
+        messages.info(self.request,
+                      _('Your account has been scheduled for deletion. You cannot use it anymore.'))
         return super(DeleteView, self).form_valid(form)
 
 registration_completion = valid_token(RegistrationCompletionView.as_view())
