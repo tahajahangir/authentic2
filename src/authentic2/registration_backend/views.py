@@ -326,7 +326,25 @@ class RegistrationCompletionView(CreateView):
         simulate_authentication(request, user, method='email',
                                 service_slug=self.service)
         messages.info(self.request, _('You have just created an account.'))
+        self.send_registration_success_email(user)
         return redirect(request, self.get_success_url())
+
+    def send_registration_success_email(self, user):
+        if not user.email:
+            return
+
+        template_names = [
+            'authentic2/registration_success'
+        ]
+        login_url = self.request.build_absolute_uri(settings.LOGIN_URL)
+        utils.send_templated_mail(user, template_names=template_names,
+                                  context={
+                                      'user': user,
+                                      'email': user.email,
+                                      'site': self.request.get_host(),
+                                      'login_url': login_url,
+                                  },
+                                  request=self.request)
 
 
 class DeleteView(FormView):

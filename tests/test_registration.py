@@ -47,6 +47,8 @@ def test_registration(app, db, settings, mailoutbox):
     assert 'You have just created an account.' in response.content
     assert next_url in response.content
     assert User.objects.count() == 1
+    assert len(mailoutbox) == 2
+    assert 'was successful' in mailoutbox[1].body
 
     new_user = User.objects.get()
     assert new_user.email == 'testbot@entrouvert.com'
@@ -78,7 +80,6 @@ def test_registration_realm(app, db, settings, mailoutbox):
     next_url = 'http://relying-party.org/'
     url = utils.make_url('registration_register', params={REDIRECT_FIELD_NAME: next_url})
 
-
     response = app.get(url)
     response.form.set('email', 'testbot@entrouvert.com')
     response = response.form.submit()
@@ -99,6 +100,8 @@ def test_registration_realm(app, db, settings, mailoutbox):
     response = response.form.submit()
     assert 'You have just created an account.' in response.content
     assert next_url in response.content
+    assert len(mailoutbox) == 2
+    assert 'was successful' in mailoutbox[1].body
 
     # verify user has expected attributes
     new_user = User.objects.get()
@@ -168,6 +171,8 @@ def test_username_settings(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('auth_homepage')
     response = response.follow()
     assert 'You have just created an account.' in response.content
+    assert len(mailoutbox) == 2
+    assert 'was successful' in mailoutbox[1].body
 
 
 def test_username_is_unique(app, db, settings, mailoutbox):
@@ -199,6 +204,8 @@ def test_username_is_unique(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('auth_homepage')
     response = response.follow()
     assert 'You have just created an account.' in response.content
+    assert len(mailoutbox) == 2
+    assert 'was successful' in mailoutbox[1].body
 
     # logout
     app.session.flush()
@@ -241,6 +248,8 @@ def test_email_is_unique(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('auth_homepage')
     response = response.follow()
     assert 'You have just created an account.' in response.content
+    assert len(mailoutbox) == 2
+    assert 'was successful' in mailoutbox[1].body
 
     # logout
     app.session.flush()
@@ -253,8 +262,8 @@ def test_email_is_unique(app, db, settings, mailoutbox):
     response = response.follow()
     assert 'testbot@entrouvert.com' in response.content
     assert not 'This email address is already in use.' in response.content
-    assert len(mailoutbox) == 2
-    assert 'You already have' in mailoutbox[1].body
+    assert len(mailoutbox) == 3
+    assert 'You already have' in mailoutbox[2].body
 
 
 def test_attribute_model(app, db, settings, mailoutbox):
@@ -304,6 +313,8 @@ def test_attribute_model(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('auth_homepage')
     response = response.follow()
     assert 'You have just created an account.' in response.content
+    assert len(mailoutbox) == 2
+    assert 'was successful' in mailoutbox[1].body
 
     response = app.get(reverse('account_management'))
 

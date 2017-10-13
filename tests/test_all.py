@@ -605,9 +605,11 @@ class APITest(TestCase):
         token2 = response2.data['token']
         self.assertEqual(len(mail.outbox), outbox_level + 1)
 
+        activation_mail1, activation_mail2 = mail.outbox
+
         # User side - user click on first email
         client = Client()
-        activation_url = get_link_from_mail(mail.outbox[-2])
+        activation_url = get_link_from_mail(activation_mail1)
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         assert utils.make_url(return_url, params={'token': token}) in response.content
@@ -622,7 +624,7 @@ class APITest(TestCase):
 
         # User click on second email
         client = Client()
-        activation_url = get_link_from_mail(mail.outbox[-1])
+        activation_url = get_link_from_mail(activation_mail2)
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(response['Location'],
@@ -727,9 +729,11 @@ class APITest(TestCase):
         self.assertIn('token', response2.data)
         self.assertEqual(len(mail.outbox), outbox_level + 1)
 
+        activation_mail1, activation_mail2 = mail.outbox
+
         # User side - user click on first email
         client = Client()
-        activation_url = get_link_from_mail(mail.outbox[-2])
+        activation_url = get_link_from_mail(activation_mail1)
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         assert utils.make_url(return_url, params={'token': token}) in response.content
@@ -744,7 +748,7 @@ class APITest(TestCase):
 
         # User click on second email
         client = Client()
-        activation_url = get_link_from_mail(mail.outbox[-1])
+        activation_url = get_link_from_mail(activation_mail2)
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.status_code, 200)
