@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-17 17:17+0100\n"
+"POT-Creation-Date: 2017-11-17 18:13+0100\n"
 "PO-Revision-Date: 2017-06-26 22:14+0200\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
@@ -630,20 +630,19 @@ msgstr "Le nouveau mot de passe doit être différent de l'ancien."
 msgid "Password is invalid"
 msgstr "Le mot de passe est invalide"
 
-#: authentic2/registration_backend/views.py:45
+#: authentic2/registration_backend/views.py:42
 msgid "Your activation key is expired"
 msgstr "Votre clé d'activation a expiré"
 
-#: authentic2/registration_backend/views.py:48
+#: authentic2/registration_backend/views.py:45
 msgid "Activation failed"
 msgstr "Échec à l'activation du compte"
 
-#: authentic2/registration_backend/views.py:284
-#: authentic2/registration_backend/views.py:330
+#: authentic2/registration_backend/views.py:327
 msgid "You have just created an account."
 msgstr "Vous venez de créer un compte."
 
-#: authentic2/registration_backend/views.py:366
+#: authentic2/registration_backend/views.py:382
 msgid ""
 "Your account has been scheduled for deletion. You cannot use it anymore."
 msgstr ""
@@ -939,7 +938,7 @@ msgstr "Modifier votre mot de passe"
 msgid "Set your password"
 msgstr "Définir votre mot de passe"
 
-#: authentic2/templates/authentic2/logout.html:41
+#: authentic2/templates/authentic2/logout.html:30
 msgid "Continue logout"
 msgstr "Continuer la déconnexion"
 
@@ -962,6 +961,66 @@ msgstr ""
 #, python-format
 msgid "Password changed on %(host)s for account %(user)s"
 msgstr "Mot de passe du compte %(user)s modifié sur %(host)s"
+
+#: authentic2/templates/authentic2/registration_success_body.html:4
+#, python-format
+msgid ""
+"\n"
+"        <p> Hi %(full_name)s!</p>\n"
+"        <p>Your registration on %(site)s was successful!</p>\n"
+"\n"
+"        <p><a href=\"%(login_url)s\">Login!</a></p>\n"
+"    "
+msgstr ""
+"\n"
+"        <p>Bonjour %(full_name)s !</p>\n"
+"        <p>La création de votre compte sur %(site)s a réussi !</p>\n"
+"\n"
+"        <p><a href=\"%(login_url)s\">Connectez-vous !</a></p>\n"
+"    "
+
+#: authentic2/templates/authentic2/registration_success_body.html:12
+#: authentic2/templates/authentic2/registration_success_body.txt:9
+msgid "Username:"
+msgstr "Identifiant :"
+
+#: authentic2/templates/authentic2/registration_success_body.html:14
+#: authentic2/templates/authentic2/registration_success_body.txt:10
+msgid "Email:"
+msgstr "Courriel :"
+
+#: authentic2/templates/authentic2/registration_success_body.html:16
+#: authentic2/templates/authentic2/registration_success_body.txt:11
+msgid "First name:"
+msgstr "Prénom :"
+
+#: authentic2/templates/authentic2/registration_success_body.html:19
+#: authentic2/templates/authentic2/registration_success_body.txt:12
+msgid "Last name:"
+msgstr "Nom :"
+
+#: authentic2/templates/authentic2/registration_success_body.txt:1
+#, python-format
+msgid ""
+"Hi %(full_name)s !\n"
+"\n"
+"Your registration on %(site)s was successful!\n"
+"\n"
+"You can login on:\n"
+"\n"
+"\t%(login_url)s\n"
+msgstr ""
+" Bonjour %(full_name)s !\n"
+"\n"
+"La création de votre compte sur %(site)s a réussi !\n"
+"\n"
+"Vous pourrez vous connecter sur:\n"
+"\n"
+"\t%(login_url)s\n"
+
+#: authentic2/templates/authentic2/registration_success_subject.txt:1
+msgid "You successfully registered on"
+msgstr "Création de compte réussie sur"
 
 #: authentic2/templates/authentic2/unauthorized.html:5
 msgid "Access denied"
