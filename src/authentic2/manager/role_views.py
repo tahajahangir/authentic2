@@ -130,7 +130,9 @@ class RoleMembersView(views.HideOUColumnMixin, RoleViewMixin, views.BaseSubTable
 
     def get_form_kwargs(self):
         kwargs = super(RoleMembersView, self).get_form_kwargs()
-        kwargs['ou'] = self.object.ou
+        # if role's members can only be from the same OU we filter user based on the role's OU
+        if app_settings.ROLE_MEMBERS_FROM_OU:
+            kwargs['ou'] = self.object.ou
         return kwargs
 
     def get_context_data(self, **kwargs):

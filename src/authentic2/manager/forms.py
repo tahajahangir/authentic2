@@ -2,7 +2,7 @@ import hashlib
 import smtplib
 import logging
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import Q
@@ -96,7 +96,8 @@ class ChooseUserForm(CssClass, forms.Form):
     def __init__(self, *args, **kwargs):
         ou = kwargs.pop('ou', None)
         super(ChooseUserForm, self).__init__(*args, **kwargs)
-        if ou and app_settings.ROLE_MEMBERS_FROM_OU and ou:
+        # Filter user by ou if asked
+        if ou:
             self.fields['user'].queryset = self.fields['user'].queryset.filter(ou=ou)
 
 
@@ -126,10 +127,11 @@ class ChooseUserRoleForm(CssClass, FormWithRequest, forms.Form):
     action = forms.CharField(initial='add', widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
+        ou = kwargs.pop('ou', None)
         super(ChooseUserRoleForm, self).__init__(*args, **kwargs)
-        if app_settings.ROLE_MEMBERS_FROM_OU and user.ou_id:
-            self.fields['role'].queryset = self.fields['role'].queryset.filter(ou_id=user.ou_id)
+        # Filter roles by ou if asked
+        if ou:
+            self.fields['role'].queryset = self.fields['role'].queryset.filter(ou=ou)
 
 
 class ChoosePermissionForm(CssClass, forms.Form):
@@ -404,43 +406,113 @@ class HideOUFieldMixin(object):
 class OUSearchForm(FormWithRequest):
     ou_permission = None
 
-    ou = forms.ModelChoiceField(queryset=get_ou_model().objects,
-                                required=True, label=_('Organizational unit'))
+    ou = forms.ChoiceField(label=_('Organizational unit'), required=False)
 
     def __init__(self, *args, **kwargs):
+        # if there is many OUs:
+        # - show all if show_all_ou is True and user has ou_permission over all OUs or more than
+        #   one,
+        # - show searchable OUs
+        # - show none if user has ou_permission over all OUs
+        # - when no choice is made,
+        #   - show all ou is show_all_ou is True (including None if user has ou_permission over all
+        #   OUs)
+        #   - else show none OU
+        # - when a choice is made apply it
+        # if there is one OU:
+        # - hide ou field
+        self.show_all_ou = kwargs.pop('show_all_ou', True)
         request = kwargs['request']
-        ou_qs = (kwargs.pop('ou_queryset', None)
-                 or request.user.ous_with_perm(self.ou_permission).order_by('name'))
+        self.ou_count = utils.get_ou_count()
+        self.search_all_ous = request.user.has_perm(self.ou_permission)
+        if 'ou_queryset' in kwargs:
+            self.ou_qs = kwargs.pop('ou_queryset')
+        elif self.search_all_ous:
+            self.ou_qs = get_ou_model().objects.all().order_by('name')
+        else:
+            self.ou_qs = request.user.ous_with_perm(self.ou_permission).order_by('name')
+
+        # build choice list
+        choices = []
+        if self.show_all_ou and (len(self.ou_qs) > 1 or self.search_all_ous):
+            choices.append(('all', pgettext('organizational unit', 'All')))
+        for ou in self.ou_qs:
+            choices.append((str(ou.pk), unicode(ou)))
+        if self.search_all_ous:
+            choices.append(('none', pgettext('organizational unit', 'None')))
+
+        # if user does not have ou_permission over all OUs, select user OU as default selected OU
+        # we must modify data as the form must always be valid
+        ou_key = self.add_prefix('ou')
         data = kwargs.setdefault('data', {}).copy()
         kwargs['data'] = data
-        if 'search-ou' not in data:
-            if request.user.ou in ou_qs:
-                data['search-ou'] = request.user.ou.pk
-            elif len(ou_qs):
-                data['search-ou'] = ou_qs[0].pk
+        if ou_key not in data:
+            initial_ou = kwargs.get('initial', {}).get('ou')
+            if initial_ou in [str(ou.pk) for ou in self.ou_qs]:
+                data[ou_key] = initial_ou
+            elif self.show_all_ou and (self.search_all_ous or len(self.ou_qs) > 1):
+                data[ou_key] = 'all'
+            elif request.user.ou in self.ou_qs:
+                data[ou_key] = str(request.user.ou.pk)
+            else:
+                data[ou_key] = str(self.ou_qs[0])
+
         super(OUSearchForm, self).__init__(*args, **kwargs)
-        if not request.user.is_superuser:
-            self.fields['ou'].empty_label = None
-        else:
-            self.fields['ou'].required = False
-        self.fields['ou'].queryset = ou_qs
-        if len(ou_qs) < 2:
+
+        # modify choices after initialization
+        self.fields['ou'].choices = choices
+
+        # if there is only one OU, we remove the field
+        # if there is only one choice, we disable the field
+        if self.ou_count < 1:
+            del self.fields['ou']
+        elif len(choices) < 2:
             self.fields['ou'].widget.attrs['disabled'] = ''
 
     def filter_no_ou(self, qs):
-        if self.request.user.is_superuser:
-            qs = qs.filter(ou__isnull=True)
+        if self.show_all_ou:
+            if self.search_all_ous:
+                return qs
+            else:
+                return qs.filter(ou__in=self.ou_qs)
         else:
             qs = qs.none()
+        return qs
+
+    def clean(self):
+        ou = self.cleaned_data.get('ou')
+        self.cleaned_data['ou_filter'] = ou
+        try:
+            ou_pk = int(ou)
+        except ValueError:
+            self.cleaned_data['ou'] = None
+        else:
+            for ou in self.ou_qs:
+                if ou.pk == ou_pk:
+                    self.cleaned_data['ou'] = ou
+                    break
+            else:
+                self.cleaned_data['ou'] = None
+        return self.cleaned_data
+
+    def filter_by_ou(self, qs):
+        if self.cleaned_data.get('ou_filter'):
+            ou_filter = self.cleaned_data['ou_filter']
+            ou = self.cleaned_data['ou']
+            if ou_filter == 'all':
+                qs = self.filter_no_ou(qs)
+            elif ou_filter == 'none':
+                qs = qs.filter(ou__isnull=True)
+            elif ou:
+                qs = qs.filter(ou=ou)
+        else:
+            qs = self.filter_no_ou(qs)
         return qs
 
     def filter(self, qs):
         if hasattr(super(OUSearchForm, self), 'filter'):
             qs = super(OUSearchForm, self).filter(qs)
-        if self.cleaned_data.get('ou'):
-            qs = qs.filter(ou=self.cleaned_data['ou'])
-        else:
-            qs = self.filter_no_ou(qs)
+        qs = self.filter_by_ou(qs)
         return qs
 
 
@@ -452,15 +524,19 @@ class UserRoleSearchForm(OUSearchForm, ServiceRoleSearchForm):
     ou_permission = 'a2_rbac.change_role'
 
     def __init__(self, *args, **kwargs):
-        # limit ou to target user ou
         request = kwargs['request']
         user = kwargs.pop('user')
-        ou_qs = request.user.ous_with_perm(self.ou_permission).order_by('name')
-        if user.ou_id:
-            ou_qs = ou_qs.filter(id=user.ou_id)
-        else:
-            ou_qs = ou_qs.none()
-        kwargs['ou_queryset'] = ou_qs
+        role_members_from_ou = kwargs.pop('role_members_from_ou')
+
+        if role_members_from_ou:
+            assert user
+            # limit ou to target user ou
+            ou_qs = request.user.ous_with_perm(self.ou_permission).order_by('name')
+            if user.ou_id:
+                ou_qs = ou_qs.filter(id=user.ou_id)
+            else:
+                ou_qs = ou_qs.none()
+            kwargs['ou_queryset'] = ou_qs
         super(UserRoleSearchForm, self).__init__(*args, **kwargs)
 
     def filter_no_ou(self, qs):
@@ -475,13 +551,23 @@ class UserSearchForm(OUSearchForm, CssClass, PrefixFormMixin, FormWithRequest):
         label=_('Free text'),
         required=False)
 
+    def __init__(self, *args, **kwargs):
+        self.minimum_chars = kwargs.pop('minimum_chars', 0)
+        super(UserSearchForm, self).__init__(*args, **kwargs)
+
+    def not_enough_chars(self):
+        text = self.cleaned_data.get('text')
+        return self.minimum_chars and (not text or len(text) < self.minimum_chars)
+
+    def enough_chars(self):
+        text = self.cleaned_data.get('text')
+        return text and len(text) >= self.minimum_chars
+
     def filter(self, qs):
         qs = super(UserSearchForm, self).filter(qs)
-        text = self.cleaned_data.get('text')
-        limit = app_settings.USER_SEARCH_MINIMUM_CHARS
-        if text and len(text) >= limit:
+        if self.enough_chars():
             qs = utils.filter_user(qs, self.cleaned_data['text'])
-        elif limit:
+        elif self.not_enough_chars():
             qs = qs.none()
         return qs
 

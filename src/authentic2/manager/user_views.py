@@ -44,12 +44,15 @@ class UsersView(HideOUColumnMixin, BaseTableView):
             and self.search_form.cleaned_data.get('ou')
 
     def get_queryset(self):
-        return super(UsersView, self).get_queryset().select_related('ou').prefetch_related('roles',
-                                                                      'roles__parent_relation__parent')
+        qs = super(UsersView, self).get_queryset()
+        qs = qs.select_related('ou')
+        qs = qs.prefetch_related('roles', 'roles__parent_relation__parent')
+        return qs
 
     def get_search_form_kwargs(self):
         kwargs = super(UsersView, self).get_search_form_kwargs()
-        kwargs['initial'] = {'ou': self.request.user.ou_id}
+        kwargs['minimum_chars'] = app_settings.USER_SEARCH_MINIMUM_CHARS
+        kwargs['show_all_ou'] = app_settings.SHOW_ALL_OU
         return kwargs
 
     def filter_by_search(self, qs):
@@ -60,13 +63,11 @@ class UsersView(HideOUColumnMixin, BaseTableView):
 
     def get_table(self, **kwargs):
         table = super(UsersView, self).get_table(**kwargs)
-        limit = app_settings.USER_SEARCH_MINIMUM_CHARS
-        text = self.search_form.cleaned_data.get('text')
-        if limit and (not text or len(text) < limit):
+        if self.search_form.not_enough_chars():
             user_qs = self.search_form.filter_by_ou(self.get_queryset())
             table.empty_text = _('Enter at least %(limit)d characters '
                                  '(%(user_count)d users)') % {
-                'limit': limit,
+                'limit': self.search_form.minimum_chars,
                 'user_count': user_qs.count(),
             }
         return table
@@ -327,9 +328,9 @@ class UserRolesView(HideOUColumnMixin, BaseSubTableView):
             return UserRolesTable
 
     def is_ou_specified(self):
-        OU = get_ou_model()
-        return (OU.objects.count() < 2
-                or (self.search_form.is_valid() and self.search_form.cleaned_data.get('ou')))
+        '''Differentiate view of all user's roles from view of roles by OU'''
+        return (self.search_form.is_valid()
+                and self.search_form.cleaned_data.get('ou_filter') != 'all')
 
     def get_table_queryset(self):
         if self.is_ou_specified():
@@ -383,11 +384,18 @@ class UserRolesView(HideOUColumnMixin, BaseSubTableView):
     def get_search_form_kwargs(self):
         kwargs = super(UserRolesView, self).get_search_form_kwargs()
         kwargs['user'] = self.object
+        kwargs['role_members_from_ou'] = app_settings.ROLE_MEMBERS_FROM_OU
+        kwargs['show_all_ou'] = app_settings.SHOW_ALL_OU
+        if self.object.ou_id:
+            initial = kwargs.setdefault('initial', {})
+            initial['ou'] = str(self.object.ou_id)
         return kwargs
 
     def get_form_kwargs(self):
         kwargs = super(UserRolesView, self).get_form_kwargs()
-        kwargs['user'] = self.object
+        # if role members can only be from the same OU, we filter roles based on the user's ou
+        if app_settings.ROLE_MEMBERS_FROM_OU and self.object.ou_id:
+            kwargs['ou'] = self.object.ou
         return kwargs
 
 

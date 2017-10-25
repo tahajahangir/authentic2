@@ -7,7 +7,7 @@
 
 {% block appbar %}
   {{ block.super }}
-   {% if view.can_add and search_form.cleaned_data.ou %}
+    {% if view.can_add and search_form.cleaned_data.ou %}
      <a
         href="{% url "a2-manager-user-add" ou_pk=search_form.cleaned_data.ou.pk %}"
         id="add-user-btn">

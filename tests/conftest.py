@@ -5,12 +5,10 @@ import mock
 
 import django_webtest
 
-from django.core.wsgi import get_wsgi_application
 from django.contrib.auth import get_user_model
 from django_rbac.utils import get_ou_model, get_role_model
 from django.conf import settings
 
-from django.contrib.contenttypes.models import ContentType
 from pytest_django.migrations import DisableMigrations
 
 from authentic2.a2_rbac.utils import get_default_ou
@@ -20,6 +18,7 @@ from authentic2.authentication import OIDCUser
 import utils
 
 Role = get_role_model()
+
 
 @pytest.fixture
 def app(request):
@@ -40,10 +39,12 @@ def ou2(db):
     OU = get_ou_model()
     return OU.objects.create(name='OU2', slug='ou2')
 
+
 @pytest.fixture
 def ou_rando(db):
     OU = get_ou_model()
     return OU.objects.create(name='ou_rando', slug='ou_rando')
+
 
 def create_user(**kwargs):
     User = get_user_model()
@@ -63,15 +64,21 @@ def simple_user(db, ou1):
 
 @pytest.fixture
 def superuser(db):
-    return create_user(username='superuser', first_name='super', last_name='user',
-                       email='superuser@example.net', is_superuser=True, is_staff=True,
-                       is_active=True, ou=get_default_ou())
+    return create_user(username='superuser',
+                       first_name='super', last_name='user',
+                       email='superuser@example.net',
+                       is_superuser=True,
+                       is_staff=True,
+                       is_active=True)
 
 
 @pytest.fixture
 def admin(db):
-    user = create_user(username='admin', first_name='global', last_name='admin',
-                       email='admin@example.net', is_active=True)
+    user = create_user(username='admin',
+                       first_name='global', last_name='admin',
+                       email='admin@example.net',
+                       is_active=True,
+                       ou=get_default_ou())
     Role = get_role_model()
     user.roles.add(Role.objects.get(slug='_a2-manager'))
     return user
@@ -104,52 +111,70 @@ def admin_ou2(db, ou2):
     user.roles.add(ou2.get_admin_role())
     return user
 
+
 @pytest.fixture
 def admin_rando_role(db, role_random, ou_rando):
     user = create_user(username='admin_rando', first_name='admin', last_name='rando',
-           email='admin.rando@weird.com', ou=ou_rando)
+                       email='admin.rando@weird.com', ou=ou_rando)
     user.roles.add(ou_rando.get_admin_role())
     return user
 
-@pytest.fixture(params=['superuser', 'user_ou1', 'user_ou2', 'admin_ou1', 'admin_ou2', 'admin_rando_role', 'member_rando'])
-def user(request, superuser, user_ou1, user_ou2, admin_ou1, admin_ou2, admin_rando_role, member_rando):
+
+@pytest.fixture(params=['superuser', 'user_ou1', 'user_ou2', 'admin_ou1', 'admin_ou2',
+                        'admin_rando_role', 'member_rando'])
+def user(request, superuser, user_ou1, user_ou2, admin_ou1, admin_ou2, admin_rando_role,
+         member_rando):
     return locals().get(request.param)
+
 
 @pytest.fixture
 def logged_app(app, user):
     utils.login(app, user)
     return app
 
+
+@pytest.fixture
+def simple_role(db):
+    return Role.objects.create(name='simple role', slug='simple-role', ou=get_default_ou())
+
+
 @pytest.fixture
 def role_random(db, ou_rando):
-    return Role.objects.create(name='rando', slug='rando',  ou=ou_rando)
+    return Role.objects.create(name='rando', slug='rando', ou=ou_rando)
+
 
 @pytest.fixture
 def role_ou1(db, ou1):
     return Role.objects.create(name='role_ou1', slug='role_ou1', ou=ou1)
 
+
 @pytest.fixture
 def role_ou2(db, ou2):
     return Role.objects.create(name='role_ou2', slug='role_ou2', ou=ou2)
+
 
 @pytest.fixture(params=['role_random', 'role_ou1', 'role_ou2'])
 def role(request, role_random, role_ou1, role_ou2):
     return locals().get(request.param)
 
+
 @pytest.fixture
 def member_rando(db, ou_rando):
-    return create_user(username='test', first_name='test', last_name='test',
-            email='test@test.org', ou=ou_rando)
+    return create_user(username='test', first_name='test', last_name='test', email='test@test.org',
+                       ou=ou_rando)
+
 
 @pytest.fixture
 def member_fake():
-    return type('user', (object,), {'username':'fake', 'uuid': 'fake_uuid'})
+    return type('user', (object,), {'username': 'fake', 'uuid': 'fake_uuid'})
 
-@pytest.fixture(params=['member_rando','member_fake'])
+
+@pytest.fixture(params=['member_rando', 'member_fake'])
 def member(request, member_rando, member_fake):
     return locals().get(request.param)
 
-@pytest.fixture(params=['superuser','admin'])
+
+@pytest.fixture(params=['superuser', 'admin'])
 def superuser_or_admin(request, superuser, admin):
     return locals().get(request.param)
 
