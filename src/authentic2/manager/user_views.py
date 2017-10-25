@@ -63,7 +63,12 @@ class UsersView(HideOUColumnMixin, BaseTableView):
         limit = app_settings.USER_SEARCH_MINIMUM_CHARS
         text = self.search_form.cleaned_data.get('text')
         if limit and (not text or len(text) < limit):
-            table.empty_text = _('Enter at least %d characters') % limit
+            user_qs = self.search_form.filter_by_ou(self.get_queryset())
+            table.empty_text = _('Enter at least %(limit)d characters '
+                                 '(%(user_count)d users)') % {
+                'limit': limit,
+                'user_count': user_qs.count(),
+            }
         return table
 
 users = UsersView.as_view()
