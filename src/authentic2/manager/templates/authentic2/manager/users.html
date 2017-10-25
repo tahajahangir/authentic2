@@ -13,6 +13,13 @@
         id="add-user-btn">
          {% trans "Add user" %}
      </a>
+   {% else %}
+     <a
+        href="#"
+        class="disabled"
+        id="add-user-btn">
+         {% trans "Add user" %}
+     </a>
    {% endif %}
 {% endblock %}
 
