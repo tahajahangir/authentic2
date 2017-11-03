@@ -118,9 +118,17 @@ def test_manager_user_password_reset(app, superuser, simple_user):
     assert str(app.session['_auth_user_id']) == str(simple_user.pk)
 
 
+def test_manager_user_detail_by_uuid(app, superuser, simple_user):
+    url = reverse('a2-manager-user-by-uuid-detail', kwargs={'slug': simple_user.uuid})
+    resp = login(app, superuser, url)
+    assert '<strong>Actions</strong>' in resp.content
+    assert simple_user.first_name.encode('utf-8') in resp.content
+
+
 def test_manager_user_edit_by_uuid(app, superuser, simple_user):
     url = reverse('a2-manager-user-by-uuid-edit', kwargs={'slug': simple_user.uuid})
     resp = login(app, superuser, url)
+    assert '<strong>Actions</strong>' not in resp.content
     assert simple_user.first_name.encode('utf-8') in resp.content
 
 
