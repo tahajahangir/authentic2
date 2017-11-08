@@ -6,6 +6,7 @@ import requests
 from jwcrypto.jwt import JWT
 from jwcrypto.jwk import JWK
 
+from django.core.exceptions import MultipleObjectsReturned
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
@@ -13,6 +14,7 @@ from django.contrib.auth.backends import ModelBackend
 from django_rbac.utils import get_ou_model
 
 from authentic2.crypto import base64url_encode
+from authentic2 import app_settings
 
 from . import models, utils
 
@@ -155,21 +157,9 @@ class OIDCBackend(ModelBackend):
                                    u'user_info (%r)', claim, user_info)
                     return None
 
-        created = False
-        if not user:
-            if provider.strategy == models.OIDCProvider.STRATEGY_CREATE:
-                user = User.objects.create(ou=provider.ou)
-                models.OIDCAccount.objects.create(
-                    provider=provider,
-                    user=user,
-                    sub=id_token.sub)
-                created = True
-            else:
-                logger.warning(u'auth_oidc: cannot create user for sub %r as issuer %r does not'
-                               u' allow it', id_token.sub, id_token.iss)
-                return None
-
         # map claims to attributes or user fields
+        # mapping is done before eventual creation of user as EMAIL_IS_UNIQUE needs to know if the
+        # mapping will provide some mail to us
         attributes = utils.get_attributes()
         attributes_map = {attribute.name: attribute for attribute in attributes}
         ou_map = {ou.slug: ou for ou in get_ou_model().cached()}
@@ -197,6 +187,37 @@ class OIDCBackend(ModelBackend):
                 verified = False
             mappings.append((attribute, value, verified))
 
+        # find en email in mappings
+        email = None
+        for attribute, value, verified in mappings:
+            if attribute == 'email':
+                email = value
+
+        # eventually create a new user or link to an existing one based on email
+        created = False
+        linked = False
+        if not user:
+            if provider.strategy == models.OIDCProvider.STRATEGY_CREATE:
+                try:
+                    if app_settings.A2_EMAIL_IS_UNIQUE and email:
+                        user = User.objects.get(email=email)
+                    elif provider.ou and provider.ou.email_is_unique:
+                        user = User.objects.get(ou=provider.ou, email=email)
+                    linked = True
+                except User.DoesNotExist:
+                    pass
+                if not user:
+                    user = User.objects.create(ou=provider.ou)
+                    created = True
+                models.OIDCAccount.objects.get_or_create(
+                    provider=provider,
+                    user=user,
+                    sub=id_token.sub)
+            else:
+                logger.warning(u'auth_oidc: cannot create user for sub %r as issuer %r does not'
+                               u' allow it', id_token.sub, id_token.iss)
+                return None
+
         # legacy attributes
         for attribute, value, verified in mappings:
             if attribute in ('username', 'first_name', 'last_name', 'email'):
@@ -216,6 +237,9 @@ class OIDCBackend(ModelBackend):
 
         if created:
             logger.info(u'auth_oidc: created user %s for sub %s and issuer %s',
+                        user, id_token.sub, id_token.iss)
+        if linked:
+            logger.info(u'auth_oidc: linked user %s to sub %s and issuer %s',
                         user, id_token.sub, id_token.iss)
         return user
 
