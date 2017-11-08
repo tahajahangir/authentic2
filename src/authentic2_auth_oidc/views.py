@@ -65,12 +65,12 @@ def oidc_login(request, pk, next_url=None, *args, **kwargs):
 @setting_enabled('ENABLE', settings=app_settings)
 def login_initiate(request, *args, **kwargs):
     if 'iss' not in request.GET:
-        return HttpResponseBadRequest('missing iss parameter')
+        return HttpResponseBadRequest('missing iss parameter', content_type='text/plain')
     issuer = request.GET['iss']
     try:
         provider = get_provider_by_issuer(issuer)
     except models.OIDCProvider.DoesNotExist:
-        return HttpResponseBadRequest(u'unknown issuer %s' % issuer)
+        return HttpResponseBadRequest(u'unknown issuer %s' % issuer, content_type='text/plain')
     return oidc_login(request, pk=provider.pk, next_url=request.GET.get('target_link_uri'))
 
 

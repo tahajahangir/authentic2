@@ -66,7 +66,7 @@ class BaseRegistrationView(FormView):
                     max_age=settings.ACCOUNT_ACTIVATION_DAYS * 3600 * 24)
             except (TypeError, ValueError, signing.BadSignature) as e:
                 logger.warning(u'registration_view: invalid token: %s', e)
-                return HttpResponseBadRequest('invalid token')
+                return HttpResponseBadRequest('invalid token', content_type='text/plain')
             if 'ou' in self.token:
                 self.ou = OrganizationalUnit.objects.get(pk=self.token['ou'])
         self.next_url = self.token.pop(REDIRECT_FIELD_NAME, utils.select_next_url(request, None))

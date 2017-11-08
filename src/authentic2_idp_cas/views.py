@@ -49,7 +49,7 @@ class CasMixin(object):
         if service:
             return redirect(request, service)
         else:
-            return HttpResponseBadRequest(content=reason)
+            return HttpResponseBadRequest(content=reason, content_type='text/plain')
 
     def redirect_to_service(self, request, st):
         if not st.valid():

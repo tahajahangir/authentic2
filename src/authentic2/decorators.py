@@ -275,7 +275,7 @@ def json(func):
                 if variable in request.GET:
                     identifier = request.GET[variable]
                     if not re.match(r'^[$a-zA-Z_][0-9a-zA-Z_$]*$', identifier):
-                        return HttpResponseBadRequest('invalid JSONP callback name')
+                        return HttpResponseBadRequest('invalid JSONP callback name', content_type='text/plain')
                     jsonp = True
                     break
         # 1. check origin
@@ -283,13 +283,13 @@ def json(func):
             origin = request.META.get('HTTP_REFERER')
             if not origin:
                 # JSONP is unusable for people without referers
-                return HttpResponseForbidden('missing referrer')
+                return HttpResponseForbidden('missing referrer', content_type='text/plain')
             origin = cors.make_origin(origin)
         else:
             origin = request.META.get('HTTP_ORIGIN')
         if origin:
             if not cors.check_origin(request, origin):
-                return HttpResponseForbidden('bad origin')
+                return HttpResponseForbidden('bad origin', content_type='text/plain')
         # 2. build response
         result = func(request, *args, **kwargs)
         json_str = json_dumps(result)

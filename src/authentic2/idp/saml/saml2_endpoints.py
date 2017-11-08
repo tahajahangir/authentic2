@@ -435,8 +435,8 @@ def sso(request):
     # 1. Process the request, separate POST and GET treatment
     if not message:
         logger.warn("missing query string")
-        return HttpResponseForbidden("A SAMLv2 Single Sign On request need a "
-            "query string")
+        return HttpResponseForbidden('A SAMLv2 Single Sign On request need a query string',
+                                     content_type='text/plain')
     logger.debug('processing sso request %r', message)
     policy = None
     signed = True
@@ -455,7 +455,7 @@ def sso(request):
                           extra={'request': request})
             return HttpResponseBadRequest(_("SAMLv2 Single Sign On: "
                 "invalid message for WebSSO profile with HTTP-Redirect "
-                "binding: %r") % message)
+                "binding: %r") % message, content_type='text/plain')
         except lasso.ProfileInvalidProtocolprofileError:
             log_info_authn_request_details(login)
             message = _("SAMLv2 Single Sign On: the request cannot be "
@@ -463,7 +463,7 @@ def sso(request):
             logger.warning("the request cannot be answered because no "
                 "valid protocol binding could be found")
             login.response.status.statusMessage = 'No valid protocol binding could be found'
-            return HttpResponseBadRequest(message)
+            return HttpResponseBadRequest(message, content_type='text/plain')
         except lasso.ProviderMissingPublicKeyError, e:
             log_info_authn_request_details(login)
             logger.warning('no public key found: %s', e)
@@ -1032,7 +1032,7 @@ def finish_slo(request):
     id = request.GET.get('id')
     if not id:
         logger.error('missing id argument')
-        return HttpResponseBadRequest('finish_slo: missing id argument')
+        return HttpResponseBadRequest('finish_slo: missing id argument', content_type='text/plain')
     try:
         logout_dump, session_key = get_and_delete_key_values(id)
     except KeyError:
@@ -1083,7 +1083,7 @@ def process_logout_request(request, message, binding):
     server = create_server(request)
     logout = lasso.Logout(server)
     if not message:
-        return logout, HttpResponseBadRequest('No message was present')
+        return logout, HttpResponseBadRequest('No message was present', content_type='text/plain')
     logger.debug('slo with binding %s message %s' \
         % (binding, message))
     try:
@@ -1113,7 +1113,7 @@ def process_logout_request(request, message, binding):
     except Exception:
         logger.exception(''
             'slo unknown error when processing a request %s' % message)
-        return logout, HttpResponseBadRequest('Invalid logout request')
+        return logout, HttpResponseBadRequest('Invalid logout request', content_type='text/plain')
     if binding != 'SOAP' and not check_destination(request, logout.request):
         logger.error(''
             'slo wrong or absent destination')
@@ -1235,7 +1235,7 @@ def slo_soap(request):
     message = get_soap_message(request)
     if not message:
         logger.error('no message received')
-        return HttpResponseBadRequest('Bad SOAP message')
+        return HttpResponseBadRequest('Bad SOAP message', content_type='text/plain')
     logger.info('soap message received %s' % message)
     logout, error = process_logout_request(request, message, 'SOAP')
     if error:

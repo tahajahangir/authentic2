@@ -76,11 +76,12 @@ def authorize(request, *args, **kwargs):
         client_id = request.GET['client_id']
         redirect_uri = request.GET['redirect_uri']
     except KeyError as k:
-        return HttpResponseBadRequest('invalid request: missing parameter %s' % k.args[0])
+        return HttpResponseBadRequest('invalid request: missing parameter %s' % k.args[0],
+                                      content_type='text/plain')
     try:
         client = models.OIDCClient.objects.get(client_id=client_id)
     except models.OIDCClient.DoesNotExist:
-        return HttpResponseBadRequest('invalid request: unknown client_id')
+        return HttpResponseBadRequest('invalid request: unknown client_id', content_type='text/plain')
     fragment = client.authorization_flow == client.FLOW_IMPLICIT
 
     state = request.GET.get('state')
