@@ -5,7 +5,7 @@ import json
 
 import requests
 
-from django.utils.timezone import UTC, make_aware
+from django.utils.timezone import UTC
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
@@ -30,7 +30,7 @@ def get_provider(pk):
 @GlobalCache(timeout=TIMEOUT)
 def has_providers():
     from . import models
-    return models.OIDCProvider.objects.all().exists()
+    return models.OIDCProvider.objects.filter(show=True).exists()
 
 
 @GlobalCache(timeout=TIMEOUT)
