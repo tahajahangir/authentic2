@@ -1,5 +1,4 @@
 from django.db.models import Q
-from django.db import transaction
 import logging
 
 from authentic2.compat import get_user_model
@@ -13,9 +12,10 @@ logger = logging.getLogger(__name__)
 class AuthenticationError(Exception):
     pass
 
+
 class SSLBackend:
     """
-    authenticates a client certificate against the records stored 
+    authenticates a client certificate against the records stored
     in ClientCertificate model and looks up the corresponding django user
 
     In all methods, the ssl_info parameter is supposed to be an SSLInfo
@@ -54,17 +54,15 @@ class SSLBackend:
         if app_settings.STRICT_MATCH:
             # compare complete certificate in strict match
             if not ssl_info.cert:
-                logging.error('SSLAuth: strict match required but PEM encoded \
-certificate not found in environment. Check your server \
-settings')
+                logger.error('SSLAuth: strict match required but PEM encoded certificate '
+                             'not found in environment. Check your server settings')
                 return None
             query = Q(cert=ssl_info.cert)
         else:
             query_args = {}
             for key in app_settings.SUBJECT_MATCH_KEYS:
                 if not ssl_info.get(key):
-                    logging.error('SSLAuth: key %s is missing from ssl_info' \
-                        % key)
+                    logger.error(u'SSLAuth: key %s is missing from ssl_info', key)
                     return None
                 query_args[key] = ssl_info.get(key)
 
@@ -74,7 +72,6 @@ settings')
             return cert
         except models.ClientCertificate.DoesNotExist:
             return None
-
 
     def create_user(self, ssl_info):
         """
