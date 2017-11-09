@@ -484,7 +484,7 @@ class OUSearchForm(FormWithRequest):
         self.cleaned_data['ou_filter'] = ou
         try:
             ou_pk = int(ou)
-        except ValueError:
+        except (TypeError, ValueError):
             self.cleaned_data['ou'] = None
         else:
             for ou in self.ou_qs:
