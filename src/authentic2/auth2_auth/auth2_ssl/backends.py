@@ -3,8 +3,12 @@ from django.db import transaction
 import logging
 
 from authentic2.compat import get_user_model
+from authentic2.backends import is_user_authenticable
 
 from . import models, app_settings
+
+logger = logging.getLogger(__name__)
+
 
 class AuthenticationError(Exception):
     pass
@@ -25,6 +29,9 @@ class SSLBackend:
         if cert is None:
             return None
         else:
+            if not is_user_authenticable(cert.user):
+                logger.info('SSLAuth: authentication refused by user filters')
+                return None
             return cert.user
 
     def get_user(self, user_id):
@@ -115,7 +122,6 @@ settings')
         cert.save()
 
         return user
-
 
     def build_user(self, username, ssl_info):
         """

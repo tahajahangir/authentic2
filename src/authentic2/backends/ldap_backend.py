@@ -39,6 +39,9 @@ from authentic2.a2_rbac.utils import get_default_ou
 from authentic2.ldap_utils import FilterFormatter
 from authentic2.utils import utf8_encode
 
+from authentic2.backends import is_user_authenticable
+
+
 DEFAULT_CA_BUNDLE = ''
 
 CA_BUNDLE_PATHS = [
@@ -837,6 +840,10 @@ class LDAPBackend(object):
         self.populate_user(user, dn, username, conn, block, attributes)
         if not user.pk or getattr(user, '_changed', False):
             user.save()
+
+        if not is_user_authenticable(user):
+            return None
+
         user_login_success(user.get_username())
         return user
 

@@ -173,6 +173,14 @@ default_settings = dict(
     A2_API_USERS_REQUIRED_FIELDS=Setting(
         default=(),
         definition='List of fields to require on user\'s API, override other settings'),
+    A2_USER_FILTER=Setting(
+        default={},
+        definition='Filters (as in QuerySet.filter() to apply to User queryset before '
+                   'authentication'),
+    A2_USER_EXCLUDE=Setting(
+        default={},
+        definition='Exclusion filter (as in QuerySet.exclude() to apply to User queryset before '
+                   'authentication'),
 )
 
 app_settings = AppSettings(default_settings)

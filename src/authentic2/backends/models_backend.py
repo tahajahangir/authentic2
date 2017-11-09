@@ -7,11 +7,15 @@ from django.contrib.auth.backends import ModelBackend
 from .. import app_settings
 from authentic2.user_login_failure import user_login_success, user_login_failure
 
+from authentic2.backends import get_user_queryset
+
+
 def upn(username, realm):
     '''Build an UPN from a username and a realm'''
     return u'{0}@{1}'.format(username, realm)
 
 PROXY_USER_MODEL = None
+
 
 class ModelBackend(ModelBackend):
     """
@@ -51,7 +55,7 @@ class ModelBackend(ModelBackend):
         if not username:
             return
         query = self.get_query(username, realm)
-        users = UserModel.objects.filter(query)
+        users = get_user_queryset().filter(query)
         # order by username to make username without realm come before usernames with realms
         # i.e. "toto" should come before "toto@example.com"
         users = users.order_by('-is_active', UserModel.USERNAME_FIELD)
