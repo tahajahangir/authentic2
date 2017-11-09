@@ -47,8 +47,8 @@ Depends: ${misc:Depends}, adduser,
     python-psycopg2,
     gunicorn, dbconfig-common,
     debconf | debconf-2.0, ucf
-Recommends: postgresql-client, postgresql
-Suggests: nginx
+Recommends: postgresql-client
+Suggests: nginx, postgresql
 Description: Versatile identity server Python module
  Authentic is a versatile identity provider aiming to address a broad
  range of needs, from simple to complex setups; it has support for many
@@ -66,8 +66,8 @@ Depends: ${misc:Depends}, adduser,
     python-hobo,
     gunicorn, dbconfig-common,
     debconf | debconf-2.0, ucf
-Recommends: postgresql-client, postgresql
-Suggests: nginx
+Recommends: postgresql-client
+Suggests: nginx, postgresql
 Description: Multitenant versatile identity server Python module
  Authentic is a versatile identity provider aiming to address a broad
  range of needs, from simple to complex setups; it has support for many
