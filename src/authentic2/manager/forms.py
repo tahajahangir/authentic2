@@ -455,7 +455,7 @@ class OUSearchForm(FormWithRequest):
             elif request.user.ou in self.ou_qs:
                 data[ou_key] = str(request.user.ou.pk)
             else:
-                data[ou_key] = str(self.ou_qs[0])
+                data[ou_key] = str(self.ou_qs[0].pk)
 
         super(OUSearchForm, self).__init__(*args, **kwargs)
 
