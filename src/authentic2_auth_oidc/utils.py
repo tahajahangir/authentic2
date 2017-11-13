@@ -13,7 +13,17 @@ from authentic2.decorators import GlobalCache
 from authentic2.models import Attribute
 from authentic2.a2_rbac.utils import get_default_ou
 
+from . import models
+
 TIMEOUT = 1
+
+
+@GlobalCache(timeout=5, kwargs=['shown'])
+def get_providers(shown=None):
+    qs = models.OIDCProvider.objects.all()
+    if shown is not None:
+        qs = qs.filter(show=shown)
+    return qs
 
 
 @GlobalCache(timeout=TIMEOUT)

@@ -16,9 +16,9 @@ from django.utils.timezone import now
 
 from django_rbac.utils import get_ou_model
 
-from authentic2_auth_oidc.utils import base64url_decode, parse_id_token, IDToken
+from authentic2_auth_oidc.utils import (base64url_decode, parse_id_token, IDToken, get_providers,
+                                        has_providers)
 from authentic2_auth_oidc.models import OIDCProvider, OIDCClaimMapping
-from authentic2_auth_oidc.auth_frontends import get_providers
 from authentic2.models import AttributeValue
 from authentic2.utils import timestamp_from_datetime
 from authentic2.a2_rbac.utils import get_default_ou
@@ -336,6 +336,7 @@ def test_sso(app, caplog, code, oidc_provider, oidc_provider_jwkset, login_url, 
 def test_show_on_login_page(app, oidc_provider):
     # we have a 5 seconds cache on list of providers, we have to work around it
     get_providers.cache.clear()
+    has_providers.cache.clear()
     response = app.get('/login/')
     assert 'oidc-a-oididp' in response.content
 
@@ -345,6 +346,7 @@ def test_show_on_login_page(app, oidc_provider):
 
     # we have a 5 seconds cache on list of providers, we have to work around it
     get_providers.cache.clear()
+    has_providers.cache.clear()
     response = app.get('/login/')
     assert 'oidc-a-oididp' not in response.content
 
@@ -353,6 +355,7 @@ def test_strategy_find_uuid(app, caplog, code, oidc_provider, oidc_provider_jwks
                             login_callback_url, simple_user):
 
     get_providers.cache.clear()
+    has_providers.cache.clear()
     # no mapping please
     OIDCClaimMapping.objects.all().delete()
     oidc_provider.strategy = oidc_provider.STRATEGY_FIND_UUID
