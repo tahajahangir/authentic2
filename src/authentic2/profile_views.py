@@ -8,7 +8,7 @@ from django.utils.http import urlsafe_base64_decode
 
 from .compat import default_token_generator
 from .registration_backend.forms import SetPasswordForm
-from . import cbv, profile_forms, utils
+from . import cbv, profile_forms, utils, hooks
 
 
 class PasswordResetView(cbv.NextURLViewMixin, FormView):
@@ -100,6 +100,8 @@ class PasswordResetConfirmView(cbv.RedirectToNextURLViewMixin, FormView):
         # Changing password by mail validate the email
         form.user.email_verified = True
         form.save()
+        hooks.call_hooks('event', name='password-reset-confirm', user=form.user, token=self.token,
+                         form=form)
         logging.getLogger(__name__).info(u'user %s resetted its password with '
                                          'token %r...', self.user,
                                          self.token[:9])

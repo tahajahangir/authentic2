@@ -315,6 +315,8 @@ class OtherActionsMixin(object):
                     method = getattr(self, 'action_' + action.name, None)
                     if method:
                         response = method(request, *args, **kwargs)
+                hooks.call_hooks('event', name='manager-action', user=self.request.user,
+                                 action=action, instance=self.object)
                 if response:
                     return response
                 self.request.method = 'GET'

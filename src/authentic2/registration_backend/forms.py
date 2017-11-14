@@ -19,7 +19,7 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 
-from .. import app_settings, compat, forms, utils, validators, models, middleware
+from .. import app_settings, compat, forms, utils, validators, models, middleware, hooks
 from authentic2.a2_rbac.models import OrganizationalUnit
 
 User = compat.get_user_model()

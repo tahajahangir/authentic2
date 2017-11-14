@@ -77,6 +77,7 @@ from authentic2.utils import (make_url, get_backends as get_idp_backends,
         get_username, login_require, find_authentication_event, datetime_to_xs_datetime)
 from authentic2 import utils
 from authentic2.attributes_ng.engine import get_attributes
+from authentic2 import hooks
 
 from . import app_settings
 
@@ -503,6 +504,7 @@ def sso(request):
                 verify_hint = lasso.PROFILE_SIGNATURE_VERIFY_HINT_IGNORE
                 signed = False
             login.setSignatureVerifyHint(verify_hint)
+
     if signed and not check_destination(request, login.request):
         logger.warning('wrong or absent destination')
         return return_login_error(request, login,
@@ -682,6 +684,8 @@ def sso_after_process_request(request, login, consent_obtained=False,
         liberty_provider__entity_id=login.remoteProviderId).liberty_provider
     service.authorize(request.user)
 
+    hooks.call_hooks('event', name='sso-request', idp='saml2', service=service)
+
     #Do not ask consent for federation if a transient nameID is provided
     transient = False
     if nid_format == 'transient':
@@ -846,6 +850,7 @@ def sso_after_process_request(request, login, consent_obtained=False,
 
     build_assertion(request, login, nid_format=nid_format)
     add_attributes(request, login.assertion, provider)
+    hooks.call_hooks('event', name='sso-success', idp='saml2', service=service, user=request.user)
     return finish_sso(request, login, user=user, return_profile=return_profile)
 
 

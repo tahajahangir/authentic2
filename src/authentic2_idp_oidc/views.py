@@ -19,6 +19,7 @@ from authentic2.decorators import setting_enabled
 from authentic2.utils import (login_require, redirect, timestamp_from_datetime,
                               last_authentication_event)
 from authentic2.views import logout as a2_logout
+from authentic2 import hooks
 
 from . import app_settings, models, utils
 
@@ -146,6 +147,7 @@ def authorize(request, *args, **kwargs):
                                    state=state,
                                    fragment=fragment)
 
+    hooks.call_hooks('event', name='sso-request', idp='oidc', service=client)
     # authentication canceled by user
     if 'cancel' in request.GET:
         logger.info(u'authentication canceled for service %s', client.name)
@@ -251,7 +253,7 @@ def authorize(request, *args, **kwargs):
         }
         if state is not None:
             params['state'] = state
-        return redirect(request, redirect_uri, params=params, resolve=False)
+        response = redirect(request, redirect_uri, params=params, resolve=False)
     else:
         # FIXME: we should probably factorize this part with the token endpoint similar code
         need_access_token = 'token' in response_type.split()
@@ -291,7 +293,9 @@ def authorize(request, *args, **kwargs):
                 'expires_in': expires_in,
             })
         # query is transfered through the hashtag
-        return redirect(request, redirect_uri + '#%s' % urlencode(params), resolve=False)
+        response = redirect(request, redirect_uri + '#%s' % urlencode(params), resolve=False)
+    hooks.call_hooks('event', name='sso-success', idp='oidc', service=client, user=request.user)
+    return response
 
 
 def authenticate_client(request, client=None):

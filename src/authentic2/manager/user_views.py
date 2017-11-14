@@ -120,6 +120,12 @@ class UserAddView(BaseAddView):
         kwargs['ou'] = self.ou
         return super(UserAddView, self).get_context_data(**kwargs)
 
+    def form_valid(self, form):
+        response = super(UserAddView, self).form_valid(form)
+        hooks.call_hooks('event', name='manager-add-user', user=self.request.user,
+                         instance=form.instance, form=form)
+        return response
+
 user_add = UserAddView.as_view()
 
 
@@ -258,6 +264,12 @@ class UserEditView(OtherActionsMixin, ActionMixin, BaseEditView):
             fields.append('is_superuser')
         return fields
 
+    def form_valid(self, form):
+        response = super(UserEditView, self).form_valid(form)
+        hooks.call_hooks('event', name='manager-edit-user', user=self.request.user,
+                         instance=form.instance, form=form)
+        return response
+
 user_edit = UserEditView.as_view()
 
 
@@ -295,6 +307,12 @@ class UserChangePasswordView(BaseEditView):
             return ugettext('New password sent to %s') % self.object.email
         else:
             return ugettext('New password set')
+
+    def form_valid(self, form):
+        response = super(UserChangePasswordView, self).form_valid(form)
+        hooks.call_hooks('event', name='manager-change-password', user=self.request.user,
+                         instance=form.instance, form=form)
+        return response
 
 
 user_change_password = UserChangePasswordView.as_view()
@@ -375,8 +393,12 @@ class UserRolesView(HideOUColumnMixin, BaseSubTableView):
                         .format(user=user, role=role))
                 else:
                     user.roles.add(role)
+                    hooks.call_hooks('event', name='manager-add-role-member',
+                                     user=self.request.user, role=role, member=user)
             elif action == 'remove':
                 user.roles.remove(role)
+                hooks.call_hooks('event', name='manager-remove-role-member', user=self.request.user,
+                                 role=role, member=user)
         else:
             messages.warning(self.request, _('You are not authorized'))
         return super(UserRolesView, self).form_valid(form)
@@ -407,5 +429,11 @@ class UserDeleteView(BaseDeleteView):
 
     def get_success_url(self):
         return reverse('a2-manager-users')
+
+    def form_valid(self, form):
+        response = super(UserDeleteView, self).form_valid(form)
+        hooks.call_hooks('event', name='manager-delete-user', user=self.request.user,
+                         instance=form.instance, form=form)
+        return response
 
 user_delete = UserDeleteView.as_view()

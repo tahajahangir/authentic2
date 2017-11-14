@@ -117,6 +117,11 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
             return utils.redirect(request, 'account_management')
         return super(EditProfile, self).post(request, *args, **kwargs)
 
+    def form_valid(self, form):
+        response = super(EditProfile, self).form_valid(form)
+        hooks.call_hooks('event', name='edit-profile', user=self.request.user, form=form)
+        return response
+
 edit_profile = decorators.setting_enabled('A2_PROFILE_CAN_EDIT_PROFILE')(
     login_required(EditProfile.as_view()))
 
@@ -189,6 +194,7 @@ class EmailChangeView(cbv.TemplateNamesMixin, FormView):
     def form_valid(self, form):
         email = form.cleaned_data['email']
         self.send_email_change_email(self.request, self.request.user, email)
+        hooks.call_hooks('event', name='change-email', user=self.request.user, email=email)
         messages.info(
             self.request,
             _('Your request for changing your email '
@@ -219,6 +225,7 @@ class EmailChangeVerifyView(TemplateView):
                 logging.getLogger(__name__).info('user %s changed its email '
                                                  'from %s to %s', user,
                                                  old_email, email)
+                hooks.call_hooks('event', name='change-email-confirm', user=user, email=email)
             except signing.SignatureExpired:
                 messages.error(request, _('your request for changing your email is too '
                     'old, try again'))

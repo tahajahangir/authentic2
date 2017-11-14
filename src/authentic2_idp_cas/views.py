@@ -15,6 +15,7 @@ from authentic2.utils import (get_user_from_session_key, make_url,
 from authentic2.attributes_ng.engine import get_attributes
 from authentic2.constants import NONCE_FIELD_NAME
 from authentic2.views import logout as logout_view
+from authentic2 import hooks
 
 from models import Ticket, Service
 from utils import make_id
@@ -103,6 +104,8 @@ class LoginView(CasMixin, View):
             return self.failure(request, service, 'renew and gateway cannot be requested '
                     'at the same time')
 
+        hooks.call_hooks('event', name='sso-request', service=model)
+
         st = Ticket()
         st.service = model
         # Limit size of return URL to an acceptable length
@@ -117,6 +120,7 @@ class LoginView(CasMixin, View):
         self.validate_ticket(request, st)
         if st.valid():
             st.save()
+            hooks.call_hooks('event', name='sso-success', service=model, user=request.user)
             return redirect(request, service, params={'ticket': st.ticket_id})
         self.logger.debug('gateway requested but no session is open')
         return redirect(request, service)
@@ -140,7 +144,7 @@ class ContinueView(CasMixin, View):
         if not ticket_id.startswith(SERVICE_TICKET_PREFIX):
             return self.failure(request, service, 'invalid ticket id')
         try:
-            st = Ticket.objects.get(ticket_id=ticket_id)
+            st = Ticket.objects.select_related('service', 'user').get(ticket_id=ticket_id)
         except Ticket.DoesNotExist:
             return self.failure(request, service, 'unknown ticket id')
         # no valid ticket should be submitted to continue, delete them !
@@ -168,6 +172,7 @@ class ContinueView(CasMixin, View):
 
         self.validate_ticket(request, st)
         if st.valid():
+            hooks.call_hooks('event', name='sso-success', service=st.service, user=st.user)
             return redirect(request, service, params={'ticket': st.ticket_id})
         # Should not happen 
         assert False

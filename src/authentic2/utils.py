@@ -395,6 +395,8 @@ def last_authentication_event(session):
 def login(request, user, how, **kwargs):
     '''Login a user model, record the authentication event and redirect to next
        URL or settings.LOGIN_REDIRECT_URL.'''
+    from . import hooks
+
     last_login = user.last_login
     auth_login(request, user)
     if hasattr(user, 'init_to_session'):
@@ -403,6 +405,7 @@ def login(request, user, how, **kwargs):
         request.session[constants.LAST_LOGIN_SESSION_KEY] = \
             localize(to_current_timezone(last_login), True)
     record_authentication_event(request, how)
+    hooks.call_hooks('event', name='login', user=user, how=how)
     return continue_to_next_url(request, **kwargs)
 
 

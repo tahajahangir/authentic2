@@ -269,6 +269,8 @@ class RegistrationCompletionView(CreateView):
             form = form_class(**form_kwargs)
             if form.is_valid():
                 user = form.save()
+                hooks.call_hooks('event', name='registration', user=user, form=form, view=self,
+                                 token=self.request.token)
                 simulate_authentication(request, user, method='email')
                 messages.info(self.request, _('You have just created an account.'))
                 return redirect(request, self.get_success_url())
@@ -312,6 +314,8 @@ class RegistrationCompletionView(CreateView):
             self.request.session['registered_email'] = form.cleaned_data['email']
             return redirect(self.request, 'registration_complete')
         ret = super(RegistrationCompletionView, self).form_valid(form)
+        hooks.call_hooks('event', name='registration', user=self.object, view=self, form=form,
+                         token=self.request.token)
         simulate_authentication(self.request, self.object, method='email')
         messages.info(self.request, _('You have just created an account.'))
         return ret
@@ -348,6 +352,7 @@ class DeleteView(FormView):
         self.request.user.email_verified = False
         self.request.user.save(update_fields=['email', 'email_verified'])
         logger.info(u'deletion of account %s requested', self.request.user)
+        hooks.call_hooks('event', name='delete-account', user=self.request.user)
         messages.info(self.request, _('Your account has been scheduled for deletion. You cannot use it anymore.'))
         return super(DeleteView, self).form_valid(form)
 

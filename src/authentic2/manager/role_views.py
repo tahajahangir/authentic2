@@ -16,6 +16,7 @@ from django_rbac.utils import get_role_model, get_permission_model, \
 
 from authentic2.decorators import setting_enabled
 from authentic2.utils import redirect
+from authentic2 import hooks
 
 from . import tables, views, resources, forms, app_settings
 
@@ -69,6 +70,13 @@ class RoleAddView(views.BaseAddView):
     def get_form_class(self):
         return forms.get_role_form_class()
 
+    def form_valid(self, form):
+        response = super(RoleAddView, self).form_valid(form)
+        hooks.call_hooks('event', name='manager-add-role', user=self.request.user,
+                         instance=form.instance, form=form)
+        return response
+
+
 add = RoleAddView.as_view()
 
 
@@ -88,12 +96,19 @@ class RoleViewMixin(RolesMixin):
         kwargs['ROLES_SHOW_PERMISSIONS'] = app_settings.ROLES_SHOW_PERMISSIONS
         return super(RoleViewMixin, self).get_context_data(**kwargs)
 
+
 class RoleEditView(RoleViewMixin, views.BaseEditView):
     template_name = 'authentic2/manager/role_edit.html'
     title = _('Edit role description')
 
     def get_form_class(self):
         return forms.get_role_form_class()
+
+    def form_valid(self, form):
+        response = super(RoleEditView, self).form_valid(form)
+        hooks.call_hooks('event', name='manager-edit-role', user=self.request.user,
+                         instance=form.instance, form=form)
+        return response
 
 edit = RoleEditView.as_view()
 
@@ -118,12 +133,18 @@ class RoleMembersView(views.HideOUColumnMixin, RoleViewMixin, views.BaseSubTable
         if self.can_change:
             if action == 'add':
                 if self.object.members.filter(pk=user.pk).exists():
-                    messages.warning(self.request, _('User already in this '
-                                     'role.'))
+                    messages.warning(self.request, _('User already in this role.'))
                 else:
                     self.object.members.add(user)
+                    hooks.call_hooks('event', name='manager-add-role-member',
+                                     user=self.request.user, role=self.object, member=user)
             elif action == 'remove':
-                self.object.members.remove(user)
+                if not self.object.members.filter(pk=user.pk).exists():
+                    messages.warning(self.request, _('User was not in this role.'))
+                else:
+                    self.object.members.remove(user)
+                    hooks.call_hooks('event', name='manager-remove-role-member',
+                                     user=self.request.user, role=self.object, member=user)
         else:
             messages.warning(self.request, _('You are not authorized'))
         return super(RoleMembersView, self).form_valid(form)
@@ -174,7 +195,11 @@ class RoleChildrenView(views.HideOUColumnMixin, RoleViewMixin, views.BaseSubTabl
                                      'child of this role.') % role.name)
                 else:
                     self.object.add_child(role)
+                    hooks.call_hooks('event', name='manager-add-child-role',
+                                     user=self.request.user, parent=self.object, child=role)
             elif action == 'remove':
+                hooks.call_hooks('event', name='manager-remove-child-role',
+                                 user=self.request.user, parent=self.object, child=role)
                 self.object.remove_child(role)
         else:
             messages.warning(self.request, _('You are not authorized'))
@@ -191,6 +216,12 @@ class RoleDeleteView(RoleViewMixin, views.BaseDeleteView):
 
     def get_success_url(self):
         return reverse('a2-manager-roles')
+
+    def form_valid(self, form):
+        response = super(RoleDeleteView, self).form_valid(form)
+        hooks.call_hooks('event', name='manager-delete-role', user=self.request.user,
+                         role=form.instance)
+        return response
 
 delete = RoleDeleteView.as_view()
 
@@ -211,22 +242,27 @@ class RolePermissionsView(RoleViewMixin, views.BaseSubTableView):
             ou = form.cleaned_data.get('ou')
             target = form.cleaned_data.get('target')
             action = form.cleaned_data.get('action')
+            Permission = get_permission_model()
             if action == 'add' and operation and target:
-                Permission = get_permission_model()
                 perm, created = Permission.objects \
                     .get_or_create(operation=operation, ou=ou,
                                    target_ct=ContentType.objects.get_for_model(
                                        target),
                                    target_id=target.pk)
                 self.object.permissions.add(perm)
+                hooks.call_hooks('event', name='manager-add-permission', user=self.request.user,
+                                 role=self.object, permission=perm)
             elif action == 'remove':
                 try:
                     permission_id = int(self.request.POST.get('permission', ''))
-                except ValueError:
+                    perm = Permission.objects.get(id=permission_id)
+                except (ValueError, Permission.DoesNotExist):
                     pass
                 else:
-                    self.object.permissions.through.objects.filter(
-                        permission_id=permission_id).delete()
+                    if self.objects.permissions.filter(id=permission_id).exists():
+                        self.object.permissions.remove(perm)
+                        hooks.call_hooks('event', name='manager-remove-permission',
+                                         user=self.request.user, role=self.object, permission=perm)
         else:
             messages.warning(self.request, _('You are not authorized'))
         return super(RolePermissionsView, self).form_valid(form)
@@ -259,8 +295,11 @@ class RoleAddChildView(views.AjaxFormViewMixin, views.TitleMixin,
         return super(RoleAddChildView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        parent = self.get_object()
         for role in form.cleaned_data['roles']:
-            self.get_object().add_child(role)
+            parent.add_child(role)
+            hooks.call_hooks('event', name='manager-add-child-role', user=self.request.user,
+                             parent=parent, child=role)
         return super(RoleAddChildView, self).form_valid(form)
 
 add_child = RoleAddChildView.as_view()
@@ -281,8 +320,11 @@ class RoleAddParentView(views.AjaxFormViewMixin, views.TitleMixin,
         return super(RoleAddParentView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        child = self.get_object()
         for role in form.cleaned_data['roles']:
-            self.get_object().add_parent(role)
+            child.add_parent(role)
+            hooks.call_hooks('event', name='manager-add-child-role', user=self.request.user,
+                             parent=role, child=child)
         return super(RoleAddParentView, self).form_valid(form)
 
 add_parent = RoleAddParentView.as_view()
@@ -308,6 +350,8 @@ class RoleRemoveChildView(views.AjaxFormViewMixin, SingleObjectMixin,
 
     def post(self, request, *args, **kwargs):
         self.object.remove_child(self.child)
+        hooks.call_hooks('event', name='manager-remove-child-role', user=self.request.user,
+                         parent=self.object, child=self.child)
         return redirect(self.request, self.success_url)
 
 remove_child = RoleRemoveChildView.as_view()
@@ -336,6 +380,8 @@ class RoleRemoveParentView(views.AjaxFormViewMixin, SingleObjectMixin,
         if not self.request.user.has_perm('a2_rbac.change_role', self.parent):
             raise PermissionDenied
         self.object.remove_parent(self.parent)
+        hooks.call_hooks('event', name='manager-remove-child-role', user=self.request.user,
+                         parent=self.parent, child=self.object)
         return redirect(self.request, self.success_url)
 
 remove_parent = RoleRemoveParentView.as_view()
@@ -355,8 +401,11 @@ class RoleAddAdminRoleView(views.AjaxFormViewMixin, views.TitleMixin,
         return super(RoleAddAdminRoleView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        administered_role = self.get_object()
         for role in form.cleaned_data['roles']:
-            self.get_object().get_admin_role().add_child(role)
+            administered_role.get_admin_role().add_child(role)
+            hooks.call_hooks('event', name='manager-add-admin-role', user=self.request.user,
+                             role=administered_role, admin_role=role)
         return super(RoleAddAdminRoleView, self).form_valid(form)
 
 add_admin_role = RoleAddAdminRoleView.as_view()
@@ -382,6 +431,8 @@ class RoleRemoveAdminRoleView(views.TitleMixin, views.AjaxFormViewMixin, SingleO
 
     def post(self, request, *args, **kwargs):
         self.object.get_admin_role().remove_child(self.child)
+        hooks.call_hooks('event', name='manager-remove-admin-role',
+                         user=self.request.user, role=self.object, admin_role=self.child)
         return redirect(self.request, self.success_url)
 
 remove_admin_role = RoleRemoveAdminRoleView.as_view()
@@ -401,8 +452,11 @@ class RoleAddAdminUserView(views.AjaxFormViewMixin, views.TitleMixin,
         return super(RoleAddAdminUserView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        administered_role = self.get_object()
         for user in form.cleaned_data['users']:
-            self.get_object().get_admin_role().members.add(user)
+            administered_role.get_admin_role().members.add(user)
+            hooks.call_hooks('event', name='manager-add-admin-role-user', user=self.request.user,
+                             role=administered_role, admin=user)
         return super(RoleAddAdminUserView, self).form_valid(form)
 
 add_admin_user = RoleAddAdminUserView.as_view()
@@ -428,6 +482,8 @@ class RoleRemoveAdminUserView(views.TitleMixin, views.AjaxFormViewMixin, SingleO
 
     def post(self, request, *args, **kwargs):
         self.object.get_admin_role().members.remove(self.user)
+        hooks.call_hooks('event', name='remove-remove-admin-role-user', user=self.request.user,
+                         role=self.object, admin=self.user)
         return redirect(self.request, self.success_url)
 
 remove_admin_user = RoleRemoveAdminUserView.as_view()
