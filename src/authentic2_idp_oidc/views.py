@@ -271,7 +271,6 @@ def authorize(request, *args, **kwargs):
         id_token = utils.create_user_info(client, request.user, scopes, id_token=True)
         id_token.update({
             'iss': request.build_absolute_uri('/'),
-            'sub': utils.make_sub(client, request.user),
             'aud': client.client_id,
             'exp': timestamp_from_datetime(
                 start + datetime.timedelta(seconds=30)),
