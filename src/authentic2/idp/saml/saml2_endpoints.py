@@ -951,7 +951,8 @@ def artifact(request):
         logger.debug('resolve response %s' % login.msgBody)
     except:
         logger.exception('resolve error')
-        return soap_fault(faultcode='soap:Server',
+        return soap_fault(request,
+                faultcode='soap:Server',
                 faultstring='Internal Server Error')
     logger.info('treatment ended, return answer')
     return return_saml_soap_response(login)
