@@ -120,12 +120,20 @@ class UsernameValidator(RegexValidator):
 
 
 def __password_help_text_helper():
-    if app_settings.A2_PASSWORD_POLICY_MIN_LENGTH:
-        yield ugettext('Your password must contain at least %(min_length)d characters.') % {'min_length': app_settings.A2_PASSWORD_POLICY_MIN_LENGTH}
-    if app_settings.A2_PASSWORD_POLICY_MIN_CLASSES:
-        yield ugettext('Your password must contain characters from at least %(min_classes)d '
-                'classes among: lowercase letters, uppercase letters, digits, '
-                'and punctuations') % {'min_classes': app_settings.A2_PASSWORD_POLICY_MIN_CLASSES}
+    if app_settings.A2_PASSWORD_POLICY_MIN_LENGTH and \
+            app_settings.A2_PASSWORD_POLICY_MIN_CLASSES:
+        yield ugettext('Your password must contain at least %(min_length)d characters from at '
+                'least %(min_classes)d classes among: lowercase letters, uppercase letters, '
+                'digits and punctuations.') % {
+                        'min_length': app_settings.A2_PASSWORD_POLICY_MIN_LENGTH,
+                        'min_classes': app_settings.A2_PASSWORD_POLICY_MIN_CLASSES}
+    else:
+        if app_settings.A2_PASSWORD_POLICY_MIN_LENGTH:
+            yield ugettext('Your password must contain at least %(min_length)d characters.') % {'min_length': app_settings.A2_PASSWORD_POLICY_MIN_LENGTH}
+        if app_settings.A2_PASSWORD_POLICY_MIN_CLASSES:
+            yield ugettext('Your password must contain characters from at least %(min_classes)d '
+                    'classes among: lowercase letters, uppercase letters, digits '
+                    'and punctuations.') % {'min_classes': app_settings.A2_PASSWORD_POLICY_MIN_CLASSES}
     if app_settings.A2_PASSWORD_POLICY_REGEX:
         yield ugettext(app_settings.A2_PASSWORD_POLICY_REGEX_ERROR_MSG) or \
                 ugettext('Your password must match the regular expression: '
