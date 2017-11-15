@@ -235,3 +235,32 @@ def oidc_client(db, ou1):
 def api_user(request, oidc_client, superuser, user_ou1, user_ou2,
          admin_ou1, admin_ou2, admin_rando_role, member_rando):
     return locals().get(request.param)
+
+
+class AllHook(object):
+    def __init__(self):
+        self.calls = {}
+        from authentic2 import hooks
+        hooks.get_hooks.cache.clear()
+
+    def __call__(self, hook_name, *args, **kwargs):
+        calls = self.calls.setdefault(hook_name, [])
+        calls.append({'args': args, 'kwargs': kwargs})
+
+    def __getattr__(self, name):
+        return self.calls.get(name, [])
+
+    def clear(self):
+        self.calls = []
+
+
+@pytest.fixture
+def hooks(settings):
+    if hasattr(settings, 'A2_HOOKS'):
+        hooks = settings.A2_HOOKS
+    else:
+        hooks = settings.A2_HOOKS = {}
+    hook = hooks['__all__'] = AllHook()
+    yield hook
+    hook.clear()
+    del settings.A2_HOOKS['__all__']

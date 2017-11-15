@@ -1,6 +1,7 @@
 import logging
 
 from django.apps import apps
+from django.conf import settings
 
 from . import decorators
 
@@ -17,6 +18,13 @@ def get_hooks(hook_name):
         name = 'a2_hook_' + hook_name
         if hasattr(app, name):
             hooks.append(getattr(app, name))
+    if hasattr(settings, 'A2_HOOKS') and hasattr(settings.A2_HOOKS, 'items'):
+        v = settings.A2_HOOKS.get(hook_name)
+        if callable(v):
+            hooks.append(v)
+        v = settings.A2_HOOKS.get('__all__')
+        if callable(v):
+            hooks.append(lambda *args, **kwargs: v(hook_name, *args, **kwargs))
     hooks.sort(key=lambda hook: getattr(hook, 'order', 0))
     return hooks
 
