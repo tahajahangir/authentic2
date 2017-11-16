@@ -13,7 +13,8 @@
     var duration = (until - now) / 1000;
     if (duration < 1) {
        /* remove the container */
-       span.parentNode.parentNoderemoveChild(span.parentNode);
+       span.parentNode.parentNode.removeChild(span.parentNode);
+       clearInterval(timeout_id);
     } else {
        /* decrease seconds before retry */
        span.textContent = Math.floor(duration).toString();

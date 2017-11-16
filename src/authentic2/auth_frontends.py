@@ -38,7 +38,7 @@ class LoginPasswordBackend(object):
         }
         seconds_to_wait = exponential_backoff.seconds_to_wait(request)
         reset = True
-        if is_post and not seconds_to_wait:
+        if is_post and not seconds_to_wait > 2:
             utils.csrf_token_check(request, form)
             reset = False
             if form.is_valid():
@@ -51,7 +51,7 @@ class LoginPasswordBackend(object):
             else:
                 exponential_backoff.failure(request)
                 seconds_to_wait = exponential_backoff.seconds_to_wait(request)
-        if seconds_to_wait:
+        if seconds_to_wait > 2:
             # during a post reset form data to prevent validation
             if is_post and reset:
                 form = forms.AuthenticationForm(initial={'username': data.get('username', '')})
