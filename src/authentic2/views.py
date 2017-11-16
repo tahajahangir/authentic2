@@ -178,7 +178,14 @@ class EmailChangeView(cbv.TemplateNamesMixin, FormView):
             'link': link,
             'domain': request.get_host(),
             'token_lifetime': utils.human_duration(app_settings.A2_EMAIL_CHANGE_TOKEN_LIFETIME),
+            'password_reset_url': request.build_absolute_uri(reverse('password_reset')),
         }
+        qs = compat.get_user_model().objects.all()
+        if app_settings.A2_EMAIL_IS_UNIQUE:
+            ctx['email_is_not_unique'] = qs.filter(email=email).exclude(pk=user.pk).exists()
+        elif user.ou and user.ou.email_is_unique:
+            ctx['email_is_not_unique'] = qs.filter(email=email,
+                                                   ou=user.ou).exclude(pk=user.pk).exists()
 
         utils.send_templated_mail(
             email,
@@ -213,6 +220,14 @@ class EmailChangeVerifyView(TemplateView):
                 user_pk = token['user_pk']
                 email = token['email']
                 user = User.objects.get(pk=user_pk)
+                non_unique = False
+                if app_settings.A2_EMAIL_IS_UNIQUE:
+                    non_unique = User.objects.filter(email=email).exclude(pk=user_pk).exists()
+                elif user.ou and user.ou.email_is_unique:
+                    non_unique = User.objects.filter(email=email, ou=user.ou).exclude(
+                        pk=user_pk).exists()
+                if non_unique:
+                    raise forms.ValidationError(_('This email is already used by another account.'))
                 old_email = user.email
                 user.email = email
                 user.save()
@@ -234,6 +249,8 @@ class EmailChangeVerifyView(TemplateView):
             except User.DoesNotExist:
                 messages.error(request, _('your request for changing your email is for '
                     'an unknown user, try again'))
+            except forms.ValidationError as e:
+                messages.error(request, e.message)
             else:
                 return shortcuts.redirect('account_management')
         return shortcuts.redirect('email-change')
