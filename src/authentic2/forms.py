@@ -20,6 +20,12 @@ class EmailChangeForm(EmailChangeFormNoPassword):
     password = forms.CharField(label=_("Password"),
                                widget=forms.PasswordInput)
 
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if email == self.user.email:
+            raise forms.ValidationError(_('This is already your email address.'))
+        return email
+
     def clean_password(self):
         password = self.cleaned_data["password"]
         if not self.user.check_password(password):
