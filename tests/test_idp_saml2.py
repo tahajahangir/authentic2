@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 from authentic2.saml import models as saml_models
 from authentic2.a2_rbac.models import Role, OrganizationalUnit
 from authentic2.utils import make_url
-from authentic2.constants import NONCE_FIELD_NAME
+from authentic2.constants import NONCE_FIELD_NAME, SERVICE_FIELD_NAME
 from authentic2.models import Attribute
 
 from utils import Authentic2TestCase
@@ -244,9 +244,10 @@ class SamlSSOTestCase(SamlBaseTestCase):
         response = client.get(url)
         self.assertRedirectsComplex(response, reverse('auth_login'), **{
             'nonce': '*',
+            SERVICE_FIELD_NAME: self.slug,
             REDIRECT_FIELD_NAME: make_url('a2-idp-saml-continue',
                                           params={
-                                              NONCE_FIELD_NAME: request_id
+                                              NONCE_FIELD_NAME: request_id,
                                           }
                                          ),
         })

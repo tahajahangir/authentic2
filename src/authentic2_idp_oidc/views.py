@@ -165,7 +165,7 @@ def authorize(request, *args, **kwargs):
         params = {}
         if nonce is not None:
             params['nonce'] = nonce
-        return login_require(request, params=params)
+        return login_require(request, params=params, service=client)
 
     # if user not authorized, a ServiceAccessDenied exception
     # is raised and handled by ServiceAccessMiddleware
@@ -181,7 +181,7 @@ def authorize(request, *args, **kwargs):
         params = {}
         if nonce is not None:
             params['nonce'] = nonce
-        return login_require(request, params=params)
+        return login_require(request, params=params, service=client)
 
     if client.authorization_mode != client.AUTHORIZATION_MODE_NONE or 'consent' in prompt:
         # authorization by user is mandatory, as per local configuration or per explicit request by

@@ -33,16 +33,12 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.query import Q
 
-from . import hooks
-
-
 # FIXME: this decorator has nothing to do with an idp, should be moved in the
 # a2 package
 # FIXME: this constant should be moved in the a2 package
 
 
-from . import (utils, app_settings, forms, compat, decorators,
-    constants, models, cbv)
+from . import (utils, app_settings, forms, compat, decorators, constants, models, cbv, hooks)
 
 
 logger = logging.getLogger(__name__)
@@ -255,6 +251,7 @@ def login(request, template_name='authentic2/login.html',
           redirect_field_name=REDIRECT_FIELD_NAME):
     """Displays the login form and handles the login action."""
     redirect_to = request.GET.get(redirect_field_name)
+
     if not redirect_to or ' ' in redirect_to:
         redirect_to = settings.LOGIN_REDIRECT_URL
     # Heavier security check -- redirects to http://example.com should
@@ -269,11 +266,14 @@ def login(request, template_name='authentic2/login.html',
 
     blocks = []
 
+    registration_url = utils.get_registration_url(
+        request, service_slug=request.GET.get(constants.SERVICE_FIELD_NAME))
+
     context_instance = RequestContext(request, {
         'cancel': nonce is not None,
         'can_reset_password': app_settings.A2_CAN_RESET_PASSWORD,
         'registration_authorized': getattr(settings, 'REGISTRATION_OPEN', True),
-        'registration_url': utils.get_registration_url(request),
+        'registration_url': registration_url,
     })
     if django.VERSION >= (1, 8, 0):
         context_instance['add_to_blocks'] = collections.defaultdict(lambda: [])

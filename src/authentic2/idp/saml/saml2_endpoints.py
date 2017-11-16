@@ -542,7 +542,7 @@ def sso(request):
     return sso_after_process_request(request, login, nid_format=nid_format)
 
 
-def need_login(request, login, nid_format):
+def need_login(request, login, nid_format, service):
     """Redirect to the login page with a nonce parameter to verify later that
        the login form was submitted
     """
@@ -551,8 +551,8 @@ def need_login(request, login, nid_format):
     save_key_values(nonce, login.dump(), False, nid_format)
     next_url = make_url(continue_sso, params={NONCE_FIELD_NAME: nonce})
     logger.debug('redirect to login page with next url %s', next_url)
-    return login_require(request, next_url=next_url,
-            params={NONCE_FIELD_NAME: nonce})
+    return login_require(request, next_url=next_url, params={NONCE_FIELD_NAME: nonce},
+                         service=service)
 
 
 def get_url_with_nonce(request, function, nonce):
@@ -666,10 +666,14 @@ def sso_after_process_request(request, login, consent_obtained=False,
     logger.debug('named Id format is %s' \
         % nid_format)
 
+    # check if user is authorized through this service
+    service = LibertyServiceProvider.objects.get(
+        liberty_provider__entity_id=login.remoteProviderId).liberty_provider
+
     if not passive and \
             (user.is_anonymous() or (force_authn and not did_auth)):
         logger.info('login required')
-        return need_login(request, login, nid_format)
+        return need_login(request, login, nid_format, service)
 
     # No user is authenticated and passive is True, deny request
     if passive and user.is_anonymous():
@@ -679,9 +683,6 @@ def sso_after_process_request(request, login, consent_obtained=False,
                 lasso.SAML2_STATUS_CODE_NO_PASSIVE)
         return finish_sso(request, login)
 
-    # check if user is authorized through this service
-    service = LibertyServiceProvider.objects.get(
-        liberty_provider__entity_id=login.remoteProviderId).liberty_provider
     service.authorize(request.user)
 
     hooks.call_hooks('event', name='sso-request', idp='saml2', service=service)

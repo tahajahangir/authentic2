@@ -2,6 +2,7 @@ import urlparse
 import base64
 import json
 import datetime
+import re
 
 import pytest
 
@@ -753,3 +754,50 @@ def test_role_control_access(login_first, oidc_settings, oidc_client, simple_use
         assert claims['acr'] == '0'
     else:
         assert claims['acr'] == '1'
+
+
+def test_registration_service_slug(oidc_settings, app, simple_oidc_client, simple_user, hooks,
+                                   mailoutbox):
+    redirect_uri = simple_oidc_client.redirect_uris.split()[0]
+
+    params = {
+        'client_id': simple_oidc_client.client_id,
+        'scope': 'openid profile email',
+        'redirect_uri': redirect_uri,
+        'state': 'xxx',
+        'nonce': 'yyy',
+        'response_type': 'code',
+    }
+
+    authorize_url = make_url('oidc-authorize', params=params)
+    response = app.get(authorize_url)
+
+    location = urlparse.urlparse(response['Location'])
+    query = urlparse.parse_qs(location.query)
+    assert query['service'] == ['client']
+    response = response.follow().click('Register')
+    location = urlparse.urlparse(response.request.url)
+    query = urlparse.parse_qs(location.query)
+    assert query['service'] == ['client']
+
+    response.form.set('email', 'john.doe@example.com')
+    response = response.form.submit()
+    assert len(mailoutbox) == 1
+    links = re.findall('https?://.*/', mailoutbox[0].body)
+    assert len(links) == 1
+    link = links[0]
+    response = app.get(link)
+    response.form.set('first_name', 'John')
+    response.form.set('last_name', 'Doe')
+    response.form.set('password1', 'T0==toto')
+    response.form.set('password2', 'T0==toto')
+    response = response.form.submit()
+    assert hooks.event[0]['kwargs']['name'] == 'sso-request'
+    assert hooks.event[0]['kwargs']['service'].slug == 'client'
+
+    assert hooks.event[1]['kwargs']['name'] == 'registration'
+    assert hooks.event[1]['kwargs']['service'] == 'client'
+
+    assert hooks.event[2]['kwargs']['name'] == 'login'
+    assert hooks.event[2]['kwargs']['how'] == 'email'
+    assert hooks.event[2]['kwargs']['service'] == 'client'

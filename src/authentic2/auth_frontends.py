@@ -2,7 +2,7 @@ from django.contrib.auth import forms
 from django.shortcuts import render
 from django.utils.translation import ugettext as _, ugettext_lazy
 
-from . import views, app_settings, utils
+from . import views, app_settings, utils, constants
 from .exponential_retry_timeout import ExponentialRetryTimeout
 
 
@@ -47,7 +47,8 @@ class LoginPasswordBackend(object):
                 else:
                     how = 'password'
                 exponential_backoff.success(request)
-                return utils.login(request, form.get_user(), how)
+                return utils.login(request, form.get_user(), how,
+                                   service_slug=request.GET.get(constants.SERVICE_FIELD_NAME))
             else:
                 exponential_backoff.failure(request)
                 seconds_to_wait = exponential_backoff.seconds_to_wait(request)

@@ -392,7 +392,7 @@ def last_authentication_event(session):
     return None
 
 
-def login(request, user, how, **kwargs):
+def login(request, user, how, service_slug=None, **kwargs):
     '''Login a user model, record the authentication event and redirect to next
        URL or settings.LOGIN_REDIRECT_URL.'''
     from . import hooks
@@ -405,15 +405,17 @@ def login(request, user, how, **kwargs):
         request.session[constants.LAST_LOGIN_SESSION_KEY] = \
             localize(to_current_timezone(last_login), True)
     record_authentication_event(request, how)
-    hooks.call_hooks('event', name='login', user=user, how=how)
+    hooks.call_hooks('event', name='login', user=user, how=how, service=service_slug)
     return continue_to_next_url(request, **kwargs)
 
 
-def login_require(request, next_url=None, login_url='auth_login', **kwargs):
+def login_require(request, next_url=None, login_url='auth_login', service=None, **kwargs):
     '''Require a login and come back to current URL'''
     next_url = next_url or request.get_full_path()
     params = kwargs.setdefault('params', {})
     params[REDIRECT_FIELD_NAME] = next_url
+    if service:
+        params['service'] = service.slug
     return redirect(request, login_url, **kwargs)
 
 
@@ -643,15 +645,17 @@ else:
             return field.related_model
 
 
-def get_registration_url(request):
+def get_registration_url(request, service_slug=None):
     if REDIRECT_FIELD_NAME in request.GET and is_valid_url(request.GET[REDIRECT_FIELD_NAME]):
         next_url = request.GET.get(REDIRECT_FIELD_NAME)
     else:
         next_url = make_url(settings.LOGIN_REDIRECT_URL)
     next_url = make_url(next_url, request=request, keep_params=True,
                         include=(constants.NONCE_FIELD_NAME,), resolve=False)
-    return make_url('registration_register',
-                    params={REDIRECT_FIELD_NAME: next_url})
+    params = {REDIRECT_FIELD_NAME: next_url}
+    if service_slug:
+        params[constants.SERVICE_FIELD_NAME] = service_slug
+    return make_url('registration_register', params=params)
 
 
 def build_activation_url(request, email, next_url=None, **kwargs):
@@ -963,12 +967,13 @@ def same_origin(url1, url2):
 
 
 def simulate_authentication(request, user, method,
-                            backend='authentic2.backends.models_backend.ModelBackend', **kwargs):
+                            backend='authentic2.backends.models_backend.ModelBackend',
+                            service_slug=None, **kwargs):
     '''Simulate a normal login by forcing a backend attribute on the user instance'''
     # do not modify the passed user
     user = copy.deepcopy(user)
     user.backend = backend
-    return login(request, user, method, **kwargs)
+    return login(request, user, method, service_slug=service_slug, **kwargs)
 
 
 def get_manager_login_url():
