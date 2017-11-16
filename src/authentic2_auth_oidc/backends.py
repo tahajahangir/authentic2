@@ -13,7 +13,6 @@ from django.contrib.auth.backends import ModelBackend
 
 from django_rbac.utils import get_ou_model
 
-from authentic2.backends import is_user_authenticable
 from authentic2.crypto import base64url_encode
 from authentic2 import app_settings
 
@@ -244,9 +243,6 @@ class OIDCBackend(ModelBackend):
             logger.info(u'auth_oidc: linked user %s to sub %s and issuer %s',
                         user, id_token.sub, id_token.iss)
 
-        if not is_user_authenticable(user):
-            logger.info(u'auth_oidc: authentication refused by user filters')
-            return None
         return user
 
     def get_saml2_authn_context(self):
