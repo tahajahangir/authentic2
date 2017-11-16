@@ -169,7 +169,7 @@ msgstr "Vos prénom, nom et identifiants."
 
 #: authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:13
 msgid "Your email"
-msgstr "Votre email."
+msgstr "Votre adresse de courriel."
 
 #: authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:19
 msgid "Accept"
