@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-17 16:54+0100\n"
+"POT-Creation-Date: 2017-11-17 17:17+0100\n"
 "PO-Revision-Date: 2017-06-26 22:14+0200\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
@@ -567,28 +567,30 @@ msgid "Password reset"
 msgstr "obligation de changement de mot de passe"
 
 #: authentic2/profile_views.py:38
-msgid "A mail was sent to you with instructions to reset your password"
+msgid ""
+"If your email address exists in our database, you will receive an email "
+"containing instructions to reset your password"
 msgstr ""
-"Un courriel vous a été envoyé avec des instructions pour ré-initialiser "
-"votre mot de passe."
+"Si votre adresse électronique est présente dans notre base, vous recevrez un "
+"courriel contenant les instructions pour ré-initialiser votre mot de passe."
 
-#: authentic2/profile_views.py:72
+#: authentic2/profile_views.py:74
 msgid "User not found"
 msgstr "Utilisateur introuvable"
 
-#: authentic2/profile_views.py:76
+#: authentic2/profile_views.py:78
 msgid "You reset password link is invalid or has expired"
 msgstr ""
 "Votre lien de ré-initialisation de mot de passe est invalide ou expiré."
 
-#: authentic2/profile_views.py:81
+#: authentic2/profile_views.py:83
 msgid ""
 "It's not possible to reset your password. Please contact an administrator."
 msgstr ""
 "Votre mot de passe n'a pas pu être réinitialisé. Veuillez contacter votre "
 "administrateur."
 
-#: authentic2/profile_views.py:90
+#: authentic2/profile_views.py:92
 msgid "Enter new password"
 msgstr "Entrez un nouveau mot de passe"
 
