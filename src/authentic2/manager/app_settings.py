@@ -6,7 +6,6 @@ class AppSettings(object):
     __DEFAULTS = {
         'HOMEPAGE_URL': None,
         'ROLE_FORM_CLASS': None,
-        'ROLES_SHOW_PERMISSIONS': False,
         'SHOW_ALL_OU': True,
         'ROLE_MEMBERS_FROM_OU': False,
         'SHOW_INTERNAL_ROLES': False,
