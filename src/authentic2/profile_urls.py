@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.debug import sensitive_post_parameters
 
 from authentic2.utils import import_module_or_class, redirect
-from . import app_settings, decorators, profile_views
+from . import app_settings, decorators, profile_views, hooks
 
 SET_PASSWORD_FORM_CLASS = import_module_or_class(
         app_settings.A2_REGISTRATION_SET_PASSWORD_FORM_CLASS)
@@ -35,6 +35,7 @@ def password_change_view(request, *args, **kwargs):
         kwargs['password_change_form'] = SET_PASSWORD_FORM_CLASS
     response = auth_views.password_change(request, *args, **kwargs)
     if isinstance(response, HttpResponseRedirect):
+        hooks.call_hooks('event', name='change-password', user=request.user, request=request)
         messages.info(request, _('Password changed'))
     return response
 
