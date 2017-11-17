@@ -105,7 +105,9 @@ class PermissionMixin(object):
                 raise PermissionDenied
 
     def dispatch(self, request, *args, **kwargs):
-        self.authorize(request, *args, **kwargs)
+        response = self.authorize(request, *args, **kwargs)
+        if response is not None:
+            return response
         return super(PermissionMixin, self).dispatch(request, *args, **kwargs)
 
 

@@ -16,7 +16,7 @@ from django.views.generic import View
 
 from authentic2.constants import SWITCH_USER_SESSION_KEY
 from authentic2.models import Attribute, PasswordReset
-from authentic2.utils import switch_user, send_password_reset_mail
+from authentic2.utils import switch_user, send_password_reset_mail, redirect
 from authentic2.a2_rbac.utils import get_default_ou
 from authentic2 import hooks
 from django_rbac.utils import get_role_model, get_role_parenting_model, get_ou_model
@@ -228,9 +228,18 @@ class UserDetailView(OtherActionsMixin, BaseDetailView):
             form.fields['email'].help_text = format_html('<b>{0}</b>', comment)
         return form
 
+    @classmethod
+    def has_perm_on_roles(self, user, instance):
+        role_qs = get_role_model().objects.all()
+        if app_settings.ROLE_MEMBERS_FROM_OU and instance.ou:
+            role_qs = role_qs.filter(ou=instance.ou)
+        return user.filter_by_perm('a2_rbac.change_role', role_qs).exists()
+
     def get_context_data(self, **kwargs):
         kwargs['default_ou'] = get_default_ou
-        kwargs['can_change_roles'] = self.request.user.has_perm_any('a2_rbac.change_role')
+        kwargs['roles'] = self.object.roles_and_parents()
+        # show modify roles button only if something is possible
+        kwargs['can_change_roles'] = self.has_perm_on_roles(self.request.user, self.object)
         user_data = []
         user_data += [data for datas in hooks.call_hooks('manager_user_data', self, self.object)
                       for data in datas]
@@ -377,8 +386,12 @@ class UserRolesView(HideOUColumnMixin, BaseSubTableView):
             qs = list(qs)
         return qs
 
-    def dispatch(self, request, *args, **kwargs):
-        return super(UserRolesView, self).dispatch(request, *args, **kwargs)
+    def authorize(self, request, *args, **kwargs):
+        response = super(UserRolesView, self).authorize(request, *args, **kwargs)
+        if response is not None:
+            return response
+        if not UserDetailView.has_perm_on_roles(request.user, self.object):
+            return redirect(request, 'a2-manager-user-detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
         user = self.object
