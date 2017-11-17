@@ -254,8 +254,7 @@ class RegistrationCompletionView(CreateView):
     def get(self, request, *args, **kwargs):
         if len(self.users) == 1 and self.email_is_unique:
             # Found one user, EMAIL is unique, log her in
-            simulate_authentication(request, self.users[0], method='email',
-                                    service_slug=self.service)
+            simulate_authentication(request, self.users[0], method='email', service_slug=self.service)
             return redirect(request, self.get_success_url())
         confirm_data = self.token.get('confirm_data', False)
 
@@ -277,12 +276,7 @@ class RegistrationCompletionView(CreateView):
             form = form_class(**form_kwargs)
             if form.is_valid():
                 user = form.save()
-                hooks.call_hooks('event', name='registration', user=user, form=form, view=self,
-                                 token=self.request.token, service=self.service)
-                simulate_authentication(request, user, method='email',
-                                        service_slug=self.service)
-                messages.info(self.request, _('You have just created an account.'))
-                return redirect(request, self.get_success_url())
+                return self.registration_success(request, user, form)
             self.get_form = lambda *args, **kwargs: form
         return super(RegistrationCompletionView, self).get(request, *args,
                                                            **kwargs)
@@ -296,7 +290,8 @@ class RegistrationCompletionView(CreateView):
             uid = request.POST['uid']
             for user in self.users:
                 if str(user.id) == uid:
-                    simulate_authentication(request, user, method='email', service_slug=self.service)
+                    simulate_authentication(request, user, method='email',
+                                            service_slug=self.service)
                     return redirect(request, self.get_success_url())
         return super(RegistrationCompletionView, self).post(request, *args, **kwargs)
 
@@ -322,13 +317,16 @@ class RegistrationCompletionView(CreateView):
                 **data)
             self.request.session['registered_email'] = form.cleaned_data['email']
             return redirect(self.request, 'registration_complete')
-        ret = super(RegistrationCompletionView, self).form_valid(form)
-        hooks.call_hooks('event', name='registration', user=self.object, view=self, form=form,
-                         token=self.request.token, service=self.service)
-        simulate_authentication(self.request, self.object, method='email',
+        super(RegistrationCompletionView, self).form_valid(form)
+        return self.registration_success(self.request, form.instance, form)
+
+    def registration_success(self, request, user, form):
+        hooks.call_hooks('event', name='registration', user=user, form=form, view=self,
+                         token=request.token, service=self.service)
+        simulate_authentication(request, user, method='email',
                                 service_slug=self.service)
         messages.info(self.request, _('You have just created an account.'))
-        return ret
+        return redirect(request, self.get_success_url())
 
 
 class DeleteView(FormView):
