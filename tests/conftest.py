@@ -251,7 +251,7 @@ class AllHook(object):
         return self.calls.get(name, [])
 
     def clear(self):
-        self.calls = []
+        self.calls = {}
 
 
 @pytest.fixture
