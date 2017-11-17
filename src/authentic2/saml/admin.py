@@ -57,10 +57,14 @@ class TextAndFileWidget(forms.widgets.MultiWidget):
 
 
 class LibertyProviderForm(ModelForm):
-    metadata = forms.CharField(required=True,widget=TextAndFileWidget)
-    public_key = forms.CharField(required=False,widget=TextAndFileWidget)
-    ssl_certificate = forms.CharField(required=False,widget=TextAndFileWidget)
-    ca_cert_chain = forms.CharField(required=False,widget=TextAndFileWidget)
+    metadata = forms.CharField(required=True, widget=TextAndFileWidget,
+            label=_('Metadata'))
+    public_key = forms.CharField(required=False, widget=TextAndFileWidget,
+            label=_('Public key'))
+    ssl_certificate = forms.CharField(required=False, widget=TextAndFileWidget,
+            label=_('SSL certificate'))
+    ca_cert_chain = forms.CharField(required=False, widget=TextAndFileWidget,
+            label=_('Certificate chain'))
 
     class Meta:
         model = LibertyProvider

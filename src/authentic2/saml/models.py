@@ -308,17 +308,22 @@ class SAMLAttribute(models.Model):
 
 
 class LibertyProvider(Service):
-    entity_id = models.URLField(max_length=256, unique = True)
-    entity_id_sha1 = models.CharField(max_length = 40, blank=True)
-    metadata_url = models.URLField(max_length=256, blank=True)
+    entity_id = models.URLField(max_length=256, unique=True,
+            verbose_name=_('Entity ID'))
+    entity_id_sha1 = models.CharField(max_length=40, blank=True,
+            verbose_name=_('Entity ID SHA1'))
+    metadata_url = models.URLField(max_length=256, blank=True,
+            verbose_name=_('Metadata URL'))
     protocol_conformance = models.IntegerField(
-        choices=((lasso.PROTOCOL_SAML_2_0, 'SAML 2.0'),))
+            choices=((lasso.PROTOCOL_SAML_2_0, 'SAML 2.0'),),
+            verbose_name=_('Protocol conformance'))
     metadata = models.TextField(validators = [ metadata_validator ])
     # All following field must be PEM formatted textual data
     public_key = models.TextField(blank=True)
     ssl_certificate = models.TextField(blank=True)
     ca_cert_chain = models.TextField(blank=True)
-    federation_source = models.CharField(max_length=64, blank=True, null=True)
+    federation_source = models.CharField(max_length=64, blank=True, null=True,
+            verbose_name=_('Federation source'))
 
     attributes = GenericRelation(SAMLAttribute)
 
