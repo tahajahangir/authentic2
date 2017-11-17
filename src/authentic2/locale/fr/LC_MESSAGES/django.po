@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-16 16:52+0100\n"
+"POT-Creation-Date: 2017-11-17 16:54+0100\n"
 "PO-Revision-Date: 2017-06-26 22:14+0200\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
@@ -245,7 +245,7 @@ msgstr "attribut de rôle"
 msgid "Username or email"
 msgstr "Identifiant ou courriel"
 
-#: authentic2/auth_frontends.py:58
+#: authentic2/auth_frontends.py:59
 #, python-format
 msgid ""
 "You made too many login errors recently, you must wait <span class=\"js-"
@@ -306,11 +306,15 @@ msgstr "List de diffusion sur Authentic"
 msgid "New email"
 msgstr "Nouveau courriel"
 
-#: authentic2/forms.py:27
+#: authentic2/forms.py:26
+msgid "This is already your email address."
+msgstr "Cette adresse de courriel est déjà la vôtre."
+
+#: authentic2/forms.py:33
 msgid "Incorrect password."
 msgstr "Mot de passe incorrect."
 
-#: authentic2/forms.py:50
+#: authentic2/forms.py:56
 msgid "A user with that username already exists."
 msgstr "Un utilisateur avec cet identidiant existe déjà."
 
@@ -553,7 +557,7 @@ msgstr "applications"
 msgid "Email"
 msgstr "Courriel"
 
-#: authentic2/profile_urls.py:38
+#: authentic2/profile_urls.py:39
 #: authentic2/templates/registration/password_change_done.html:9
 msgid "Password changed"
 msgstr "Mot de passe modifié"
@@ -632,12 +636,12 @@ msgstr "Votre clé d'activation a expiré"
 msgid "Activation failed"
 msgstr "Échec à l'activation du compte"
 
-#: authentic2/registration_backend/views.py:275
-#: authentic2/registration_backend/views.py:320
+#: authentic2/registration_backend/views.py:284
+#: authentic2/registration_backend/views.py:330
 msgid "You have just created an account."
 msgstr "Vous venez de créer un compte."
 
-#: authentic2/registration_backend/views.py:356
+#: authentic2/registration_backend/views.py:366
 msgid ""
 "Your account has been scheduled for deletion. You cannot use it anymore."
 msgstr ""
@@ -808,6 +812,49 @@ msgid ""
 "\n"
 "  %(email)s\n"
 "\n"
+"But this email is already linked to another account.\n"
+"\n"
+"You can recover this account password using the password reset form:\n"
+"\n"
+"  %(password_reset_url)s\n"
+"\n"
+"--\n"
+"%(domain)s"
+msgstr ""
+"Bonjour %(name)s !\n"
+"\n"
+"Vous avez demandé à changer votre adresse de courriel sur %(domain)s de:\n"
+"\n"
+"  %(old_email)s\n"
+"\n"
+"à:\n"
+"\n"
+"  %(email)s\n"
+"\n"
+"Mais cette adresse de courriel est déjà utilisée par un autre compte.\n"
+"\n"
+"Pour récupérer le mot de passe de ce compte veuillez utiliser le formulaire "
+"de\n"
+"ré-initialisation de mot de passe\n"
+"\n"
+"  %(password_reset_url)s\n"
+"\n"
+"--\n"
+"%(domain)s"
+
+#: authentic2/templates/authentic2/change_email_notification_body.txt:18
+#, python-format
+msgid ""
+"Hi %(name)s !\n"
+"\n"
+"You asked for changing your email on %(domain)s from:\n"
+"\n"
+"  %(old_email)s\n"
+"\n"
+"to:\n"
+"\n"
+"  %(email)s\n"
+"\n"
 "To validate this change please click on the following link:\n"
 "\n"
 "  %(link)s\n"
@@ -815,7 +862,7 @@ msgid ""
 "This link will be valid for %(token_lifetime)s.\n"
 "\n"
 "--\n"
-"%(domain)s\n"
+"%(domain)s"
 msgstr ""
 "Bonjour %(name)s !\n"
 "\n"
@@ -834,7 +881,7 @@ msgstr ""
 "Ce lien sera valide pendant %(token_lifetime)s.\n"
 "\n"
 "--\n"
-"%(domain)s\n"
+"%(domain)s"
 
 #: authentic2/templates/authentic2/change_email_notification_subject.txt:1
 #, python-format
@@ -1240,11 +1287,11 @@ msgid "Please fill the form to complete your registration"
 msgstr ""
 "Veuillez remplir le formulaire afin de finir la création de votre compte"
 
-#: authentic2/utils.py:557
+#: authentic2/utils.py:559
 msgid "The form was out of date, please try again."
 msgstr "Ce formulaire était périmé, veuillez ré-essayer."
 
-#: authentic2/utils.py:791
+#: authentic2/utils.py:795
 msgid ""
 "Your user is already switched, go to your account page and come back to your "
 "original user to do it again."
@@ -1252,42 +1299,42 @@ msgstr ""
 "Vous avez déjà procédé à une reconnexion, veuillez allez sur « Mon compte » "
 "pour vous reconnecter avec votre utilisateur d'origine."
 
-#: authentic2/utils.py:807
+#: authentic2/utils.py:811
 #, python-format
 msgid "Successfully switched to user %s"
 msgstr "Re-connexion avec l'utilisateur « %s » réussie"
 
-#: authentic2/utils.py:823
+#: authentic2/utils.py:827
 #, python-format
 msgid "Successfully switched back to user %s"
 msgstr "Re-connexion avec l'utilisateur « %s » réussie"
 
-#: authentic2/utils.py:827
+#: authentic2/utils.py:831
 msgid "No user to switch back to"
 msgstr "Pas d'utilisateur vers lequel se reconnecter"
 
-#: authentic2/utils.py:889
+#: authentic2/utils.py:893
 #, python-format
 msgid "%s day"
 msgid_plural "%s days"
 msgstr[0] "%s jour"
 msgstr[1] "%s jours"
 
-#: authentic2/utils.py:891
+#: authentic2/utils.py:895
 #, python-format
 msgid "%s hour"
 msgid_plural "%s hours"
 msgstr[0] "%s heure"
 msgstr[1] "%s heures"
 
-#: authentic2/utils.py:893
+#: authentic2/utils.py:897
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
 msgstr[0] "%s minute"
 msgstr[1] "%s minutes"
 
-#: authentic2/utils.py:895
+#: authentic2/utils.py:899
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
@@ -1368,7 +1415,7 @@ msgstr ""
 "changer ce message en modifiant le paramètre "
 "A2_PASSWORD_POLICY_REGEX_ERROR_MSG."
 
-#: authentic2/views.py:200
+#: authentic2/views.py:203
 msgid ""
 "Your request for changing your email is received. An email of validation was "
 "sent to you. Please click on the link contained inside."
@@ -1377,44 +1424,48 @@ msgstr ""
 "courriel de validation vous a été envoyé. Veuillez cliquer sur le lien "
 "contenu dans ce courriel."
 
-#: authentic2/views.py:223
+#: authentic2/views.py:230
+msgid "This email is already used by another account."
+msgstr "Cette adresse de courriel est déjà utilisée par un autre compte."
+
+#: authentic2/views.py:234
 #, python-brace-format
 msgid "your request for changing your email for {0} is successful"
 msgstr "Votre demande de changement d'adresse de courriel pour {0} est validée"
 
-#: authentic2/views.py:230
+#: authentic2/views.py:241
 msgid "your request for changing your email is too old, try again"
 msgstr ""
 "Votre demande de changement d'adresse de courriel est trop ancienne, "
 "veuillez réessayez"
 
-#: authentic2/views.py:233
+#: authentic2/views.py:244
 msgid "your request for changing your email is invalid, try again"
 msgstr ""
 "Votre demande de changement d'adresse de courriel est invalide, veuillez "
 "réessayer"
 
-#: authentic2/views.py:236
+#: authentic2/views.py:247
 msgid "your request for changing your email was not on this site, try again"
 msgstr ""
 "Votre demande de changement d'adresse de courriel vient d'un autre site que "
 "celui-ci."
 
-#: authentic2/views.py:239
+#: authentic2/views.py:250
 msgid "your request for changing your email is for an unknown user, try again"
 msgstr ""
 "Votre demande de changement d'adresse de courriel concerne un utilisateur "
 "inconnu."
 
-#: authentic2/views.py:523
+#: authentic2/views.py:540
 msgid "Logging out from all your services"
 msgstr "Déconnexion de toutes vos applications"
 
-#: authentic2/views.py:549
+#: authentic2/views.py:566
 msgid "You have been logged out"
 msgstr "Vous avez été déconnecté."
 
-#: authentic2/views.py:586
+#: authentic2/views.py:603
 msgid "The page is out of date, it was reloaded for you"
 msgstr ""
 "Cette page est périmée car vous vous êtes connecté entre temps; nous l'avons "
