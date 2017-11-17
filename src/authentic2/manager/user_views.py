@@ -38,6 +38,7 @@ class UsersView(HideOUColumnMixin, BaseTableView):
     table_class = UserTable
     permissions = ['custom_user.search_user']
     search_form_class = UserSearchForm
+    title = _('Users')
 
     def is_ou_specified(self):
         return self.search_form.is_valid() \
@@ -259,10 +260,7 @@ class UserEditView(OtherActionsMixin, ActionMixin, BaseEditView):
     success_url = '..'
     slug_field = 'uuid'
     action = _('Change')
-
-    @property
-    def title(self):
-        return _('Edit user %s') % self.object.get_full_name()
+    title = _('Edit user')
 
     def get_fields(self):
         fields = list(self.fields)
@@ -439,6 +437,8 @@ roles = UserRolesView.as_view()
 
 class UserDeleteView(BaseDeleteView):
     model = get_user_model()
+    title = _('Delete user')
+    template_name = 'authentic2/manager/user_delete.html'
 
     def get_success_url(self):
         return reverse('a2-manager-users')

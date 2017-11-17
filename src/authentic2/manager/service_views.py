@@ -13,6 +13,7 @@ class ServicesView(views.HideOUColumnMixin, views.BaseTableView):
     table_class = tables.ServiceTable
     search_form_class = forms.NameSearchForm
     permissions = ['authentic2.search_service']
+    title = _('Services')
 
 listing = ServicesView.as_view()
 
@@ -26,6 +27,10 @@ class ServiceView(views.SimpleSubTableView, role_views.RoleViewMixin, views.Medi
     permissions = ['authentic2.view_service']
     form_class = forms.ChooseRoleForm
     success_url = '.'
+
+    @property
+    def title(self):
+        return unicode(self.object)
 
     def get_table_queryset(self):
         return self.object.authorized_roles.all()

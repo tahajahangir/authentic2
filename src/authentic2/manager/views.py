@@ -264,10 +264,7 @@ class TitleMixin(object):
 
     def get_context_data(self, **kwargs):
         ctx = super(TitleMixin, self).get_context_data(**kwargs)
-        if hasattr(self, 'get_title'):
-            ctx['title'] = self.get_title() or self.title
-        else:
-            ctx['title'] = self.title
+        ctx['title'] = self.title
         return ctx
 
 
@@ -368,7 +365,7 @@ class ModelNameMixin(MediaMixin):
     def get_model_name(self):
         return self.model._meta.verbose_name
 
-    def get_title(self):
+    def get_instance_name(self):
         if hasattr(self, 'get_object'):
             return unicode(self.get_object())
         return u''
@@ -390,9 +387,9 @@ class TableHookMixin(object):
         return table
 
 
-class BaseTableView(TableHookMixin, FormatsContextData, ModelNameMixin, PermissionMixin,
-                    SearchFormMixin, FilterQuerysetByPermMixin,
-                    TableQuerysetMixin, SingleTableView):
+class BaseTableView(TitleMixin, TableHookMixin, FormatsContextData, ModelNameMixin, PermissionMixin,
+                    SearchFormMixin, FilterQuerysetByPermMixin, TableQuerysetMixin,
+                    SingleTableView):
     '''Base class for views showing a table of objects'''
     pass
 
@@ -405,7 +402,7 @@ class SubTableViewMixin(TableHookMixin, FormatsContextData, ModelNameMixin, Perm
     context_object_name = 'object'
 
 
-class SimpleSubTableView(SubTableViewMixin, TemplateView):
+class SimpleSubTableView(TitleMixin, SubTableViewMixin, TemplateView):
     '''Base class for views showing a simple table of objects related to one object'''
 
     pass
@@ -434,8 +431,9 @@ class BaseDeleteView(TitleMixin, ModelNameMixin, PermissionMixin,
         model_name = self.model._meta.model_name
         return ['%s.delete_%s' % (app_label, model_name)]
 
-    def get_title(self):
-        return _('Delete %s') % super(BaseDeleteView, self).get_title()
+    @property
+    def title(self):
+        return _('Delete %s') % self.get_instance_name()
 
     def get_success_url(self):
         return '../../'
@@ -510,8 +508,9 @@ class BaseAddView(MultipleOUMixin, TitleMixin, ModelNameMixin, PermissionMixin,
         model_name = self.model._meta.model_name
         return ['%s.add_%s' % (app_label, model_name)]
 
-    def get_title(self):
-        return self.title or _('Add %s') % super(BaseAddView, self).get_model_name()
+    @property
+    def title(self):
+        return ('Add %s') % super(BaseAddView, self).get_model_name()
 
     def get_success_url(self):
         return reverse(self.success_view_name, kwargs={'pk': self.object.pk})
@@ -529,8 +528,9 @@ class BaseEditView(MultipleOUMixin, SuccessMessageMixin, TitleMixin, ModelNameMi
         model_name = self.model._meta.model_name
         return ['%s.change_%s' % (app_label, model_name)]
 
-    def get_title(self):
-        return _('Edit %s') % super(BaseEditView, self).get_title()
+    @property
+    def title(self):
+        return _('Edit %s') % self.get_instance_name()
 
     def get_success_url(self):
         return '..'

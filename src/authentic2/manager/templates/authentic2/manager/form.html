@@ -7,10 +7,6 @@
   {% endif %}
 {% endblock %}
 
-{% block appbar %}
-  <h2>{{ title }}</h2>
-{% endblock %}
-
 {% block content %}
   <form 
     {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}

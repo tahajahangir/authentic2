@@ -12,6 +12,7 @@ class OrganizationalUnitView(views.BaseTableView):
     table_class = tables.OUTable
     search_form_class = forms.NameSearchForm
     permissions = ['a2_rbac.search_organizationalunit']
+    title = _('Organizational units')
 
 listing = OrganizationalUnitView.as_view()
 
@@ -20,6 +21,7 @@ class OrganizationalUnitAddView(views.BaseAddView):
     model = get_ou_model()
     permissions = ['a2_rbac.add_organizationalunit']
     form_class = forms.OUEditForm
+    title = _('Add organizational unit')
 
     def get_success_url(self):
         return '..'
@@ -33,6 +35,10 @@ class OrganizationalUnitDetailView(views.BaseDetailView):
     form_class = forms.OUEditForm
     template_name = 'authentic2/manager/ou_detail.html'
 
+    @property
+    def title(self):
+        return unicode(self.object)
+
 detail = OrganizationalUnitDetailView.as_view()
 
 
@@ -41,6 +47,7 @@ class OrganizationalUnitEditView(views.BaseEditView):
     permissions = ['a2_rbac.change_organizationalunit']
     form_class = forms.OUEditForm
     template_name = 'authentic2/manager/ou_edit.html'
+    title = _('Edit organizational unit')
 
 edit = OrganizationalUnitEditView.as_view()
 
@@ -49,6 +56,7 @@ class OrganizationalUnitDeleteView(views.BaseDeleteView):
     model = get_ou_model()
     template_name = 'authentic2/manager/ou_delete.html'
     permissions = ['a2_rbac.delete_organizationalunit']
+    title = _('Delete organizational unit')
 
     def dispatch(self, request, *args, **kwargs):
         if self.get_object().default:

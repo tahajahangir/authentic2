@@ -2,10 +2,6 @@
 {% load firstof from future %}
 {% load i18n %}
 
-{% block page_title %}
-  {{ object }}
-{% endblock %}
-
 {% block breadcrumb %}
   {{ block.super }}
   <a href="{% url 'a2-manager-ous' %}">{% trans 'Organizational unit' %}</a>

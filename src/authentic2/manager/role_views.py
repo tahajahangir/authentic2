@@ -14,7 +14,6 @@ from django.contrib.auth import get_user_model
 from django_rbac.utils import get_role_model, get_permission_model, \
     get_role_parenting_model, get_ou_model
 
-from authentic2.decorators import setting_enabled
 from authentic2.utils import redirect
 from authentic2 import hooks
 
@@ -51,6 +50,7 @@ class RolesView(views.HideOUColumnMixin, RolesMixin, views.BaseTableView):
     table_class = tables.RoleTable
     search_form_class = forms.RoleSearchForm
     permissions = ['a2_rbac.search_role']
+    title = _('Roles')
 
     def get_queryset(self):
         qs = super(RolesView, self).get_queryset()
@@ -117,8 +117,9 @@ class RoleMembersView(views.HideOUColumnMixin, RoleViewMixin, views.BaseSubTable
     search_form_class = forms.UserSearchForm
     permissions = ['a2_rbac.view_role']
 
-    def get_title(self):
-        return self.object
+    @property
+    def title(self):
+        return self.get_instance_name()
 
     def get_table_queryset(self):
         return self.object.all_members()
@@ -205,6 +206,9 @@ children = RoleChildrenView.as_view()
 
 
 class RoleDeleteView(RoleViewMixin, views.BaseDeleteView):
+    title = _('Delete role')
+    template_name = 'authentic2/manager/role_delete.html'
+
     def post(self, request, *args, **kwargs):
         if not self.can_delete:
             raise PermissionDenied
@@ -228,6 +232,7 @@ class RolePermissionsView(RoleViewMixin, views.BaseSubTableView):
     form_class = forms.ChoosePermissionForm
     success_url = '.'
     permissions = ['a2_rbac.admin_permission']
+    title = _('Permissions')
 
     def get_table_queryset(self):
         return self.object.permissions.all()

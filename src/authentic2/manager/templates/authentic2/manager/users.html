@@ -3,8 +3,6 @@
 
 {% block page-title %}{{ block.super }} - {% trans "Users" %}{% endblock %}
 
-{% block page_title %}{% trans "Users" %}{% endblock %}
-
 {% block appbar %}
   {{ block.super }}
     {% if view.can_add and search_form.cleaned_data.ou %}

@@ -1,0 +1,8 @@
+{% extends "authentic2/manager/delete.html" %}
+{% load i18n %}
+
+{% block caption %}
+  <p>
+    {% blocktrans with full_name=object.get_full_name %}Do you want to delete user {{ full_name }}?{% endblocktrans %}
+  </p>
+{% endblock %}

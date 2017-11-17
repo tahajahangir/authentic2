@@ -7,14 +7,10 @@
   {{ block.super }}
 {% endblock %}
 
-{% block page_title %}
-  {% trans "Organizational units" %}
-{% endblock %}
-
 {% block appbar %}
   {{ block.super }}
   {% if view.can_add %}
-    <a href="{% url "a2-manager-ou-add" %}" rel="popup">{% blocktrans %}Add {{ model_name }}{% endblocktrans %}</a>
+    <a href="{% url "a2-manager-ou-add" %}" rel="popup">{% trans "Add organizational unit" %}</a>
   {% endif %}
 {% endblock %}
 
