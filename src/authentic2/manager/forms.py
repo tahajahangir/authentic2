@@ -217,7 +217,7 @@ class UserEditForm(LimitQuerysetFormMixin, CssClass, BaseUserForm):
 
     class Meta:
         model = get_user_model()
-        exclude = ('ou', 'is_staff', 'groups', 'user_permissions', 'last_login',
+        exclude = ('is_staff', 'groups', 'user_permissions', 'last_login',
                    'date_joined', 'password')
 
 
@@ -363,6 +363,7 @@ class UserAddForm(UserChangePasswordForm, UserEditForm):
     class Meta:
         model = get_user_model()
         fields = '__all__'
+        exclude = ('ou',)
 
 
 class ServiceRoleSearchForm(CssClass, PrefixFormMixin, FormWithRequest):
