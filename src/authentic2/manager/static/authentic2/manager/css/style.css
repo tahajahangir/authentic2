@@ -209,9 +209,6 @@ span.errorlist span {
   padding: 0;
   color: #e80404;
 }
-#id_user_edit_form .form-inner-container {
-  width: 50%;
-}
 
 .waiting {
     position: fixed;
