@@ -83,6 +83,10 @@
             var $old_appbar = $('#appbar');
             $container.replaceWith($content);
             $old_appbar.replaceWith($appbar);
+            /* keep django-select2 fields working */
+            if ($.fn.djangoSelect2 != undefined) {
+               $('.django-select2').djangoSelect2();
+            }
             $(window.document).trigger('gadjo:content-update');
           });
         }
