@@ -2,7 +2,6 @@
 
 import json
 import pytest
-import re
 import random
 import uuid
 
@@ -19,7 +18,7 @@ from django.contrib.auth.hashers import check_password
 
 from authentic2_idp_oidc.models import OIDCClient
 
-from utils import login, basic_authorization_header
+from utils import login, basic_authorization_header, get_link_from_mail
 
 pytestmark = pytest.mark.django_db
 
@@ -312,8 +311,7 @@ def test_api_users_create_send_mail(app, settings, superuser):
     user_id = resp.json['id']
     assert len(mail.outbox) == 1
     # Follow activation link
-    assert re.findall('http://[^ ]*/', mail.outbox[0].body)
-    url = re.findall('http://[^ ]*/', mail.outbox[0].body)[0]
+    url = get_link_from_mail(mail.outbox[0])
     relative_url = url.split('testserver')[1]
     resp = app.get(relative_url, status=200)
     resp.form.set('new_password1', '1234==aA')

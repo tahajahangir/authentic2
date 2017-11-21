@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-import re
 import urlparse
 import base64
 
@@ -22,7 +21,7 @@ from django_rbac.utils import get_role_model, get_ou_model
 
 from authentic2 import utils, models, attribute_kinds
 
-from utils import Authentic2TestCase, get_response_form, can_resolve_dns
+from utils import Authentic2TestCase, get_response_form, get_link_from_mail
 
 
 class SerializerTests(TestCase):
@@ -483,10 +482,7 @@ class APITest(TestCase):
 
         # User side
         client = Client()
-        activation_mail = mail.outbox[-1]
-        m = re.search('https?://[^\n ]*', activation_mail.body)
-        self.assertNotEqual(m, None)
-        activation_url = m.group()
+        activation_url = get_link_from_mail(mail.outbox[-1])
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         assert utils.make_url(return_url, params={'token': token}) in response.content
@@ -611,10 +607,7 @@ class APITest(TestCase):
 
         # User side - user click on first email
         client = Client()
-        activation_mail = mail.outbox[-2]
-        m = re.search('https?://[^\n ]*', activation_mail.body)
-        self.assertNotEqual(m, None)
-        activation_url = m.group()
+        activation_url = get_link_from_mail(mail.outbox[-2])
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         assert utils.make_url(return_url, params={'token': token}) in response.content
@@ -629,10 +622,7 @@ class APITest(TestCase):
 
         # User click on second email
         client = Client()
-        activation_mail = mail.outbox[-1]
-        m = re.search('https?://[^\n ]*', activation_mail.body)
-        self.assertNotEqual(m, None)
-        activation_url = m.group()
+        activation_url = get_link_from_mail(mail.outbox[-1])
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(response['Location'],
@@ -739,10 +729,7 @@ class APITest(TestCase):
 
         # User side - user click on first email
         client = Client()
-        activation_mail = mail.outbox[-2]
-        m = re.search('https?://[^\n ]*', activation_mail.body)
-        self.assertNotEqual(m, None)
-        activation_url = m.group()
+        activation_url = get_link_from_mail(mail.outbox[-2])
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         assert utils.make_url(return_url, params={'token': token}) in response.content
@@ -757,10 +744,7 @@ class APITest(TestCase):
 
         # User click on second email
         client = Client()
-        activation_mail = mail.outbox[-1]
-        m = re.search('https?://[^\n ]*', activation_mail.body)
-        self.assertNotEqual(m, None)
-        activation_url = m.group()
+        activation_url = get_link_from_mail(mail.outbox[-1])
         response = client.get(activation_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.status_code, 200)

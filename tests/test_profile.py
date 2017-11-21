@@ -1,5 +1,3 @@
-import re
-
 import pytest
 
 from django.core import mail
@@ -22,9 +20,7 @@ def test_send_password_reset_email(app, simple_user):
                                'base_url': 'http://testserver',
                             })
     assert len(mail.outbox) == 1
-    body = mail.outbox[0].body
-    assert re.findall('http://[^ ]*/', body)
-    url = re.findall('http://[^ ]*/', body)[0]
+    url = utils.get_link_from_mail(mail.outbox[0])
     relative_url = url.split('testserver')[1]
     resp = app.get(relative_url, status=200)
     resp.form.set('new_password1', '1234==aA')
@@ -41,9 +37,7 @@ def test_password_reset_view(app, simple_user):
     resp = resp.form.submit()
     assert resp['Location'].endswith('/moncul/')
     assert len(mail.outbox) == 1
-    body = mail.outbox[0].body
-    assert re.findall('http://[^\s"]+', body)
-    url = re.findall('http://[^\s"]+', body)[0]
+    url = utils.get_link_from_mail(mail.outbox[0])
     relative_url = url.split('testserver')[1]
     resp = app.get(relative_url, status=200)
     resp.form.set('new_password1', '1234==aA')

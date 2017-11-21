@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from urlparse import urlparse
-import re
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME
 
 from authentic2 import utils, models
 
-from utils import can_resolve_dns
+from utils import can_resolve_dns, get_link_from_mail
 
 
 def test_registration(app, db, settings, mailoutbox):
@@ -32,9 +31,7 @@ def test_registration(app, db, settings, mailoutbox):
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
-    links = re.findall('https?://.*/', mailoutbox[0].body)
-    assert links
-    link = links[0]
+    link = get_link_from_mail(mailoutbox[0])
 
     # test password validation
     response = app.get(link)
@@ -92,9 +89,7 @@ def test_registration_realm(app, db, settings, mailoutbox):
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
-    links = re.findall('https?://.*/', mailoutbox[0].body)
-    assert links
-    link = links[0]
+    link = get_link_from_mail(mailoutbox[0])
 
     # register
     response = app.get(link)
@@ -143,10 +138,7 @@ def test_username_settings(app, db, settings, mailoutbox):
     response = response.follow()
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
-
-    links = re.findall('https?://.*/', mailoutbox[0].body)
-    assert links
-    link = links[0]
+    link = get_link_from_mail(mailoutbox[0])
 
     # register
     response = app.get(link)
@@ -197,9 +189,7 @@ def test_username_is_unique(app, db, settings, mailoutbox):
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
-    links = re.findall('https?://.*/', mailoutbox[0].body)
-    assert links
-    link = links[0]
+    link = get_link_from_mail(mailoutbox[0])
 
     response = app.get(link)
     response.form.set('username', 'john.doe')
@@ -242,9 +232,7 @@ def test_email_is_unique(app, db, settings, mailoutbox):
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
-    links = re.findall('https?://.*/', mailoutbox[0].body)
-    assert links
-    link = links[0]
+    link = get_link_from_mail(mailoutbox[0])
 
     response = app.get(link)
     response.form.set('password1', 'T0==toto')
@@ -301,9 +289,7 @@ def test_attribute_model(app, db, settings, mailoutbox):
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
-    links = re.findall('https?://.*/', mailoutbox[0].body)
-    assert links
-    link = links[0]
+    link = get_link_from_mail(mailoutbox[0])
 
     response = app.get(link)
 

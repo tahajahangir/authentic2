@@ -1,4 +1,3 @@
-import re
 import pytest
 from urlparse import urlparse
 
@@ -9,7 +8,7 @@ from authentic2.a2_rbac.utils import get_default_ou
 
 from django_rbac.utils import get_ou_model, get_role_model
 from django.contrib.auth import get_user_model
-from utils import login
+from utils import login, get_link_from_mail
 
 
 pytestmark = pytest.mark.django_db
@@ -106,9 +105,7 @@ def test_manager_user_password_reset(app, superuser, simple_user):
     resp = resp.form.submit('password_reset')
     assert 'A mail was sent to' in resp
     assert len(mail.outbox) == 1
-    body = mail.outbox[0].body
-    assert re.findall('http://[^ ]*/', body)
-    url = re.findall('http://[^ ]*/', body)[0]
+    url = get_link_from_mail(mail.outbox[0])
     relative_url = url.split('testserver')[1]
     resp = app.get('/logout/').maybe_follow()
     resp = app.get(relative_url, status=200)

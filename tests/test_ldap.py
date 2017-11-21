@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
-
 import pytest
 import mock
 
@@ -473,9 +471,7 @@ def test_reset_password_ldap_user(slapd, settings, app, db):
     assert len(mail.outbox) == 0
     response = response.form.submit().maybe_follow()
     assert len(mail.outbox) == 1
-    m = re.search('https?://[^\n ]*', mail.outbox[0].body)
-    assert m
-    reset_email_url = m.group()
+    reset_email_url = utils.get_link_from_mail(mail.outbox[0])
     response = app.get(reset_email_url, status=302)
     response = response.maybe_follow()
     assert 'login-password-submit' in response.content

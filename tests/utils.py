@@ -1,3 +1,4 @@
+import re
 import base64
 import urlparse
 from contextlib import contextmanager
@@ -129,6 +130,7 @@ def check_log(caplog, msg):
     assert any(msg in record.msg for record in caplog.records[idx:]), \
         '%r not found in log records' % msg
 
+
 def can_resolve_dns():
     '''Verify that DNS resolving is available'''
     import socket
@@ -136,3 +138,16 @@ def can_resolve_dns():
         return isinstance(socket.gethostbyname('entrouvert.com'), str)
     except:
         return False
+
+
+def get_links_from_mail(mail):
+    '''Extract links from mail sent by Django'''
+    return re.findall('https?://[^ \n]*', mail.body)
+
+
+def get_link_from_mail(mail):
+    '''Extract the first and only link from this mail'''
+    links = get_links_from_mail(mail)
+    assert links, 'there is not link in this mail'
+    assert len(links) == 1, 'there are more than one link in this mail'
+    return links[0]

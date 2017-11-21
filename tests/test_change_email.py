@@ -1,5 +1,3 @@
-import re
-
 import utils
 
 
@@ -16,9 +14,7 @@ def change_email(app, user, email, mailoutbox):
 
 def test_change_email(app, simple_user, user_ou1, mailoutbox):
     email = change_email(app, simple_user, user_ou1.email, mailoutbox)
-    links = re.findall('https?://[^ \n]*', email.body)
-    assert links
-    link = links[0]
+    link = utils.get_link_from_mail(email)
     app.get(link)
     simple_user.refresh_from_db()
     # ok it worked
@@ -28,9 +24,7 @@ def test_change_email(app, simple_user, user_ou1, mailoutbox):
 def test_change_email_email_is_unique(app, settings, simple_user, user_ou1, mailoutbox):
     settings.A2_EMAIL_IS_UNIQUE = True
     email = change_email(app, simple_user, user_ou1.email, mailoutbox)
-    links = re.findall('https?://[^ \n]*', email.body)
-    assert links
-    link = links[0]
+    link = utils.get_link_from_mail(email)
     # email change is impossible as email is already taken
     assert 'password/reset' in link
 
@@ -41,9 +35,7 @@ def test_change_email_ou_email_is_unique(app, simple_user, user_ou1, user_ou2, m
     user_ou2.email = 'john.doe-ou2@example.net'
     user_ou2.save()
     email = change_email(app, simple_user, user_ou2.email, mailoutbox)
-    links = re.findall('https?://[^ \n]*', email.body)
-    assert links
-    link = links[0]
+    link = utils.get_link_from_mail(email)
     app.get(link)
     simple_user.refresh_from_db()
     # ok it worked for a differnt ou
@@ -52,8 +44,6 @@ def test_change_email_ou_email_is_unique(app, simple_user, user_ou1, user_ou2, m
     simple_user.ou = user_ou1.ou
     simple_user.save()
     email = change_email(app, simple_user, user_ou1.email, mailoutbox)
-    links = re.findall('https?://[^ \n]*', email.body)
-    assert links
-    link = links[0]
+    link = utils.get_link_from_mail(email)
     # email change is impossible as email is already taken in the same ou
     assert 'password/reset' in link

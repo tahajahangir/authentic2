@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-import re
-
 from authentic2.custom_user.models import User
 from authentic2.models import Attribute
+
+from utils import get_link_from_mail
 
 
 def test_string(db, app, admin, mailoutbox):
@@ -15,7 +15,7 @@ def test_string(db, app, admin, mailoutbox):
     form.set('email', 'john.doe@example.com')
     response = form.submit().follow()
     assert 'john.doe@example.com' in response
-    url = re.search('https?://[^\n ]*', mailoutbox[0].body).group()
+    url = get_link_from_mail(mailoutbox[0])
     response = app.get(url)
 
     form = response.form
@@ -64,7 +64,7 @@ def test_fr_postcode(db, app, admin, mailoutbox):
     form.set('email', 'john.doe@example.com')
     response = form.submit().follow()
     assert 'john.doe@example.com' in response
-    url = re.search('https?://[^\n ]*', mailoutbox[0].body).group()
+    url = get_link_from_mail(mailoutbox[0])
     response = app.get(url)
 
     form = response.form
@@ -167,7 +167,7 @@ def test_phone_number(db, app, admin, mailoutbox):
     form.set('email', 'john.doe@example.com')
     response = form.submit().follow()
     assert 'john.doe@example.com' in response
-    url = re.search('https?://[^\n ]*', mailoutbox[0].body).group()
+    url = get_link_from_mail(mailoutbox[0])
     response = app.get(url)
 
     form = response.form

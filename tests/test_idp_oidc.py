@@ -2,7 +2,6 @@ import urlparse
 import base64
 import json
 import datetime
-import re
 
 import pytest
 
@@ -783,9 +782,7 @@ def test_registration_service_slug(oidc_settings, app, simple_oidc_client, simpl
     response.form.set('email', 'john.doe@example.com')
     response = response.form.submit()
     assert len(mailoutbox) == 1
-    links = re.findall('https?://.*/', mailoutbox[0].body)
-    assert len(links) == 1
-    link = links[0]
+    link = utils.get_link_from_mail(mailoutbox[0])
     response = app.get(link)
     response.form.set('first_name', 'John')
     response.form.set('last_name', 'Doe')
