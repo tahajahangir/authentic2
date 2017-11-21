@@ -255,7 +255,7 @@ class RolePermissionsView(RoleViewMixin, views.BaseSubTableView):
                 except (ValueError, Permission.DoesNotExist):
                     pass
                 else:
-                    if self.objects.permissions.filter(id=permission_id).exists():
+                    if self.object.permissions.filter(id=permission_id).exists():
                         self.object.permissions.remove(perm)
                         hooks.call_hooks('event', name='manager-remove-permission',
                                          user=self.request.user, role=self.object, permission=perm)
