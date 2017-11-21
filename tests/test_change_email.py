@@ -47,3 +47,17 @@ def test_change_email_ou_email_is_unique(app, simple_user, user_ou1, user_ou2, m
     link = utils.get_link_from_mail(email)
     # email change is impossible as email is already taken in the same ou
     assert 'password/reset' in link
+
+
+def test_change_email_is_unique_after_first_view(app, settings, simple_user, user_ou1, mailoutbox):
+    settings.A2_EMAIL_IS_UNIQUE = True
+    new_email = 'wtf@example.net'
+    email = change_email(app, simple_user, new_email, mailoutbox)
+    link = utils.get_link_from_mail(email)
+    # user_ou1 take the new email in the meantime
+    user_ou1.email = new_email
+    user_ou1.save()
+    # email change is impossible as email is already taken
+    link = utils.get_link_from_mail(email)
+    response = app.get(link).follow()
+    assert 'is already used by another account' in response.content

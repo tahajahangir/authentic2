@@ -19,6 +19,7 @@ from django.contrib.auth import SESSION_KEY
 from django import http, shortcuts
 from django.core import mail, signing
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.http import urlencode, same_origin
@@ -210,6 +211,7 @@ class EmailChangeView(cbv.TemplateNamesMixin, FormView):
 email_change = decorators.setting_enabled('A2_PROFILE_CAN_CHANGE_EMAIL')(
     login_required(EmailChangeView.as_view()))
 
+
 class EmailChangeVerifyView(TemplateView):
     def get(self, request, *args, **kwargs):
         if 'token' in request.GET:
@@ -227,7 +229,7 @@ class EmailChangeVerifyView(TemplateView):
                     non_unique = User.objects.filter(email=email, ou=user.ou).exclude(
                         pk=user_pk).exists()
                 if non_unique:
-                    raise forms.ValidationError(_('This email is already used by another account.'))
+                    raise ValidationError(_('This email is already used by another account.'))
                 old_email = user.email
                 user.email = email
                 user.save()
@@ -249,7 +251,7 @@ class EmailChangeVerifyView(TemplateView):
             except User.DoesNotExist:
                 messages.error(request, _('your request for changing your email is for '
                     'an unknown user, try again'))
-            except forms.ValidationError as e:
+            except ValidationError as e:
                 messages.error(request, e.message)
             else:
                 return shortcuts.redirect('account_management')
