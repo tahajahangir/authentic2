@@ -187,6 +187,9 @@ default_settings = dict(
     A2_LOGIN_REDIRECT_AUTHENTICATED_USERS_TO_HOMEPAGE=Setting(
         default=False,
         definition='Redirect authenticated users to homepage'),
+    A2_SET_RANDOM_PASSWORD_ON_RESET=Setting(
+        default=True,
+        definition='Set a random password on request to reset the password from the front-office'),
 )
 
 app_settings = AppSettings(default_settings)

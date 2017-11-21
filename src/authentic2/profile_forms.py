@@ -4,7 +4,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth import get_user_model
 
 from .utils import send_password_reset_mail
-from . import hooks
+from . import hooks, app_settings
 
 
 class PasswordResetForm(forms.Form):
@@ -25,6 +25,8 @@ class PasswordResetForm(forms.Form):
         for user in active_users:
             # we don't set the password to a random string, as some users should not have
             # a password
-            send_password_reset_mail(user, set_random_password=user.has_usable_password(),
+            set_random_password = (user.has_usable_password()
+                                   and app_settings.A2_SET_RANDOM_PASSWORD_ON_RESET)
+            send_password_reset_mail(user, set_random_password=set_random_password,
                                      next_url=self.cleaned_data.get('next_url'))
         hooks.call_hooks('event', name='password-reset', email=email, users=active_users)
