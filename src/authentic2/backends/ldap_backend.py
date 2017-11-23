@@ -5,6 +5,7 @@ try:
     from ldap.filter import filter_format
     from ldap.dn import escape_dn_chars
     from ldap.ldapobject import ReconnectLDAPObject
+    from ldap.controls import SimplePagedResultsControl
 except ImportError:
     ldap = None
 import logging
@@ -862,6 +863,21 @@ class LDAPBackend(object):
         return [(a, '%s (LDAP)' % a) for a in sorted(names)]
 
     @classmethod
+    def paged_search(cls, conn, *args, **kwargs):
+        COOKIE = ''
+        PAGE_SIZE = 100
+        CRITICALITY = True
+        first_pass = True
+        pg_ctrl = SimplePagedResultsControl(CRITICALITY, PAGE_SIZE, COOKIE)
+        while first_pass or pg_ctrl.cookie:
+            first_pass = False
+            msgid = conn.search_ext(*args, serverctrls=[pg_ctrl], **kwargs)
+            result_type, data, msgid, serverctrls = conn.result3(msgid)
+            pg_ctrl.cookie = serverctrls[0].cookie
+            for user_dn, user in data:
+                yield user_dn, user
+
+    @classmethod
     def get_users(cls):
         logger = logging.getLogger(__name__)
         for block in cls.get_config():
@@ -873,7 +889,8 @@ class LDAPBackend(object):
             user_filter = block['sync_ldap_users_filter'] or block['user_filter']
             user_filter = user_filter.replace('%s', '*')
             attrs = cls.get_ldap_attributes_names(block)
-            users = conn.search_s(user_basedn, ldap.SCOPE_SUBTREE, user_filter, attrlist=attrs)
+            users = cls.paged_search(conn, user_basedn, ldap.SCOPE_SUBTREE, user_filter,
+                                     attrlist=attrs)
             backend = cls()
             for user_dn, data in users:
                 # ignore referrals
