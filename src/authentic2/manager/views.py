@@ -265,6 +265,7 @@ class TitleMixin(object):
     def get_context_data(self, **kwargs):
         ctx = super(TitleMixin, self).get_context_data(**kwargs)
         ctx['title'] = self.title
+        ctx['manager_site_title'] = app_settings.SITE_TITLE
         return ctx
 
 
@@ -536,7 +537,7 @@ class BaseEditView(MultipleOUMixin, SuccessMessageMixin, TitleMixin, ModelNameMi
         return '..'
 
 
-class HomepageView(PermissionMixin, MediaMixin, TemplateView):
+class HomepageView(TitleMixin, PermissionMixin, MediaMixin, TemplateView):
     template_name = 'authentic2/manager/homepage.html'
     permissions = ['a2_rbac.search_role', 'a2_rbac.search_organizationalunit',
                    'auth.search_group', 'custom_user.search_user']

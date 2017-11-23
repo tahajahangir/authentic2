@@ -11,6 +11,7 @@ class AppSettings(object):
         'SHOW_INTERNAL_ROLES': False,
         'USER_SEARCH_MINIMUM_CHARS': 0,
         'LOGIN_URL': None,
+        'SITE_TITLE': None,
     }
 
     def __getattr__(self, name):

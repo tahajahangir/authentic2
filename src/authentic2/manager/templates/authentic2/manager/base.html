@@ -4,8 +4,8 @@
 
 {% block bodyargs %} class="{% block bodyclasses %}{% endblock %}"{% endblock %}
 
-{% block page-title %}{% firstof site_title "Authentic2" %}{% endblock %}
-{% block site-title %}{% firstof site_title "Authentic2" %}{% endblock %}
+{% block page-title %}{% firstof manager_site_title site_title "Authentic2" %}{% endblock %}
+{% block site-title %}{% firstof manager_site_title site_title "Authentic2" %}{% endblock %}
 
 {% block user-links %}
   <ul class="user-info">
@@ -34,6 +34,6 @@
 {% block breadcrumb %}
   {{ block.super }}
   {% if not manager_homepage_url %}
-    <a href="{% url 'a2-manager-homepage' %}">{% trans 'Administration' %}</a>
+  <a href="{% url 'a2-manager-homepage' %}">{% trans 'Administration' as default_site_tile %}{% firstof manager_site_title default_site_tile %}</a>
   {% endif %}
 {% endblock %}
