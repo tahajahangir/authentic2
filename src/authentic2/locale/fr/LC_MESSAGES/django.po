@@ -159,7 +159,7 @@ msgstr ""
 
 #: authentic2/attribute_kinds.py:39
 msgid "ex.: 0699999999, +33 6 99 99 99 99"
-msgstr ""
+msgstr "ex.: 0699999999"
 
 #: authentic2/attribute_kinds.py:54
 msgid "The value must be a valid french postcode"
