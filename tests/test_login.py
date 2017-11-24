@@ -34,3 +34,10 @@ def test_login_inactive_user(db, app):
 def test_registration_url_on_login_page(db, app):
     response = app.get('/login/?next=/whatever')
     assert 'register/?next=/whatever"' in response
+
+
+def test_redirect_login_to_homepage(db, app, settings, simple_user, superuser):
+    settings.A2_LOGIN_REDIRECT_AUTHENTICATED_USERS_TO_HOMEPAGE = True
+    login(app, simple_user)
+    response = app.get('/login/')
+    assert response.status_code == 302

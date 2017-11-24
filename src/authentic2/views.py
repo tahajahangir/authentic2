@@ -269,6 +269,13 @@ logger = logging.getLogger('authentic2.idp.views')
 def login(request, template_name='authentic2/login.html',
           redirect_field_name=REDIRECT_FIELD_NAME):
     """Displays the login form and handles the login action."""
+
+    # redirect user to homepage if already connected, if setting
+    # A2_LOGIN_REDIRECT_AUTHENTICATED_USERS_TO_HOMEPAGE is True
+    if (request.user.is_authenticated() and
+            app_settings.A2_LOGIN_REDIRECT_AUTHENTICATED_USERS_TO_HOMEPAGE):
+        return utils.redirect(request, 'auth_homepage')
+
     redirect_to = request.GET.get(redirect_field_name)
 
     if not redirect_to or ' ' in redirect_to:

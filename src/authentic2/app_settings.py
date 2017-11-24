@@ -181,6 +181,9 @@ default_settings = dict(
         default={},
         definition='Exclusion filter (as in QuerySet.exclude() to apply to User queryset before '
                    'authentication'),
+    A2_LOGIN_REDIRECT_AUTHENTICATED_USERS_TO_HOMEPAGE=Setting(
+        default=False,
+        definition='Redirect authenticated users to homepage'),
 )
 
 app_settings = AppSettings(default_settings)
