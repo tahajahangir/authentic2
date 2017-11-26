@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: authentic2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-21 16:56+0100\n"
+"POT-Creation-Date: 2017-11-27 00:08+0100\n"
 "PO-Revision-Date: 2017-06-26 18:22+0200\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -145,7 +145,7 @@ msgstr "libellé"
 #: authentic2/manager/templates/authentic2/manager/ou_common.html:4
 #: authentic2/manager/templates/authentic2/manager/ou_common.html:8
 #: authentic2/manager/templates/authentic2/manager/ous.html:4
-#: authentic2/manager/views.py:559
+#: authentic2/manager/views.py:560
 msgid "Organizational units"
 msgstr "Collectivités"
 
@@ -181,7 +181,7 @@ msgstr ""
 #: authentic2/manager/templates/authentic2/manager/user_detail.html:66
 #: authentic2/manager/templates/authentic2/manager/user_ou_roles.html:8
 #: authentic2/manager/templates/authentic2/manager/user_roles.html:8
-#: authentic2/manager/views.py:571
+#: authentic2/manager/views.py:572
 msgid "Roles"
 msgstr "Rôles"
 
@@ -261,7 +261,7 @@ msgstr "Supprimer un rôle gestionnaire"
 #: authentic2/manager/templates/authentic2/manager/homepage.html:37
 #: authentic2/manager/templates/authentic2/manager/services.html:4
 #: authentic2/manager/templates/authentic2/manager/services.html:8
-#: authentic2/manager/views.py:577
+#: authentic2/manager/views.py:578
 msgid "Services"
 msgstr "Applications"
 
@@ -374,7 +374,7 @@ msgid "Delete"
 msgstr "Supprimer"
 
 #: authentic2/manager/templates/authentic2/manager/delete.html:16
-#: authentic2/manager/templates/authentic2/manager/form.html:58
+#: authentic2/manager/templates/authentic2/manager/form.html:67
 #: authentic2/manager/templates/authentic2/manager/role_remove_admin_role.html:19
 #: authentic2/manager/templates/authentic2/manager/role_remove_admin_user.html:19
 #: authentic2/manager/templates/authentic2/manager/role_remove_child.html:19
@@ -386,11 +386,15 @@ msgstr "Annuler"
 msgid "Export"
 msgstr "Exporter"
 
-#: authentic2/manager/templates/authentic2/manager/form.html:59
+#: authentic2/manager/templates/authentic2/manager/form.html:33
+msgid "The form contains some errors, please fix them."
+msgstr "Ce formulaire contient des erreurs, corrigez les."
+
+#: authentic2/manager/templates/authentic2/manager/form.html:68
 msgid "Save"
 msgstr "Sauvegarder"
 
-#: authentic2/manager/templates/authentic2/manager/form.html:66
+#: authentic2/manager/templates/authentic2/manager/form.html:75
 msgid "Actions"
 msgstr "Actions"
 
@@ -408,7 +412,7 @@ msgstr "Gérer les collectivités, les utilisateurs, les rôles et les services"
 #: authentic2/manager/templates/authentic2/manager/user_roles.html:6
 #: authentic2/manager/templates/authentic2/manager/users.html:4
 #: authentic2/manager/templates/authentic2/manager/users.html:26
-#: authentic2/manager/user_views.py:41 authentic2/manager/views.py:565
+#: authentic2/manager/user_views.py:41 authentic2/manager/views.py:566
 msgid "Users"
 msgstr "Utilisateurs"
 
@@ -831,12 +835,12 @@ msgstr "L'utilisateur {user} possède déjà le rôle {role}."
 msgid "Delete user"
 msgstr "Supprimer l'utilisateur"
 
-#: authentic2/manager/views.py:436
+#: authentic2/manager/views.py:437
 #, python-format
 msgid "Delete %s"
 msgstr "Supprimer l'objet « %s »"
 
-#: authentic2/manager/views.py:533
+#: authentic2/manager/views.py:534
 #, python-format
 msgid "Edit %s"
 msgstr "Éditer l'objet « %s »"
