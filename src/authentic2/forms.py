@@ -1,11 +1,13 @@
 from django import forms
 from django.forms.models import modelform_factory as django_modelform_factory
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth import REDIRECT_FIELD_NAME, forms as auth_forms
+from django.utils import html
 
 from authentic2.compat import get_user_model
 
 from . import models, app_settings
+from .exponential_retry_timeout import ExponentialRetryTimeout
 
 
 class EmailChangeFormNoPassword(forms.Form):
@@ -139,3 +141,42 @@ def modelform_factory(model, **kwargs):
     kwargs['form'] = modelform
     modelform.required_css_class = 'form-field-required'
     return django_modelform_factory(model, **kwargs)
+
+
+class AuthenticationForm(auth_forms.AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super(AuthenticationForm, self).__init__(*args, **kwargs)
+        self.exponential_backoff = ExponentialRetryTimeout(
+            key_prefix='login-exp-backoff-',
+            duration=app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_DURATION,
+            factor=app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_FACTOR)
+
+        if self.request:
+            self.remote_addr = self.request.META['REMOTE_ADDR']
+        else:
+            self.remote_addr = '0.0.0.0'
+
+    def exp_backoff_keys(self):
+        return self.cleaned_data['username'], self.remote_addr
+
+    def clean(self):
+        seconds_to_wait = self.exponential_backoff.seconds_to_wait(
+            *self.exp_backoff_keys())
+        if seconds_to_wait > app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION:
+            msg = _('You made too many login errors recently, you must '
+                    'wait <span class="js-seconds-until">%s</span> seconds '
+                    'to try again.')
+            msg = msg % int(seconds_to_wait)
+            msg = html.mark_safe(msg)
+            raise forms.ValidationError(msg)
+
+        try:
+            super(AuthenticationForm, self).clean()
+        except:
+            self.exponential_backoff.failure(
+                *self.exp_backoff_keys())
+            raise
+        else:
+            self.exponential_backoff.success(
+                *self.exp_backoff_keys())
+        return self.cleaned_data

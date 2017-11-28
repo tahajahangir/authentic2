@@ -41,3 +41,24 @@ def test_redirect_login_to_homepage(db, app, settings, simple_user, superuser):
     login(app, simple_user)
     response = app.get('/login/')
     assert response.status_code == 302
+
+
+def test_exponential_backoff(db, app, settings):
+    response = app.get('/login/')
+    for i in range(10):
+        response.form.set('username', 'zozo')
+        response.form.set('password', 'zozo')
+        response = response.form.submit('login-password-submit')
+        assert 'too many login' not in response.content
+
+    settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_DURATION = 1.0
+    settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION = 10.0
+
+    for i in range(10):
+        response.form.set('username', 'zozo')
+        response.form.set('password', 'zozo')
+        response = response.form.submit('login-password-submit')
+        if 1.8 ** i > 10:
+            break
+        assert 'too many login' not in response.content, '%s' % i
+    assert 'too many login' in response.content, '%s' % i

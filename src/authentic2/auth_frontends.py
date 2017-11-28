@@ -1,9 +1,7 @@
-from django.contrib.auth import forms
 from django.shortcuts import render
 from django.utils.translation import ugettext as _, ugettext_lazy
 
-from . import views, app_settings, utils, constants
-from .exponential_retry_timeout import ExponentialRetryTimeout
+from . import views, app_settings, utils, constants, forms
 
 
 class LoginPasswordBackend(object):
@@ -19,15 +17,10 @@ class LoginPasswordBackend(object):
         return 'password'
 
     def login(self, request, *args, **kwargs):
-        exponential_backoff = ExponentialRetryTimeout(
-            key_prefix='login-exp-retry-timeout-',
-            duration=app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_DURATION,
-            factor=app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_FACTOR,
-            max_duration=app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MAX_DURATION)
         context_instance = kwargs.get('context_instance', None)
         is_post = request.method == 'POST' and self.submit_name in request.POST
         data = request.POST if is_post else None
-        form = forms.AuthenticationForm(data=data)
+        form = forms.AuthenticationForm(request=request, data=data)
         if app_settings.ACCEPT_EMAIL_AUTHENTICATION:
             form.fields['username'].label = _('Username or email')
         if app_settings.A2_USERNAME_LABEL:
@@ -36,31 +29,15 @@ class LoginPasswordBackend(object):
         context = {
             'submit_name': self.submit_name,
         }
-        seconds_to_wait = exponential_backoff.seconds_to_wait(request)
-        reset = True
-        if is_post and not seconds_to_wait > 2:
+        if is_post:
             utils.csrf_token_check(request, form)
-            reset = False
             if form.is_valid():
                 if is_secure:
                     how = 'password-on-https'
                 else:
                     how = 'password'
-                exponential_backoff.success(request)
                 return utils.login(request, form.get_user(), how,
                                    service_slug=request.GET.get(constants.SERVICE_FIELD_NAME))
-            else:
-                exponential_backoff.failure(request)
-                seconds_to_wait = exponential_backoff.seconds_to_wait(request)
-        if seconds_to_wait > 2:
-            # during a post reset form data to prevent validation
-            if is_post and reset:
-                form = forms.AuthenticationForm(initial={'username': data.get('username', '')})
-            msg = _('You made too many login errors recently, you must '
-                    'wait <span class="js-seconds-until">%s</span> seconds '
-                    'to try again.')
-            msg = msg % int(seconds_to_wait)
-            utils.form_add_error(form, msg, safe=True)
         context['form'] = form
         return render(request, 'authentic2/login_password_form.html', context,
                       context_instance=context_instance)
