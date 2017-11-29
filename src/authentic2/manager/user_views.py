@@ -443,10 +443,11 @@ class UserDeleteView(BaseDeleteView):
     def get_success_url(self):
         return reverse('a2-manager-users')
 
-    def form_valid(self, form):
-        response = super(UserDeleteView, self).form_valid(form)
-        hooks.call_hooks('event', name='manager-delete-user', user=self.request.user,
-                         instance=form.instance, form=form)
+    def delete(self, request, *args, **kwargs):
+        response = super(UserDeleteView, self).delete(request, *args, **kwargs)
+        hooks.call_hooks('event', name='manager-delete-user', user=request.user,
+                         instance=self.object)
         return response
+
 
 user_delete = UserDeleteView.as_view()
