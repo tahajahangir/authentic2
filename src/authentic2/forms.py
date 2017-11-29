@@ -1,3 +1,5 @@
+import math
+
 from django import forms
 from django.forms.models import modelform_factory as django_modelform_factory
 from django.utils.translation import ugettext_lazy as _
@@ -163,10 +165,11 @@ class AuthenticationForm(auth_forms.AuthenticationForm):
         seconds_to_wait = self.exponential_backoff.seconds_to_wait(
             *self.exp_backoff_keys())
         if seconds_to_wait > app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION:
+            seconds_to_wait -= app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION
             msg = _('You made too many login errors recently, you must '
                     'wait <span class="js-seconds-until">%s</span> seconds '
                     'to try again.')
-            msg = msg % int(seconds_to_wait)
+            msg = msg % int(math.ceil(seconds_to_wait))
             msg = html.mark_safe(msg)
             raise forms.ValidationError(msg)
 
