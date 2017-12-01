@@ -27,6 +27,9 @@ from authentic2 import app_settings as a2_app_settings
 from . import fields, app_settings, utils
 
 
+logger = logging.getLogger(__name__)
+
+
 class CssClass(object):
     error_css_class = 'error'
     required_css_class = 'required'
@@ -86,7 +89,10 @@ class LimitQuerysetFormMixin(FormWithRequest):
                     perm = '%s.search_%s' % (app_label, model_name)
                 qs = self.request.user.filter_by_perm(perm, qs)
                 field.queryset = qs
-                assert qs.exists(), 'user has no view permissions on model %s' % qs.model
+                if not qs.exists():
+                    # This should not happen, but could, so log it as error to find it later
+                    logger.error(u'user has no search permissions on model %s with roles %s',
+                                 qs.model, list(self.request.user.roles_and_parents()))
 
 
 class ChooseUserForm(CssClass, forms.Form):
@@ -355,9 +361,8 @@ class UserAddForm(UserChangePasswordForm, UserEditForm):
                         'user': user,
                     })
             except smtplib.SMTPException, e:
-                logger = logging.getLogger(__name__)
-                logger.getLogger(__name__).error(u'registration mail could not be sent to user %s '
-                                                 'created through manager: %s', user, e)
+                logger.error(u'registration mail could not be sent to user %s created through '
+                             u'manager: %s', user, e)
         return user
 
     class Meta:
