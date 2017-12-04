@@ -979,3 +979,53 @@ def simulate_authentication(request, user, method,
 def get_manager_login_url():
     from authentic2.manager import app_settings
     return app_settings.LOGIN_URL or settings.LOGIN_URL
+
+
+def send_email_change_email(user, email, request=None, context=None, template_names=None):
+    '''Send an email to verify that user can take email as its new email'''
+    assert user
+    assert email
+
+    logger = logging.getLogger(__name__)
+
+    if template_names is None:
+        template_names = ['authentic2/change_email_notification']
+        legacy_subject_templates = ['profiles/email_change_subject.txt']
+        legacy_body_templates = ['profiles/email_change_body.txt']
+    else:
+        legacy_subject_templates = None
+        legacy_body_templates = None
+
+    # build verify email URL containing a signed token
+    token = signing.dumps({
+        'email': email,
+        'user_pk': user.pk,
+    })
+    link = '{0}?token={1}'.format(reverse('email-change-verify'), token)
+    link = request.build_absolute_uri(link)
+
+    # check if email should be unique and is not
+    email_is_not_unique = False
+    qs = get_user_model().objects.all()
+    if app_settings.A2_EMAIL_IS_UNIQUE:
+        email_is_not_unique = qs.filter(email=email).exclude(pk=user.pk).exists()
+    elif user.ou and user.ou.email_is_unique:
+        email_is_not_unique = qs.filter(email=email, ou=user.ou).exclude(pk=user.pk).exists()
+    ctx = context or {}
+    ctx.update({
+        'email': email,
+        'old_email': user.email,
+        'user': user,
+        'link': link,
+        'domain': request.get_host(),
+        'token_lifetime': human_duration(app_settings.A2_EMAIL_CHANGE_TOKEN_LIFETIME),
+        'password_reset_url': request.build_absolute_uri(reverse('password_reset')),
+        'email_is_not_unique': email_is_not_unique,
+    })
+    logger.info(u'sent email verify email to %s for %s', email, user)
+    send_templated_mail(
+        email,
+        template_names,
+        context=ctx,
+        legacy_subject_templates=legacy_subject_templates,
+        legacy_body_templates=legacy_body_templates)

@@ -152,9 +152,7 @@ class EmailChangeView(cbv.TemplateNamesMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(EmailChangeView, self).get_form_kwargs()
-        kwargs.update({
-            'user': self.request.user,
-        })
+        kwargs['user'] = self.request.user
         return kwargs
 
     def post(self, request, *args, **kwargs):
@@ -162,42 +160,9 @@ class EmailChangeView(cbv.TemplateNamesMixin, FormView):
             return utils.redirect(request, 'account_management')
         return super(EmailChangeView, self).post(request, *args, **kwargs)
 
-    @classmethod
-    def send_email_change_email(cls, request, user, email):
-        token = signing.dumps({
-            'email': email,
-            'user_pk': user.pk,
-        })
-        link = '{0}?token={1}'.format(
-            reverse('email-change-verify'),
-            token)
-        link = request.build_absolute_uri(link)
-        ctx = {
-            'email': email,
-            'old_email': user.email,
-            'user': user,
-            'link': link,
-            'domain': request.get_host(),
-            'token_lifetime': utils.human_duration(app_settings.A2_EMAIL_CHANGE_TOKEN_LIFETIME),
-            'password_reset_url': request.build_absolute_uri(reverse('password_reset')),
-        }
-        qs = compat.get_user_model().objects.all()
-        if app_settings.A2_EMAIL_IS_UNIQUE:
-            ctx['email_is_not_unique'] = qs.filter(email=email).exclude(pk=user.pk).exists()
-        elif user.ou and user.ou.email_is_unique:
-            ctx['email_is_not_unique'] = qs.filter(email=email,
-                                                   ou=user.ou).exclude(pk=user.pk).exists()
-
-        utils.send_templated_mail(
-            email,
-            ['authentic2/change_email_notification'],
-            context=ctx,
-            legacy_subject_templates=['profiles/email_change_subject.txt'],
-            legacy_body_templates=['profiles/email_change_body.txt'])
-
     def form_valid(self, form):
         email = form.cleaned_data['email']
-        self.send_email_change_email(self.request, self.request.user, email)
+        utils.send_email_change_email(self.request.user, email, request=self.request)
         hooks.call_hooks('event', name='change-email', user=self.request.user, email=email)
         messages.info(
             self.request,

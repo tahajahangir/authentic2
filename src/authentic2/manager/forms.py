@@ -622,7 +622,7 @@ class OUEditForm(SlugMixin, CssClass, forms.ModelForm):
 
     class Meta:
         model = get_ou_model()
-        fields = ('name', 'default', 'username_is_unique', 'email_is_unique', 'validate_emails')
+        fields = ('name', 'default', 'username_is_unique', 'email_is_unique')
 
 
 def get_role_form_class():

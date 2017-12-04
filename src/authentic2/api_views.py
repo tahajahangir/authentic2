@@ -564,7 +564,6 @@ class UsersAPI(HookMixin, ExceptionHandlerMixin, ModelViewSet):
     @detail_route(methods=['post'],
                   permission_classes=(DjangoPermission('custom_user.change_user'),))
     def email(self, request, uuid):
-        from authentic2.views import EmailChangeView
         user = self.get_object()
         serializer = ChangeEmailSerializer(data=request.data)
         if not serializer.is_valid():
@@ -573,7 +572,7 @@ class UsersAPI(HookMixin, ExceptionHandlerMixin, ModelViewSet):
                 'errors': serializer.errors
             }
             return Response(response, status.HTTP_400_BAD_REQUEST)
-        EmailChangeView.send_email_change_email(request, user, serializer.validated_data['email'])
+        utils.send_email_change_email(user, serializer.validated_data['email'], request=request)
         return Response({'result': 1})
 
 
