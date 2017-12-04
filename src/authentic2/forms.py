@@ -162,24 +162,29 @@ class AuthenticationForm(auth_forms.AuthenticationForm):
         return self.cleaned_data['username'], self.remote_addr
 
     def clean(self):
-        seconds_to_wait = self.exponential_backoff.seconds_to_wait(
-            *self.exp_backoff_keys())
-        if seconds_to_wait > app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION:
-            seconds_to_wait -= app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION
-            msg = _('You made too many login errors recently, you must '
-                    'wait <span class="js-seconds-until">%s</span> seconds '
-                    'to try again.')
-            msg = msg % int(math.ceil(seconds_to_wait))
-            msg = html.mark_safe(msg)
-            raise forms.ValidationError(msg)
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        keys = None
+        if username and password:
+            keys = self.exp_backoff_keys()
+            seconds_to_wait = self.exponential_backoff.seconds_to_wait(*keys)
+            if seconds_to_wait > app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION:
+                seconds_to_wait -= app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_MIN_DURATION
+                msg = _('You made too many login errors recently, you must '
+                        'wait <span class="js-seconds-until">%s</span> seconds '
+                        'to try again.')
+                msg = msg % int(math.ceil(seconds_to_wait))
+                msg = html.mark_safe(msg)
+                raise forms.ValidationError(msg)
 
         try:
             super(AuthenticationForm, self).clean()
         except:
-            self.exponential_backoff.failure(
-                *self.exp_backoff_keys())
+            if keys:
+                self.exponential_backoff.failure(*keys)
             raise
         else:
-            self.exponential_backoff.success(
-                *self.exp_backoff_keys())
+            if keys:
+                self.exponential_backoff.success(*keys)
         return self.cleaned_data

@@ -45,6 +45,11 @@ def test_redirect_login_to_homepage(db, app, settings, simple_user, superuser):
 
 def test_exponential_backoff(db, app, settings):
     response = app.get('/login/')
+    response.form.set('username', '')
+    response.form.set('password', 'zozo')
+    response = response.form.submit('login-password-submit')
+    assert response.status_code == 200
+
     for i in range(10):
         response.form.set('username', 'zozo')
         response.form.set('password', 'zozo')
