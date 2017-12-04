@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-09-25 11:23+0200\n"
-"PO-Revision-Date: 2017-06-26 22:21+0200\n"
+"PO-Revision-Date: 2017-12-04 20:25+0100\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: None\n"
 "Language: \n"
@@ -56,7 +56,7 @@ msgstr ""
 
 #: authentic2_idp_oidc/models.py:68
 msgid "authorization by service"
-msgstr "authoriser par service"
+msgstr "autoriser par service"
 
 #: authentic2_idp_oidc/models.py:69
 msgid "authorization by ou"
