@@ -51,3 +51,6 @@ HOBO_SKELETONS_DIR = os.path.join(VAR_DIR, 'skeletons')
 CONFIG_FILE='/etc/%s/config.py' % PROJECT_NAME
 if os.path.exists(CONFIG_FILE):
     execfile(CONFIG_FILE)
+
+# run additional settings snippets
+execfile('/usr/lib/hobo/debian_config_settings_d.py')
