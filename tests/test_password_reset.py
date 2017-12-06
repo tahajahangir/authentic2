@@ -41,3 +41,27 @@ def test_view(app, simple_user, mailoutbox):
     assert str(app.session['_auth_user_id']) == str(simple_user.pk)
     # verify next_url was kept
     assert resp['Location'].endswith('/moncul/')
+
+
+def test_user_filter(app, simple_user, mailoutbox, settings):
+    settings.A2_USER_FILTER = {'username': 'xxx'}  # will not match simple_user
+
+    url = reverse('password_reset') + '?next=/moncul/'
+    resp = app.get(url, status=200)
+    resp.form.set('email', simple_user.email)
+    assert len(mailoutbox) == 0
+    resp = resp.form.submit()
+    assert resp['Location'].endswith('/moncul/')
+    assert len(mailoutbox) == 0
+
+
+def test_user_exclude(app, simple_user, mailoutbox, settings):
+    settings.A2_USER_EXCLUDE = {'username': simple_user.username}  # will not match simple_user
+
+    url = reverse('password_reset') + '?next=/moncul/'
+    resp = app.get(url, status=200)
+    resp.form.set('email', simple_user.email)
+    assert len(mailoutbox) == 0
+    resp = resp.form.submit()
+    assert resp['Location'].endswith('/moncul/')
+    assert len(mailoutbox) == 0

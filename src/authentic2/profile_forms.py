@@ -3,6 +3,7 @@ from django import forms
 from django.utils.translation import ugettext as _
 from django.contrib.auth import get_user_model
 
+from .backends import get_user_queryset
 from .utils import send_password_reset_mail
 from . import hooks, app_settings
 
@@ -18,10 +19,9 @@ class PasswordResetForm(forms.Form):
         Generates a one-use only link for resetting password and sends to the
         user.
         """
-        UserModel = get_user_model()
         email = self.cleaned_data["email"]
-        active_users = UserModel._default_manager.filter(
-            email__iexact=email, is_active=True)
+        users = get_user_queryset()
+        active_users = users.filter(email__iexact=email, is_active=True)
         for user in active_users:
             # we don't set the password to a random string, as some users should not have
             # a password
