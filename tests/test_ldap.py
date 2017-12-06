@@ -359,7 +359,11 @@ def test_get_users(slapd, settings):
 
 
 @pytest.mark.django_db
-def test_create_mandatory_roles(slapd, settings):
+def test_set_mandatory_roles(slapd, settings):
+    from authentic2.a2_rbac.models import Role
+
+    Role.objects.get_or_create(name='tech')
+    Role.objects.get_or_create(name='admin')
     User = get_user_model()
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
@@ -371,10 +375,9 @@ def test_create_mandatory_roles(slapd, settings):
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
         'set_mandatory_roles': ['tech', 'admin'],
-        'create_role': True,
     }]
 
-    users = list(ldap_backend.LDAPBackend.get_users())
+    list(ldap_backend.LDAPBackend.get_users())
     assert User.objects.first().roles.count() == 2
 
 
@@ -391,7 +394,6 @@ def test_nocreate_mandatory_roles(slapd, settings):
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
         'set_mandatory_roles': ['tech', 'admin'],
-        'create_role': False,
     }]
 
     list(ldap_backend.LDAPBackend.get_users())
@@ -424,7 +426,6 @@ def test_no_connect_with_user_credentials(slapd_strict_acl, db, settings, app):
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
         'set_mandatory_roles': ['tech', 'admin'],
-        'create_role': False,
     }]
     response = app.get('/login/')
     response.form.set('username', USERNAME)

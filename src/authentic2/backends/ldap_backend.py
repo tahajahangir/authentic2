@@ -249,8 +249,6 @@ class LDAPBackend(object):
         'is_staff': None,
         # create missing group if needed
         'create_group': False,
-        # create missing role if needed
-        'create_role': False,
         # attributes to retrieve and store with the user object
         'attributes': ['uid'],
         # default value for some attributes
@@ -587,18 +585,12 @@ class LDAPBackend(object):
             except Group.DoesNotExist:
                 return None
 
-    def get_role_by_name(self, block, role_name, create=None):
+    def get_role_by_name(self, block, role_name):
         '''Obtain a Django role'''
-        if create is None:
-            create = block['create_role']
-        if create:
-            role, created = Role.objects.get_or_create(name=role_name)
-            return role
-        else:
-            try:
-                return Role.objects.get(name=role_name)
-            except Role.DoesNotExist:
-                return None
+        try:
+            return Role.objects.get(name=role_name)
+        except Role.DoesNotExist:
+            return None
 
     def populate_mandatory_groups(self, user, block):
         mandatory_groups = block.get('set_mandatory_groups')
