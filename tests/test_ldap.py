@@ -272,6 +272,47 @@ def test_posix_group_mapping(slapd, settings, client):
 
 
 @pytest.mark.django_db
+def test_group_to_role_mapping(slapd, settings, client):
+    from authentic2.a2_rbac.models import Role
+
+    Role.objects.get_or_create(name='Role1')
+    settings.LDAP_AUTH_SETTINGS = [{
+        'url': [slapd.ldap_url],
+        'basedn': 'o=orga',
+        'use_tls': False,
+        'group_to_role_mapping': [
+            ('cn=group1,o=orga', ['Role1']),
+        ],
+    }]
+    response = client.post('/login/', {'login-password-submit': '1',
+                                       'username': USERNAME,
+                                       'password': PASS}, follow=True)
+    assert response.context['user'].username == u'%s@ldap' % USERNAME
+    assert response.context['user'].roles.count() == 1
+
+
+@pytest.mark.django_db
+def test_posix_group_to_role_mapping(slapd, settings, client):
+    from authentic2.a2_rbac.models import Role
+
+    Role.objects.get_or_create(name='Role2')
+    settings.LDAP_AUTH_SETTINGS = [{
+        'url': [slapd.ldap_url],
+        'basedn': 'o=orga',
+        'use_tls': False,
+        'group_to_role_mapping': [
+            ('cn=group2,o=orga', ['Role2']),
+        ],
+        'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
+    }]
+    response = client.post('/login/', {'login-password-submit': '1',
+                                       'username': USERNAME,
+                                       'password': PASS}, follow=True)
+    assert response.context['user'].username == u'%s@ldap' % USERNAME
+    assert response.context['user'].roles.count() == 1
+
+
+@pytest.mark.django_db
 def test_group_su(slapd, settings, client):
     from django.contrib.auth.models import Group
 
