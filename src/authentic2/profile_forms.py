@@ -19,7 +19,7 @@ class PasswordResetForm(forms.Form):
         Generates a one-use only link for resetting password and sends to the
         user.
         """
-        email = self.cleaned_data["email"]
+        email = self.cleaned_data["email"].strip()
         users = get_user_queryset()
         active_users = users.filter(email__iexact=email, is_active=True)
         for user in active_users:
