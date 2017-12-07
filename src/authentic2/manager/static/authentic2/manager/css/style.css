@@ -168,7 +168,7 @@ td.uuid {
 form table tr th {
         text-align: right;
 }
-div.ui-dialog form p input, div.ui-dialog form p textarea,
+div.ui-dialog form p input, div.ui-dialog form p textarea, div.ui-dialog form p select,
 form p input, form p textarea, form p select {
   width: calc(100% - 28px);
 }
