@@ -57,6 +57,10 @@ class RolesView(views.HideOUColumnMixin, RolesMixin, views.BaseTableView):
         qs = qs.annotate(member_count=Count('members'))
         return qs
 
+    def get_search_form_kwargs(self):
+        kwargs = super(RolesView, self).get_search_form_kwargs()
+        kwargs['queryset'] = self.get_queryset()
+        return kwargs
 
 listing = RolesView.as_view()
 

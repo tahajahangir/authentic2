@@ -437,16 +437,23 @@ class OUSearchForm(FormWithRequest):
             self.search_all_ous = request.user.has_perm(self.ou_permission)
             if 'ou_queryset' in kwargs:
                 self.ou_qs = kwargs.pop('ou_queryset')
-            elif self.queryset:
+            elif self.search_all_ous:
+                self.ou_qs = get_ou_model().objects.all()
+            else:
+                self.ou_qs = request.user.ous_with_perm(self.ou_permission)
+
+            if self.queryset:
                 # we were passed an explicit list of objects linked to OUs by a field named 'ou',
                 # get possible OUs from this list
                 related_query_name = self.queryset.model._meta.get_field('ou').related_query_name()
-                self.ou_qs = get_ou_model().objects.filter(**{related_query_name:
-                                                              self.queryset}).distinct()
-            elif self.search_all_ous:
-                self.ou_qs = get_ou_model().objects.all().order_by('name')
-            else:
-                self.ou_qs = request.user.ous_with_perm(self.ou_permission).order_by('name')
+                objects_ou_qs = get_ou_model().objects.filter(
+                    **{related_query_name: self.queryset}).distinct()
+                # to combine queryset with distinct, each queryset must have the distinct flag
+                self.ou_qs = (self.ou_qs.distinct() | objects_ou_qs)
+
+            # even if default ordering is by name on the model, we are not sure it's kept after the
+            # ORing in the previous if condition, so we sort it again.
+            self.ou_qs = self.ou_qs.order_by('name')
 
             # build choice list
             choices = []
