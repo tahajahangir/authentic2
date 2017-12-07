@@ -5,8 +5,10 @@
 
 {% block appbar %}
   {{ block.super }}
-  {% if perms.any.a2_rbac.add_role %}
+  {% if view.can_add %}
     <a href="{% url "a2-manager-role-add" %}" rel="popup">{% trans "Add role" %}</a>
+  {% else %}
+    <a href="#" class="disabled" rel="popup">{% trans "Add role" %}</a>
   {% endif %}
 {% endblock %}
 
