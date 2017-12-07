@@ -29,6 +29,7 @@ from .tables import UserTable, UserRolesTable, OuUserRolesTable
 from .forms import UserSearchForm, UserAddForm, UserEditForm, \
     UserChangePasswordForm, ChooseUserRoleForm, UserRoleSearchForm
 from .resources import UserResource
+from .utils import get_ou_count
 from . import app_settings
 
 
@@ -72,6 +73,17 @@ class UsersView(HideOUColumnMixin, BaseTableView):
                 'user_count': user_qs.count(),
             }
         return table
+
+    def get_context_data(self, **kwargs):
+        ctx = super(UsersView, self).get_context_data()
+        if get_ou_count() < 2:
+            ou = get_default_ou()
+        else:
+            ou = self.search_form.cleaned_data.get('ou')
+        if ou and self.request.user.has_ou_perm('custom_user.add_user', ou):
+            ctx['add_ou'] = ou
+        return ctx
+
 
 users = UsersView.as_view()
 
