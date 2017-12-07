@@ -62,6 +62,11 @@ class RolesView(views.HideOUColumnMixin, RolesMixin, views.BaseTableView):
         kwargs['queryset'] = self.get_queryset()
         return kwargs
 
+    def authorize(self, request, *args, **kwargs):
+        super(RolesView, self).authorize(request, *args, **kwargs)
+        self.can_add = bool(request.user.ous_with_perm('a2_rbac.add_role'))
+
+
 listing = RolesView.as_view()
 
 
