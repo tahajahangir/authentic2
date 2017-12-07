@@ -411,11 +411,12 @@ class HideOUFieldMixin(object):
 
 class OUSearchForm(FormWithRequest):
     ou_permission = None
+    queryset = None
 
     ou = forms.ChoiceField(label=_('Organizational unit'), required=False)
 
     def __init__(self, *args, **kwargs):
-        # if there is many OUs:
+        # if there are many OUs:
         # - show all if show_all_ou is True and user has ou_permission over all OUs or more than
         #   one,
         # - show searchable OUs
@@ -427,62 +428,73 @@ class OUSearchForm(FormWithRequest):
         # - when a choice is made apply it
         # if there is one OU:
         # - hide ou field
+        self.queryset = kwargs.pop('queryset', None)
         self.show_all_ou = kwargs.pop('show_all_ou', True)
         request = kwargs['request']
         self.ou_count = utils.get_ou_count()
-        self.search_all_ous = request.user.has_perm(self.ou_permission)
-        if 'ou_queryset' in kwargs:
-            self.ou_qs = kwargs.pop('ou_queryset')
-        elif self.search_all_ous:
-            self.ou_qs = get_ou_model().objects.all().order_by('name')
-        else:
-            self.ou_qs = request.user.ous_with_perm(self.ou_permission).order_by('name')
 
-        # build choice list
-        choices = []
-        if self.show_all_ou and (len(self.ou_qs) > 1 or self.search_all_ous):
-            choices.append(('all', pgettext('organizational unit', 'All')))
-        for ou in self.ou_qs:
-            choices.append((str(ou.pk), unicode(ou)))
-        if self.search_all_ous:
-            choices.append(('none', pgettext('organizational unit', 'None')))
-
-        # if user does not have ou_permission over all OUs, select user OU as default selected OU
-        # we must modify data as the form must always be valid
-        ou_key = self.add_prefix('ou')
-        data = kwargs.setdefault('data', {}).copy()
-        kwargs['data'] = data
-        if ou_key not in data:
-            initial_ou = kwargs.get('initial', {}).get('ou')
-            if initial_ou in [str(ou.pk) for ou in self.ou_qs]:
-                data[ou_key] = initial_ou
-            elif self.show_all_ou and (self.search_all_ous or len(self.ou_qs) > 1):
-                data[ou_key] = 'all'
-            elif request.user.ou in self.ou_qs:
-                data[ou_key] = str(request.user.ou.pk)
+        if self.ou_count > 1:
+            self.search_all_ous = request.user.has_perm(self.ou_permission)
+            if 'ou_queryset' in kwargs:
+                self.ou_qs = kwargs.pop('ou_queryset')
+            elif self.queryset:
+                # we were passed an explicit list of objects linked to OUs by a field named 'ou',
+                # get possible OUs from this list
+                related_query_name = self.queryset.model._meta.get_field('ou').related_query_name()
+                self.ou_qs = get_ou_model().objects.filter(**{related_query_name:
+                                                              self.queryset}).distinct()
+            elif self.search_all_ous:
+                self.ou_qs = get_ou_model().objects.all().order_by('name')
             else:
-                data[ou_key] = str(self.ou_qs[0].pk)
+                self.ou_qs = request.user.ous_with_perm(self.ou_permission).order_by('name')
+
+            # build choice list
+            choices = []
+            if self.show_all_ou and (len(self.ou_qs) > 1 or self.search_all_ous):
+                choices.append(('all', pgettext('organizational unit', 'All')))
+            for ou in self.ou_qs:
+                choices.append((str(ou.pk), unicode(ou)))
+            if self.search_all_ous:
+                choices.append(('none', pgettext('organizational unit', 'None')))
+
+            # if user does not have ou_permission over all OUs, select user OU as default selected
+            # OU we must modify data as the form must always be valid
+            ou_key = self.add_prefix('ou')
+            data = kwargs.setdefault('data', {}).copy()
+            kwargs['data'] = data
+            if ou_key not in data:
+                initial_ou = kwargs.get('initial', {}).get('ou')
+                if initial_ou in [str(ou.pk) for ou in self.ou_qs]:
+                    data[ou_key] = initial_ou
+                elif self.show_all_ou and (self.search_all_ous or len(self.ou_qs) > 1):
+                    data[ou_key] = 'all'
+                elif request.user.ou in self.ou_qs:
+                    data[ou_key] = str(request.user.ou.pk)
+                else:
+                    data[ou_key] = str(self.ou_qs[0].pk)
 
         super(OUSearchForm, self).__init__(*args, **kwargs)
 
         # modify choices after initialization
-        self.fields['ou'].choices = choices
+        if self.ou_count > 1:
+            self.fields['ou'].choices = choices
 
         # if there is only one OU, we remove the field
         # if there is only one choice, we disable the field
-        if self.ou_count < 1:
+        if self.ou_count < 2:
             del self.fields['ou']
         elif len(choices) < 2:
             self.fields['ou'].widget.attrs['disabled'] = ''
 
     def filter_no_ou(self, qs):
-        if self.show_all_ou:
-            if self.search_all_ous:
-                return qs
+        if self.ou_count > 1:
+            if self.show_all_ou:
+                if self.search_all_ous:
+                    return qs
+                else:
+                    return qs.filter(ou__in=self.ou_qs)
             else:
-                return qs.filter(ou__in=self.ou_qs)
-        else:
-            qs = qs.none()
+                qs = qs.none()
         return qs
 
     def clean(self):
