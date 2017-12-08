@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktrans %}Change email on {{ domain }} requested by an administrator{% endblocktrans %}{% endautoescape %}

@@ -629,3 +629,11 @@ def get_role_form_class():
     if app_settings.ROLE_FORM_CLASS:
         return import_module_or_class(app_settings.ROLE_FORM_CLASS)
     return RoleEditForm
+
+
+class UserChangeEmailForm(CssClass, forms.ModelForm):
+    def save(self, *args, **kwargs):
+        return self.instance
+
+    class Meta:
+        fields = ('email',)

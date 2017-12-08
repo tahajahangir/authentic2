@@ -247,3 +247,4 @@ GenericRelation(Permission,
 CHANGE_PASSWORD_OP = Operation(name=_('Change password'), slug='change_password')
 RESET_PASSWORD_OP = Operation(name=_('Reset password'), slug='reset_password')
 ACTIVATE_OP = Operation(name=_('Activate'), slug='activate')
+CHANGE_EMAIL_OP = Operation(name=_('Change email'), slug='change_email')

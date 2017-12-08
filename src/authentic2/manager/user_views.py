@@ -16,7 +16,7 @@ from django.views.generic import View
 
 from authentic2.constants import SWITCH_USER_SESSION_KEY
 from authentic2.models import Attribute, PasswordReset
-from authentic2.utils import switch_user, send_password_reset_mail, redirect
+from authentic2.utils import switch_user, send_password_reset_mail, redirect, send_email_change_email
 from authentic2.a2_rbac.utils import get_default_ou
 from authentic2 import hooks
 from django_rbac.utils import get_role_model, get_role_parenting_model, get_ou_model
@@ -26,8 +26,8 @@ from .views import BaseTableView, BaseAddView, \
     BaseEditView, ActionMixin, OtherActionsMixin, Action, ExportMixin, \
     BaseSubTableView, HideOUColumnMixin, BaseDeleteView, BaseDetailView
 from .tables import UserTable, UserRolesTable, OuUserRolesTable
-from .forms import UserSearchForm, UserAddForm, UserEditForm, \
-    UserChangePasswordForm, ChooseUserRoleForm, UserRoleSearchForm
+from .forms import (UserSearchForm, UserAddForm, UserEditForm,
+    UserChangePasswordForm, ChooseUserRoleForm, UserRoleSearchForm, UserChangeEmailForm)
 from .resources import UserResource
 from .utils import get_ou_count
 from . import app_settings
@@ -176,6 +176,10 @@ class UserDetailView(OtherActionsMixin, BaseDetailView):
                      permission='custom_user.change_password_user')
         if self.request.user.is_superuser:
             yield Action('switch_user', _('Impersonate this user'))
+        if self.object.ou and self.object.ou.validate_emails:
+            yield Action('change_email', _('Change user email'),
+                         url_name='a2-manager-user-change-email',
+                         permission='custom_user.change_email_user')
 
     def action_force_password_change(self, request, *args, **kwargs):
         PasswordReset.objects.get_or_create(user=self.object)
@@ -268,7 +272,7 @@ class UserEditView(OtherActionsMixin, ActionMixin, BaseEditView):
     template_name = 'authentic2/manager/user_edit.html'
     form_class = UserEditForm
     permissions = ['custom_user.change_user']
-    fields = ['username', 'ou', 'first_name', 'last_name', 'email']
+    fields = ['username', 'ou', 'first_name', 'last_name']
     success_url = '..'
     slug_field = 'uuid'
     action = _('Change')
@@ -276,6 +280,8 @@ class UserEditView(OtherActionsMixin, ActionMixin, BaseEditView):
 
     def get_fields(self):
         fields = list(self.fields)
+        if not self.object.ou or not self.object.ou.validate_emails:
+            fields.append('email')
         for attribute in Attribute.objects.all():
             fields.append(attribute.name)
         if self.request.user.is_superuser and \
@@ -335,6 +341,35 @@ class UserChangePasswordView(BaseEditView):
 
 
 user_change_password = UserChangePasswordView.as_view()
+
+
+class UserChangeEmailView(BaseEditView):
+    template_name = 'authentic2/manager/user_change_email.html'
+    model = get_user_model()
+    form_class = UserChangeEmailForm
+    permissions = ['custom_user.change_email_user']
+    success_url = '..'
+    slug_field = 'uuid'
+    title = _('Change user email')
+
+    def get_success_message(self, cleaned_data):
+        return ugettext('A mail was sent to %s to verify it.') % cleaned_data['email']
+
+    def get_form_kwargs(self):
+        kwargs = super(UserChangeEmailView, self).get_form_kwargs()
+        kwargs.setdefault('initial', {})['email'] = self.object.email
+        return kwargs
+
+    def form_valid(self, form):
+        response = super(UserChangeEmailView, self).form_valid(form)
+        email = form.cleaned_data['email']
+        hooks.call_hooks('event', name='manager-change-email-request', user=self.request.user,
+                         instance=form.instance, form=form, email=email)
+        send_email_change_email(self.object, email, request=self.request,
+                               template_names=['authentic2/manager/user_change_email_notification'])
+        return response
+
+user_change_email = UserChangeEmailView.as_view()
 
 
 class UserRolesView(HideOUColumnMixin, BaseSubTableView):

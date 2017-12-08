@@ -70,7 +70,7 @@ def update_service_role_ou(sender, instance, created, raw, **kwargs):
 
 def create_default_permissions(app_config, verbosity=2, interactive=True, using=DEFAULT_DB_ALIAS,
                                **kwargs):
-    from .models import CHANGE_PASSWORD_OP, RESET_PASSWORD_OP, ACTIVATE_OP
+    from .models import CHANGE_PASSWORD_OP, RESET_PASSWORD_OP, ACTIVATE_OP, CHANGE_EMAIL_OP
 
     if not router.allow_migrate(using, get_ou_model()):
         return
@@ -79,3 +79,4 @@ def create_default_permissions(app_config, verbosity=2, interactive=True, using=
         get_operation(CHANGE_PASSWORD_OP)
         get_operation(RESET_PASSWORD_OP)
         get_operation(ACTIVATE_OP)
+        get_operation(CHANGE_EMAIL_OP)

@@ -299,10 +299,11 @@ MELLON_ADAPTER = ('authentic2_auth_saml.adapters.AuthenticAdapter',)
 DJANGO_RBAC_PERMISSIONS_HIERARCHY = {
     'view': ['search'],
     'change_password': ['view', 'search'],
+    'change_email': ['view', 'search'],
     'reset_password': ['view', 'search'],
     'activate': ['view', 'search'],
     'admin': ['change', 'delete', 'add', 'view', 'change_password', 'reset_password', 'activate',
-              'search'],
+              'search', 'change_email'],
     'change': ['view', 'search'],
     'delete': ['view', 'search'],
     'add': ['view', 'search'],
