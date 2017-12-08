@@ -67,3 +67,10 @@ def test_exponential_backoff(db, app, settings):
             break
         assert 'too many login' not in response.content, '%s' % i
     assert 'too many login' in response.content, '%s' % i
+
+
+@pytest.xfail
+def test_encoded_utf8_in_next_url(app, db):
+    url = '/manage/roles/?search-ou=all&search-text=r%C3%A9dacteur&search-internals=on'
+    response = app.get(url)
+    response = response.follow()
