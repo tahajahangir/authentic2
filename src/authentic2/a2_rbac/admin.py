@@ -43,7 +43,7 @@ class RoleAdmin(admin.ModelAdmin):
 
 class OrganizationalUnitAdmin(admin.ModelAdmin):
     fields = ('uuid', 'name', 'slug', 'description', 'username_is_unique',
-              'email_is_unique', 'default')
+              'email_is_unique', 'default', 'validate_emails')
     readonly_fields = ('uuid',)
     prepopulated_fields = {"slug": ("name",)}
     list_display = ('name', 'slug')

@@ -35,6 +35,11 @@ class OrganizationalUnit(OrganizationalUnitAbstractBase):
     default = fields.UniqueBooleanField(
         verbose_name=_('Default organizational unit'))
 
+    validate_emails = models.BooleanField(
+        blank=True,
+        default=False,
+        verbose_name=_('Validate emails'))
+
     admin_perms = GenericRelation(rbac_utils.get_permission_model_name(),
                                   content_type_field='target_ct',
                                   object_id_field='target_id')
