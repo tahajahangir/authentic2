@@ -930,6 +930,9 @@ def same_domain(domain1, domain2):
     if domain1 == domain2:
         return True
 
+    if not domain1 or not domain2:
+        return False
+
     if domain2.startswith('.'):
         # p1 is a sub-domain or the base domain
         if domain1.endswith(domain2) or domain1 == domain2[1:]:
