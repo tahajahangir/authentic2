@@ -1,7 +1,12 @@
 from django.core.urlresolvers import reverse
 
+from authentic2.models import Attribute
 from authentic2.a2_rbac.utils import get_default_ou
 from utils import login, get_link_from_mail
+
+
+def visible_users(response):
+    return set(elt.text for elt in response.pyquery('td.username'))
 
 
 def test_manager_user_change_email(app, superuser_or_admin, simple_user, mailoutbox):
@@ -33,3 +38,24 @@ def test_manager_user_change_email(app, superuser_or_admin, simple_user, mailout
         in response.content)
     simple_user.refresh_from_db()
     assert simple_user.email == 'john.doe@example.com'
+
+
+def test_search_by_attribute(app, simple_user, admin):
+    Attribute.objects.create(name='adresse', searchable=True, kind='string')
+
+    simple_user.attributes.adresse = 'avenue du revestel'
+    response = login(app, admin, '/manage/users/')
+
+    # all users are visible
+    assert visible_users(response) == {simple_user.username, admin.username}
+
+    response.form['search-text'] = 'impasse'
+    response = response.form.submit()
+    # now all users are hidden
+    assert not visible_users(response) & {simple_user.username, admin.username}
+
+    response.form['search-text'] = 'avenue'
+    response = response.form.submit()
+
+    # now we see only simple_user
+    assert visible_users(response) == {simple_user.username}

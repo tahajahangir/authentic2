@@ -18,7 +18,7 @@ def filter_user(qs, search):
         for a in searchable_attributes:
             if a.name in ('first_name', 'last_name'):
                 continue
-            q = q | Q(attribute_values__content=term, attribute_values__attribute=a)
+            q = q | Q(attribute_values__content__icontains=term, attribute_values__attribute=a)
         queries.append(q)
     qs = qs.filter(reduce(Q.__and__, queries))
     # search by attributes can match multiple times
