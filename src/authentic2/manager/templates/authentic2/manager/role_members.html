@@ -3,6 +3,9 @@
 
 {% block breadcrumb %}
   {{ block.super }}
+  {% if multiple_ou and object.ou %}
+    <a href="../?search-ou={{ object.ou.pk }}">{{ object.ou }}</a>
+  {% endif %}
   <a href="#">{{ object }}</a>
 {% endblock %}
 
