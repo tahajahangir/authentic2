@@ -306,7 +306,8 @@ def make_url(to, args=(), kwargs={}, keep_params=False, params=None, append=None
             url = request.build_absolute_uri(url)
         else:
             raise TypeError('make_url() absolute cannot be used without request')
-    return url
+    # URL must be ASCII, always
+    return url.encode('ascii')
 
 
 # improvement over django.shortcuts.redirect
@@ -332,9 +333,7 @@ def redirect_to_login(request, login_url='auth_login', keep_params=True,
 
 def continue_to_next_url(request, keep_params=True, include=(constants.NONCE_FIELD_NAME,),
                          **kwargs):
-    next_url = request.POST.get(REDIRECT_FIELD_NAME)
-    next_url = next_url or request.GET.get(REDIRECT_FIELD_NAME)
-    next_url = next_url or settings.LOGIN_REDIRECT_URL
+    next_url = select_next_url(request, settings.LOGIN_REDIRECT_URL, include_post=True)
     return redirect(request, to=next_url, keep_params=keep_params, include=include, **kwargs)
 
 
@@ -646,10 +645,7 @@ else:
 
 
 def get_registration_url(request, service_slug=None):
-    if REDIRECT_FIELD_NAME in request.GET and is_valid_url(request.GET[REDIRECT_FIELD_NAME]):
-        next_url = request.GET.get(REDIRECT_FIELD_NAME)
-    else:
-        next_url = make_url(settings.LOGIN_REDIRECT_URL)
+    next_url = select_next_url(request, settings.LOGIN_REDIRECT_URL)
     next_url = make_url(next_url, request=request, keep_params=True,
                         include=(constants.NONCE_FIELD_NAME,), resolve=False)
     params = {REDIRECT_FIELD_NAME: next_url}
@@ -866,9 +862,23 @@ def good_next_url(request, next_url):
     return False
 
 
-def select_next_url(request, default):
+def get_next_url(params):
+    '''Extract and decode a next_url field'''
+    next_url = params.get(REDIRECT_FIELD_NAME)
+    if not next_url:
+        return None
+    try:
+        next_url = next_url.encode('ascii')
+    except UnicodeEncodeError:
+        return None
+    if not is_valid_url(next_url):
+        return None
+    return next_url
+
+
+def select_next_url(request, default, include_post=False):
     '''Select the first valid next URL'''
-    next_url = request.GET.get(REDIRECT_FIELD_NAME)
+    next_url = (include_post and get_next_url(request.POST)) or get_next_url(request.GET)
     if good_next_url(request, next_url):
         return next_url
     return default
