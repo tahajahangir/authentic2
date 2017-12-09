@@ -463,6 +463,7 @@ class UserRolesView(HideOUColumnMixin, BaseSubTableView):
 
     def get_search_form_kwargs(self):
         kwargs = super(UserRolesView, self).get_search_form_kwargs()
+        kwargs['all_ou_label'] = u''
         kwargs['user'] = self.object
         kwargs['role_members_from_ou'] = app_settings.ROLE_MEMBERS_FROM_OU
         kwargs['show_all_ou'] = app_settings.SHOW_ALL_OU

@@ -428,6 +428,7 @@ class OUSearchForm(FormWithRequest):
         # - when a choice is made apply it
         # if there is one OU:
         # - hide ou field
+        all_ou_label = kwargs.pop('all_ou_label', pgettext('organizational unit', 'All'))
         self.queryset = kwargs.pop('queryset', None)
         self.show_all_ou = kwargs.pop('show_all_ou', True)
         request = kwargs['request']
@@ -458,7 +459,7 @@ class OUSearchForm(FormWithRequest):
             # build choice list
             choices = []
             if self.show_all_ou and (len(self.ou_qs) > 1 or self.search_all_ous):
-                choices.append(('all', pgettext('organizational unit', 'All')))
+                choices.append(('all', all_ou_label))
             for ou in self.ou_qs:
                 choices.append((str(ou.pk), unicode(ou)))
             if self.search_all_ous:
