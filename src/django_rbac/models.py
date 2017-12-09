@@ -101,7 +101,7 @@ class OrganizationalUnit(OrganizationalUnitAbstractBase):
 
 class Operation(models.Model):
     name = models.CharField(
-        max_length=32,
+        max_length=128,
         verbose_name=_('name'))
     slug = models.CharField(
         max_length=32,
