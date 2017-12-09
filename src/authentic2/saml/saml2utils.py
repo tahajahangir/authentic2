@@ -10,13 +10,21 @@ import time
 
 
 def filter_attribute_private_key(message):
-    return re.sub(r' (\w+:)?(PrivateKey=")([&#;\w/ +-=])+(")', '', message)
+    if isinstance(message, basestring):
+        return re.sub(r' (\w+:)?(PrivateKey=")([&#;\w/ +-=])+(")', '', message)
+    else:
+        return message
+
 
 def filter_element_private_key(message):
-    return re.sub(r'(<saml)(p)?(:PrivateKeyFile>-----BEGIN RSA PRIVATE KEY-----)'
-        '([&#;\w/+=\s])+'
-        '(-----END RSA PRIVATE KEY-----</saml)(p)?(:PrivateKeyFile>)',
-        '', message)
+    if isinstance(message, basestring):
+        return re.sub(r'(<saml)(p)?(:PrivateKeyFile>-----BEGIN RSA PRIVATE KEY-----)'
+            '([&#;\w/+=\s])+'
+            '(-----END RSA PRIVATE KEY-----</saml)(p)?(:PrivateKeyFile>)',
+            '', message)
+    else:
+        return message
+
 
 def bool2xs(boolean):
     '''Convert a boolean value to XSchema boolean representation'''
