@@ -1,6 +1,16 @@
 {% extends "authentic2/base-page.html" %}
 {% load i18n %}
 
+{% block css %}
+{{ block.super }}
+{{ form.media.css }}
+{% endblock %}
+
+{% block extra_scripts %}
+{{ block.super }}
+{{ form.media.js }}
+{% endblock %}
+
 {% block page-title %}
   {{ block.super }} - {% trans "Edit account data" %}
 {% endblock %}
