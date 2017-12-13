@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: authentic2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-05-21 11:24+0200\n"
-"PO-Revision-Date: 2015-05-21 11:24+0200\n"
+"PO-Revision-Date: 2017-12-13 17:53+0100\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language: french\n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgstr "Un seul résultat disponible, appuyer sur Entrer pour le sélectionner."
 #: authentic2/manager/static/authentic2/manager/js/select2_locale.js:3
 #, c-format
 msgid "%s results are available, use up and down arrow keys to navigate."
-msgstr "%s résultat sont disponible, utiliser les flèches haut et bas pour naviguer."
+msgstr "%s résultats sont disponibles, utiliser les flèches haut et bas pour naviguer."
 
 #: authentic2/manager/static/authentic2/manager/js/select2_locale.js:4
 msgid "No matches found"
