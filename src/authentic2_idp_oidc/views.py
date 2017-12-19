@@ -32,7 +32,7 @@ def openid_configuration(request, *args, **kwargs):
         'token_endpoint': request.build_absolute_uri(reverse('oidc-token')),
         'jwks_uri': request.build_absolute_uri(reverse('oidc-certs')),
         'end_session_endpoint': request.build_absolute_uri(reverse('oidc-logout')),
-        'response_types_supported': ['code'],
+        'response_types_supported': ['code', 'token', 'token id_token'],
         'subject_types_supported': ['public', 'pairwise'],
         'token_endpoint_auth_methods_supported': [
             'clien_secret_post', 'client_secret_basic',
