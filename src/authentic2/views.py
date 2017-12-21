@@ -197,6 +197,7 @@ class EmailChangeVerifyView(TemplateView):
                     raise ValidationError(_('This email is already used by another account.'))
                 old_email = user.email
                 user.email = email
+                user.email_verified = True
                 user.save()
                 messages.info(request, _('your request for changing your email for {0} '
                     'is successful').format(email))
