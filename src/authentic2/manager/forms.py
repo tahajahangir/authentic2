@@ -21,7 +21,7 @@ from authentic2.forms import BaseUserForm
 from authentic2.models import PasswordReset
 from authentic2.utils import import_module_or_class
 from authentic2.a2_rbac.utils import get_default_ou
-from authentic2.utils import send_password_reset_mail
+from authentic2.utils import send_password_reset_mail, send_email_change_email
 from authentic2 import app_settings as a2_app_settings
 
 from . import fields, app_settings, utils
@@ -651,9 +651,26 @@ def get_role_form_class():
     return RoleEditForm
 
 
-class UserChangeEmailForm(CssClass, forms.ModelForm):
+# we need a model form so that we can use a BaseEditView, a simple Form
+# would not work
+class UserChangeEmailForm(CssClass, FormWithRequest, forms.ModelForm):
+    new_email = forms.EmailField(label=_('Email'))
+
+    def __init__(self, *args, **kwargs):
+        initial = kwargs.setdefault('initial', {})
+        instance = kwargs.get('instance')
+        if instance:
+            initial['new_email'] = instance.email
+        super(UserChangeEmailForm, self).__init__(*args, **kwargs)
+
     def save(self, *args, **kwargs):
+        new_email = self.cleaned_data['new_email']
+        send_email_change_email(
+            self.instance,
+            new_email,
+            request=self.request,
+            template_names=['authentic2/manager/user_change_email_notification'])
         return self.instance
 
     class Meta:
-        fields = ('email',)
+        fields = ()

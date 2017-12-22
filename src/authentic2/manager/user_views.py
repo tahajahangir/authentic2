@@ -353,20 +353,18 @@ class UserChangeEmailView(BaseEditView):
     title = _('Change user email')
 
     def get_success_message(self, cleaned_data):
-        return ugettext('A mail was sent to %s to verify it.') % cleaned_data['email']
-
-    def get_form_kwargs(self):
-        kwargs = super(UserChangeEmailView, self).get_form_kwargs()
-        kwargs.setdefault('initial', {})['email'] = self.object.email
-        return kwargs
+        return ugettext('A mail was sent to %s to verify it.') % cleaned_data['new_email']
 
     def form_valid(self, form):
         response = super(UserChangeEmailView, self).form_valid(form)
-        email = form.cleaned_data['email']
-        hooks.call_hooks('event', name='manager-change-email-request', user=self.request.user,
-                         instance=form.instance, form=form, email=email)
-        send_email_change_email(self.object, email, request=self.request,
-                               template_names=['authentic2/manager/user_change_email_notification'])
+        new_email = form.cleaned_data['new_email']
+        hooks.call_hooks(
+                'event',
+                name='manager-change-email-request',
+                user=self.request.user,
+                instance=form.instance,
+                form=form,
+                email=new_email)
         return response
 
 user_change_email = UserChangeEmailView.as_view()
