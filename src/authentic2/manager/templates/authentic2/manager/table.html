@@ -42,32 +42,7 @@
 {% endblock table.tbody.row %}
 
 {% block pagination %}
-  {% if table.page.paginator.num_pages > 1 %}
-  <p class="paginator">
-      {% if table.page.number > 1 %}
-        {% if table.page.previous_page_number != 1 %}
-          <a href="{% querystring table.prefixed_page_field=1 %}">1</a>
-          ...
-        {% endif %}
-      {% endif %}
-
-      {% if table.page.has_previous %}
-        <a href="{% querystring table.prefixed_page_field=table.page.previous_page_number %}">{{ table.page.previous_page_number }}</a>
-      {% endif %}
-
-      <span class="this-page">{{ table.page.number }}</span>
-
-      {% if table.page.has_next %}
-        <a href="{% querystring table.prefixed_page_field=table.page.next_page_number %}">{{ table.page.next_page_number }}</a>
-      {% endif %}
-      {% if  table.page.number != table.page.paginator.num_pages %}
-        {% if table.page.paginator.num_pages > 1 %}
-          {% if table.page.next_page_number != table.page.paginator.num_pages %}
-            ...
-            <a href="{% querystring table.prefixed_page_field=table.page.paginator.num_pages %}">{{ table.page.paginator.num_pages }}</a>
-          {% endif %}
-        {% endif %}
-      {% endif %}
-  </p>
- {% endif %}
+  {% with page_obj=table.page page_key=table.prefixed_page_field %}
+    {% include "gadjo/pagination.html" %}
+  {% endwith %}
 {% endblock %}
