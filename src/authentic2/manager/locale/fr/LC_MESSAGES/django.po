@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: authentic2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-27 00:08+0100\n"
-"PO-Revision-Date: 2017-06-26 18:22+0200\n"
+"PO-Revision-Date: 2017-12-30 23:03+0100\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "Language: \n"
@@ -169,7 +169,7 @@ msgid ""
 "another default organiational unit."
 msgstr ""
 "Vous ne pouvez pas supprimer la collectivité par défaut, vous devez d'abord "
-"endéfinir une nouvelle."
+"en définir une nouvelle."
 
 #: authentic2/manager/role_views.py:53
 #: authentic2/manager/templates/authentic2/manager/homepage.html:30
