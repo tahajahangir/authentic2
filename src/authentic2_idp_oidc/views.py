@@ -68,6 +68,12 @@ def authorization_error(request, redirect_uri, error, error_description=None, er
         return redirect(request, redirect_uri, params=params, resolve=False)
 
 
+def idtoken_duration(client):
+    if client.idtoken_duration:
+        return client.idtoken_duration
+    return datetime.timedelta(seconds=app_settings.IDTOKEN_DURATION)
+
+
 @setting_enabled('ENABLE', settings=app_settings)
 def authorize(request, *args, **kwargs):
     logger = logging.getLogger(__name__)
@@ -272,8 +278,7 @@ def authorize(request, *args, **kwargs):
         id_token.update({
             'iss': request.build_absolute_uri('/'),
             'aud': client.client_id,
-            'exp': timestamp_from_datetime(
-                start + datetime.timedelta(seconds=30)),
+            'exp': timestamp_from_datetime(start + idtoken_duration(client)),
             'iat': timestamp_from_datetime(start),
             'auth_time': last_auth['when'],
             'acr': acr,
@@ -379,8 +384,7 @@ def token(request, *args, **kwargs):
         'iss': request.build_absolute_uri('/'),
         'sub': utils.make_sub(client, oidc_code.user),
         'aud': client.client_id,
-        'exp': timestamp_from_datetime(
-            start + datetime.timedelta(seconds=30)),
+        'exp': timestamp_from_datetime(start + idtoken_duration(client)),
         'iat': timestamp_from_datetime(start),
         'auth_time': timestamp_from_datetime(oidc_code.auth_time),
         'acr': acr,

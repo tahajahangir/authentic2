@@ -80,6 +80,11 @@ class OIDCClient(Service):
         max_length=255,
         verbose_name=_('client secret'),
         default=generate_uuid)
+    idtoken_duration = models.DurationField(
+        verbose_name=_('time during which the token is valid'),
+        blank=True,
+        null=True,
+        default=None)
     authorization_mode = models.PositiveIntegerField(
         default=AUTHORIZATION_MODE_BY_SERVICE,
         choices=AUTHORIZATION_MODES,

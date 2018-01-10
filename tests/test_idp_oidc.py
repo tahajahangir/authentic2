@@ -64,7 +64,14 @@ OIDC_CLIENT_PARAMS = [
     },
     {
         'authorization_mode': OIDCClient.AUTHORIZATION_MODE_NONE,
-    }
+    },
+    {
+        'idtoken_duration': datetime.timedelta(hours=1),
+    },
+    {
+        'authorization_flow': OIDCClient.FLOW_IMPLICIT,
+        'idtoken_duration': datetime.timedelta(hours=1),
+    },
 ]
 
 
@@ -198,7 +205,13 @@ def test_authorization_code_sso(login_first, oidc_settings, oidc_client, simple_
     assert claims['aud'] == oidc_client.client_id
     assert parse_timestamp(claims['iat']) <= now()
     assert parse_timestamp(claims['auth_time']) <= now()
-    assert parse_timestamp(claims['exp']) >= now()
+    exp_delta = (parse_timestamp(claims['exp']) - now()).total_seconds()
+    assert exp_delta > 0
+    if oidc_client.idtoken_duration:
+        assert abs(exp_delta - oidc_client.idtoken_duration.total_seconds()) < 2
+    else:
+        assert abs(exp_delta - 30) < 2
+
     if login_first:
         assert claims['acr'] == '0'
     else:

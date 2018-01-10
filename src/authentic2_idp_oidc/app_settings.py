@@ -26,6 +26,11 @@ class AppSettings(object):
     def SCOPES(self):
         return self._setting('SCOPES', [])
 
+    @property
+    def IDTOKEN_DURATION(self):
+        return self._setting('IDTOKEN_DURATION', 30)
+
+
 import sys
 
 app_settings = AppSettings('A2_IDP_OIDC_')
