@@ -576,11 +576,11 @@ class UsersAPI(HookMixin, ExceptionHandlerMixin, ModelViewSet):
         return Response({'result': 1})
 
 
-class RolesAPI(ExceptionHandlerMixin, APIView):
+class RoleMembershipsAPI(ExceptionHandlerMixin, APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def initial(self, request, *args, **kwargs):
-        super(RolesAPI, self).initial(request, *args, **kwargs)
+        super(RoleMembershipsAPI, self).initial(request, *args, **kwargs)
         Role = get_role_model()
         User = get_user_model()
         self.role = get_object_or_404(Role, uuid=kwargs['role_uuid'])
@@ -601,7 +601,7 @@ class RolesAPI(ExceptionHandlerMixin, APIView):
         return Response({'result': 1, 'detail': _('User successfully removed from role')},
                         status=status.HTTP_200_OK)
 
-roles = RolesAPI.as_view()
+role_memberships = RoleMembershipsAPI.as_view()
 
 
 class BaseOrganizationalUnitSerializer(serializers.ModelSerializer):
