@@ -11,7 +11,7 @@ A2_IDP_OPENID_ENABLE = True
 # Debugging helper
 try:
 	import debug_toolbar
-except ImportError
+except ImportError:
 	pass
 else:
 	INSTALLED_APPS += ('debug_toolbar',)
