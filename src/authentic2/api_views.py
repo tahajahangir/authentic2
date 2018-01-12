@@ -444,6 +444,50 @@ class BaseUserSerializer(serializers.ModelSerializer):
         exclude = ('date_joined', 'user_permissions', 'groups', 'last_login')
 
 
+class RoleSerializer(serializers.ModelSerializer):
+    ou = serializers.SlugRelatedField(
+        many=False,
+        required=False,
+        default=get_default_ou,
+        queryset=get_ou_model().objects.all(),
+        slug_field='slug')
+
+    @property
+    def user(self):
+        return self.context['request'].user
+
+    def __init__(self, instance=None, **kwargs):
+        super(RoleSerializer, self).__init__(instance, **kwargs)
+        if self.instance:
+            self.fields['ou'].read_only = True
+
+    def create(self, validated_data):
+        ou = validated_data.get('ou')
+        # Creating roles also means being allowed to within the OU:
+        if not self.user.has_ou_perm('a2_rbac.add_role', ou):
+            raise PermissionDenied(u'User %s can\'t create role in OU %s' % (self.user, ou))
+        return super(RoleSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Check role-updating permissions:
+        if not self.user.has_perm('a2_rbac.change_role', obj=instance):
+            raise PermissionDenied(u'User %s can\'t change role %s' % (self.user, instance))
+        super(RoleSerializer, self).update(instance, validated_data)
+        return instance
+
+    def partial_update(self, instance, validated_data):
+        # Check role-updating permissions:
+        if not self.user.has_perm('a2_rbac.change_role', obj=instance):
+            raise PermissionDenied(u'User %s can\'t change role %s' % (self.user, instance))
+        super(RoleSerializer, self).partial_update(instance, validated_data)
+        return instance
+
+    class Meta:
+        model = get_role_model()
+        fields = ('uuid', 'name', 'slug', 'description', 'ou',)
+        extra_kwargs = {'uuid': {'read_only': True}}
+
+
 class UsersFilter(FilterSet):
     class Meta:
         model = get_user_model()
@@ -576,6 +620,20 @@ class UsersAPI(HookMixin, ExceptionHandlerMixin, ModelViewSet):
         return Response({'result': 1})
 
 
+class RolesAPI(ExceptionHandlerMixin, ModelViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = RoleSerializer
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        return self.request.user.filter_by_perm('a2_rbac.view_role', get_role_model().objects.all())
+
+    def perform_destroy(self, instance):
+        if not self.request.user.has_perm(perm='a2_rbac.delete_role', obj=instance):
+            raise PermissionDenied(u'User %s can\'t create role %s' % (request.user, instance))
+        super(RolesAPI, self).perform_destroy(instance)
+
+
 class RoleMembershipsAPI(ExceptionHandlerMixin, APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -620,6 +678,7 @@ class OrganizationalUnitAPI(ExceptionHandlerMixin, ModelViewSet):
 router = SimpleRouter()
 router.register(r'users', UsersAPI, base_name='a2-api-users')
 router.register(r'ous', OrganizationalUnitAPI, base_name='a2-api-ous')
+router.register(r'roles', RolesAPI, base_name='a2-api-roles')
 
 
 class CheckPasswordSerializer(serializers.Serializer):
