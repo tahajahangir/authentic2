@@ -133,7 +133,7 @@ class UserRolesTable(tables.Table):
     ou = tables.Column()
     via = tables.TemplateColumn(
         '''{% if not row.record.member %}{% for rel in row.record.child_relation.all %}{{ rel.child }} {% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}''',
-        verbose_name=_('Inherited from'))
+        verbose_name=_('Inherited from'), orderable=False)
 
     class Meta:
         models = get_role_model()
