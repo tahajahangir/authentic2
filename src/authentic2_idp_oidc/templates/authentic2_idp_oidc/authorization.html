@@ -8,9 +8,9 @@
       <ul>
         {% for scope in scopes %}
           {% if scope == "profile" %}
-            <li>{% trans "Your first and last name, your username," %}</li>
+            <li>{% trans "Your first and last name, your username" %}</li>
           {% elif scope == "email" %}
-            <li>{% trans "Your email" %}: {{ user.email }},</li>
+            <li>{% trans "Your email" %}: {{ user.email }}</li>
           {% endif %}
         {% endfor %}
       </ul>
