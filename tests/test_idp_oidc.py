@@ -274,7 +274,7 @@ def assert_authorization_response(response, fragment=False, **kwargs):
             assert value in query[key][0]
 
 
-def test_invalid_request(oidc_settings, oidc_client, simple_user, app):
+def test_invalid_request(caplog, oidc_settings, oidc_client, simple_user, app):
     redirect_uri = oidc_client.redirect_uris.split()[0]
     if oidc_client.authorization_flow == oidc_client.FLOW_AUTHORIZATION_CODE:
         fragment = False
@@ -317,6 +317,11 @@ def test_invalid_request(oidc_settings, oidc_client, simple_user, app):
     response = app.get(authorize_url)
     assert_oidc_error(response, 'invalid_request', 'missing parameter \'response_type\'',
                       fragment=fragment)
+    logrecord = [rec for rec in caplog.records if rec.funcName == 'authorization_error'][0]
+    assert logrecord.levelname == 'WARNING'
+    assert logrecord.redirect_uri == 'https://example.com/callback'
+    assert 'missing parameter \'response_type\'' in logrecord.message
+
     # missing scope
     authorize_url = make_url('oidc-authorize', params={
         'client_id': oidc_client.client_id,

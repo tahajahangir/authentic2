@@ -53,6 +53,7 @@ def certs(request, *args, **kwargs):
 
 def authorization_error(request, redirect_uri, error, error_description=None, error_uri=None,
                         state=None, fragment=False):
+    logger = logging.getLogger(__name__)
     params = {
         'error': error,
     }
@@ -62,6 +63,8 @@ def authorization_error(request, redirect_uri, error, error_description=None, er
         params['error_uri'] = error_uri
     if state is not None:
         params['state'] = state
+    logger.warning(u'idp_oidc: authorization request error redirect_uri=%r error=%r error_description=%r',
+                   redirect_uri, error, error_description, extra={'redirect_uri': redirect_uri})
     if fragment:
         return redirect(request, redirect_uri + '#%s' % urlencode(params), resolve=False)
     else:
