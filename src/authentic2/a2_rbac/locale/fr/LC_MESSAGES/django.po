@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-rbac\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-26 18:15+0200\n"
-"PO-Revision-Date: 2017-06-26 22:15+0200\n"
+"POT-Creation-Date: 2018-01-24 12:01+0100\n"
+"PO-Revision-Date: 2018-01-24 12:10+0100\n"
 "Last-Translator: Benjamin Dauvergner <bdauvergne@entrouvert.com>\n"
 "Language: French\n"
 "MIME-Version: 1.0\n"
@@ -16,62 +16,69 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: admin.py:59 models.py:215
+#: src/authentic2/a2_rbac/admin.py:59 src/authentic2/a2_rbac/models.py:227
 msgid "name"
 msgstr "nom"
 
-#: management.py:74
+#: src/authentic2/a2_rbac/management.py:74
 msgid "Manager of roles"
 msgstr "Administrateur des rôles"
 
-#: management.py:75
+#: src/authentic2/a2_rbac/management.py:75
 #, python-brace-format
 msgid "Roles - {ou}"
 msgstr "Rôles - {ou}"
 
-#: management.py:79
+#: src/authentic2/a2_rbac/management.py:79
 msgid "Manager of organizational units"
 msgstr "Administrateur des entités"
 
-#: management.py:80
+#: src/authentic2/a2_rbac/management.py:80
 #, python-brace-format
 msgid "Organizational unit - {ou}"
 msgstr "Entités - {ou}"
 
-#: management.py:83
+#: src/authentic2/a2_rbac/management.py:83
 msgid "Manager of users"
 msgstr "Administrateur des utilisateurs"
 
-#: management.py:84
+#: src/authentic2/a2_rbac/management.py:84
 #, python-brace-format
 msgid "Users - {ou}"
 msgstr "Utilisateurs - {ou}"
 
-#: management.py:104 management.py:106 management.py:107
+#: src/authentic2/a2_rbac/management.py:104
+#: src/authentic2/a2_rbac/management.py:106
+#: src/authentic2/a2_rbac/management.py:107
 msgid "Manager"
 msgstr "Administrateur"
 
-#: models.py:28
+#: src/authentic2/a2_rbac/models.py:30
 msgid "Username is unique"
 msgstr "L'identifiant doit être unique"
 
-#: models.py:32
+#: src/authentic2/a2_rbac/models.py:34
 msgid "Email is unique"
 msgstr "Le courriel doit être unique"
 
-#: models.py:34 signal_handlers.py:25
+#: src/authentic2/a2_rbac/models.py:36
+#: src/authentic2/a2_rbac/signal_handlers.py:25
 msgid "Default organizational unit"
 msgstr "Collectivité par défaut"
 
-#: models.py:43
+#: src/authentic2/a2_rbac/models.py:41
+msgid "Validate emails"
+msgstr "Validation des adresses de courriel"
+
+#: src/authentic2/a2_rbac/models.py:50
 msgid "organizational unit"
 msgstr "collectivité"
 
-#: models.py:44
+#: src/authentic2/a2_rbac/models.py:51
 msgid "organizational units"
 msgstr "entités"
 
-#: models.py:61
+#: src/authentic2/a2_rbac/models.py:68
 msgid ""
 "You cannot unset this organizational unit as the default, but you can set "
 "another one as the default."
@@ -79,84 +86,88 @@ msgstr ""
 "Vous ne pouvez pas enlever le drapeau défaut de cette collectivité, mais "
 "vous pouvez le poser sur une autre collectivité."
 
-#: models.py:70
+#: src/authentic2/a2_rbac/models.py:77
 #, python-brace-format
 msgid "Managers of \"{ou}\""
 msgstr "Administrateur de la collectivité « {ou} »"
 
-#: models.py:86
+#: src/authentic2/a2_rbac/models.py:98
 msgid "permission"
 msgstr "permission"
 
-#: models.py:87
+#: src/authentic2/a2_rbac/models.py:99
 msgid "permissions"
 msgstr "permissions"
 
-#: models.py:99
+#: src/authentic2/a2_rbac/models.py:111
 msgid "administrative scope content type"
 msgstr "type d'objet administré"
 
-#: models.py:101
+#: src/authentic2/a2_rbac/models.py:113
 msgid "administrative scope id"
 msgstr "identifiant de l'objet administré"
 
-#: models.py:109
+#: src/authentic2/a2_rbac/models.py:121
 msgid "service"
 msgstr "application"
 
-#: models.py:114
+#: src/authentic2/a2_rbac/models.py:126
 msgid "external id"
 msgstr "identifiant externe"
 
-#: models.py:126
+#: src/authentic2/a2_rbac/models.py:138
 #, python-brace-format
 msgid "Managers of role \"{role}\""
 msgstr "Administrateur du rôle « {role} »"
 
-#: models.py:140
+#: src/authentic2/a2_rbac/models.py:152
 msgid "This name is not unique over this organizational unit."
 msgstr "Ce nom n'est pas unique pour cette collectivité."
 
-#: models.py:175 models.py:211
+#: src/authentic2/a2_rbac/models.py:187 src/authentic2/a2_rbac/models.py:223
 msgid "role"
 msgstr "rôle"
 
-#: models.py:176
+#: src/authentic2/a2_rbac/models.py:188
 msgid "roles"
 msgstr "rôles"
 
-#: models.py:201
+#: src/authentic2/a2_rbac/models.py:213
 msgid "role parenting relation"
 msgstr "relation de parenté entre rôles"
 
-#: models.py:202
+#: src/authentic2/a2_rbac/models.py:214
 msgid "role parenting relations"
 msgstr "relations de parenté entre rôles"
 
-#: models.py:207
+#: src/authentic2/a2_rbac/models.py:219
 msgid "string"
 msgstr "chaîne"
 
-#: models.py:219
+#: src/authentic2/a2_rbac/models.py:231
 msgid "kind"
 msgstr "type"
 
-#: models.py:221
+#: src/authentic2/a2_rbac/models.py:233
 msgid "value"
 msgstr "valeur"
 
-#: models.py:225
+#: src/authentic2/a2_rbac/models.py:237
 msgid "role attributes"
 msgstr "attributs de rôle"
 
-#: models.py:235
+#: src/authentic2/a2_rbac/models.py:247
 msgid "Change password"
 msgstr "Modification de mot de passe"
 
-#: models.py:236
+#: src/authentic2/a2_rbac/models.py:248
 msgid "Reset password"
 msgstr "Réinitialisation de mot de passe"
 
-#: models.py:237
+#: src/authentic2/a2_rbac/models.py:249
 msgid "Activate"
 msgstr "Activation"
+
+#: src/authentic2/a2_rbac/models.py:250
+msgid "Change email"
+msgstr "Modification de l'adresse de courriel"
