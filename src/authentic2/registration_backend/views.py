@@ -16,7 +16,7 @@ from django.contrib.auth import get_user_model
 from django.forms import CharField, Form
 from django.core.urlresolvers import reverse_lazy
 from django.template import RequestContext
-from django.http import HttpResponseBadRequest
+from django.http import Http404, HttpResponseBadRequest
 
 from authentic2.utils import (import_module_or_class, redirect, make_url, get_fields_and_labels,
                               simulate_authentication)
@@ -56,6 +56,8 @@ class BaseRegistrationView(FormView):
     title = _('Registration')
 
     def dispatch(self, request, *args, **kwargs):
+        if not getattr(settings, 'REGISTRATION_OPEN', True):
+            raise Http404('Registration is not open.')
         self.token = {}
         self.ou = get_default_ou()
         # load pre-filled values
