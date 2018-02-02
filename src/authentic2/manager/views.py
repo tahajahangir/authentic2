@@ -188,7 +188,7 @@ class SearchFormMixin(object):
 class FormatsContextData(object):
     '''Export list of supported formats in context'''
 
-    formats = ['csv', 'json', 'ods', 'html']
+    formats = ['csv', 'json', 'ods']
 
     def get_context_data(self, **kwargs):
         ctx = super(FormatsContextData, self).get_context_data(**kwargs)
@@ -342,7 +342,6 @@ class ExportMixin(object):
         export_format = kwargs['format'].lower()
         content_types = {
             'csv': 'text/csv',
-            'html': 'text/html',
             'json': 'application/json',
             'ods': 'application/vnd.oasis.opendocument.spreadsheet',
         }
@@ -350,8 +349,6 @@ class ExportMixin(object):
             raise Http404('unknown format')
         content = getattr(self.get_dataset(), export_format)
         content_type = content_types[export_format]
-        if export_format == 'html':
-            content = '<!DOCTYPE html><html><head><meta charset="utf-8"/></head><body>%s</body></html>' % content
         response = HttpResponse(content, content_type=content_type)
         filename = '%s%s.%s' % (self.get_export_prefix(), now().isoformat(),
                                 export_format)
