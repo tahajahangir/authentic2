@@ -199,6 +199,12 @@ msgstr "booléen"
 msgid "date"
 msgstr "date"
 
+msgid "birthdate must be in the past."
+msgstr "Une date de naissance doit être dans le passé."
+
+msgid "birthdate"
+msgstr "date de naissance"
+
 #: src/authentic2/attribute_kinds.py:114
 msgid "french postcode"
 msgstr "code postal"

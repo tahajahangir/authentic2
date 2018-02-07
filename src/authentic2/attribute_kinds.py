@@ -25,6 +25,23 @@ DEFAULT_TITLE_CHOICES = (
 )
 
 
+class BirthdateWidget(widgets.DateWidget):
+    def __init__(self, *args, **kwargs):
+        options = kwargs.setdefault('options', {})
+        options['endDate'] = '-1d'
+        super(BirthdateWidget, self).__init__(*args, **kwargs)
+
+
+class BirthdateField(forms.DateField):
+    widget = BirthdateWidget
+
+    def clean(self, value):
+        value = super(BirthdateField, self).clean(value)
+        if value and value >= datetime.date.today():
+            raise ValidationError(_('birthdate must be in the past.'))
+        return value
+
+
 @to_iter
 def get_title_choices():
     return app_settings.A2_ATTRIBUTE_KIND_TITLE_CHOICES or DEFAULT_TITLE_CHOICES
@@ -106,6 +123,14 @@ DEFAULT_ATTRIBUTE_KINDS = [
         'kwargs': {
             'widget': widgets.DateWidget,
         },
+        'serialize': lambda x: x.isoformat(),
+        'deserialize': lambda x: x and datetime.datetime.strptime(x, '%Y-%m-%d').date(),
+        'rest_framework_field_class': serializers.DateField,
+    },
+    {
+        'label': _('birthdate'),
+        'name': 'birthdate',
+        'field_class': BirthdateField,
         'serialize': lambda x: x.isoformat(),
         'deserialize': lambda x: x and datetime.datetime.strptime(x, '%Y-%m-%d').date(),
         'rest_framework_field_class': serializers.DateField,
