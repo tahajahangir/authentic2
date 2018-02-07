@@ -2,6 +2,17 @@
 {% load i18n %}
 {% load breadcrumbs %}
 
+{% block css %}
+{{ block.super }}
+{{ form.media.css }}
+{% endblock %}
+
+{% block extra_scripts %}
+{{ block.super }}
+{{ form.media.js }}
+{% endblock %}
+
+
 {% block title %}
     {% trans "Registration" %}
 {% endblock %}
