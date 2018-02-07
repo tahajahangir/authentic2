@@ -64,7 +64,7 @@ class Plugin(object):
             logger.warning(u'failed to revoke access token from OIDC provider %s: %s, %s',
                            provider.issuer, e, content)
             return
-        logger.debug(u'revoked token from OIDC provider %s', provider.issuer)
+        logger.info(u'revoked token from OIDC provider %s', provider.issuer)
 
     def get_admin_modules(self):
         from admin_tools.dashboard import modules
