@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: authentic2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-24 12:01+0100\n"
-"PO-Revision-Date: 2018-01-24 12:09+0100\n"
+"PO-Revision-Date: 2018-02-13 11:35+0100\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "Language: \n"
@@ -889,7 +889,7 @@ msgstr "Se re-connecter avec cet utilisateur"
 #: src/authentic2/manager/user_views.py:180
 #: src/authentic2/manager/user_views.py:353
 msgid "Change user email"
-msgstr "Change l'adresse de courriel de l'usager"
+msgstr "Changer l'adresse de courriel"
 
 #: src/authentic2/manager/user_views.py:193
 msgid "You cannot desactivate your own user"
