@@ -353,7 +353,9 @@ class UserChangeEmailView(BaseEditView):
     title = _('Change user email')
 
     def get_success_message(self, cleaned_data):
-        return ugettext('A mail was sent to %s to verify it.') % cleaned_data['new_email']
+        if cleaned_data['new_email'] != self.object.email:
+            return ugettext('A mail was sent to %s to verify it.') % cleaned_data['new_email']
+        return None
 
     def form_valid(self, form):
         response = super(UserChangeEmailView, self).form_valid(form)
