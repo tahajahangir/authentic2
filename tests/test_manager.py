@@ -546,3 +546,56 @@ def test_manager_many_ou(app, superuser, admin, simple_role, role_ou1, admin_ou1
         assert names == {'Roles - OU1', 'Users - OU1', 'role_ou1'}
 
     test_user_listing_ou_admin(admin_ou1)
+
+
+def test_manager_many_ou_auto_admin_role(app, ou1, admin, user_with_auto_admin_role, auto_admin_role):
+    def test_user_listing_auto_admin_role(user):
+        response = login(app, user, '/manage/')
+
+        # users are not visible
+        with pytest.raises(IndexError):
+            response = response.click(href='users')
+
+        # test user's role page
+        response = app.get('/manage/users/%d/roles/' % admin.pk)
+        assert len(response.form.fields['search-ou']) == 1
+        field = response.form['search-ou']
+        options = field.options
+        assert len(options) == 1
+        key, checked, label = options[0]
+        assert checked
+        assert key == str(ou1.pk)
+        q = response.pyquery.remove_namespaces()
+        # only role_ou1 is visible
+        assert len(q('table tbody tr')) == 1
+        assert q('table tbody tr').text() == auto_admin_role.name
+
+        response.form.set('search-internals', True)
+        response = response.form.submit()
+        q = response.pyquery.remove_namespaces()
+        assert len(q('table tbody tr')) == 1
+        names = {elt.text for elt in q('table tbody td.name a')}
+        assert names == {'Auto Admin Role'}
+
+        # test role listing
+        response = app.get('/manage/roles/')
+        assert len(response.form.fields['search-ou']) == 1
+        field = response.form['search-ou']
+        options = field.options
+        assert len(options) == 1
+        key, checked, label = options[0]
+        assert checked
+        assert key == str(ou1.pk)
+        q = response.pyquery.remove_namespaces()
+        assert len(q('table tbody tr')) == 1
+        names = [elt.text for elt in q('table tbody td.name a')]
+        assert set(names) == {u'Auto Admin Role'}
+
+        response.form.set('search-internals', True)
+        response = response.form.submit()
+        q = response.pyquery.remove_namespaces()
+        assert len(q('table tbody tr')) == 1
+        names = {elt.text for elt in q('table tbody td.name a')}
+        assert set(names) == {u'Auto Admin Role'}
+
+    test_user_listing_auto_admin_role(user_with_auto_admin_role)

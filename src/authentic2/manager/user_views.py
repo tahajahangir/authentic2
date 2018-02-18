@@ -465,6 +465,7 @@ class UserRolesView(HideOUColumnMixin, BaseSubTableView):
         kwargs['user'] = self.object
         kwargs['role_members_from_ou'] = app_settings.ROLE_MEMBERS_FROM_OU
         kwargs['show_all_ou'] = app_settings.SHOW_ALL_OU
+        kwargs['queryset'] = self.request.user.filter_by_perm('a2_rbac.view_role', get_role_model().objects.all())
         if self.object.ou_id:
             initial = kwargs.setdefault('initial', {})
             initial['ou'] = str(self.object.ou_id)

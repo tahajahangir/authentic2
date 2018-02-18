@@ -264,3 +264,21 @@ def hooks(settings):
     yield hook
     hook.clear()
     del settings.A2_HOOKS['__all__']
+
+
+@pytest.fixture
+def auto_admin_role(db, ou1):
+    role = Role.objects.create(
+        ou=ou1,
+        slug='auto-admin-role',
+        name='Auto Admin Role')
+    role.add_self_administration()
+    return role
+
+
+@pytest.fixture
+def user_with_auto_admin_role(auto_admin_role, ou1):
+    user = create_user(username='user.with.auto.admin.role', first_name=u'User', last_name=u'With Auto Admin Role',
+                       email='user.with.auto.admin.role@example.net', ou=ou1)
+    user.roles.add(auto_admin_role)
+    return user
