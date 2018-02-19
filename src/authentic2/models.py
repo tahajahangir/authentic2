@@ -151,6 +151,13 @@ class Attribute(models.Model):
         verbose_name=_('searchable'),
         blank=True, default=False)
 
+    scopes = models.CharField(
+        verbose_name=_('scopes'),
+        help_text=_('scopes separated by spaces'),
+        blank=True,
+        default='',
+        max_length=256)
+
     order = models.PositiveIntegerField(
         verbose_name=_('order'),
         default=0)

@@ -87,6 +87,7 @@ class SerializerTests(TestCase):
                     'disabled': False,
                     'searchable': False,
                     'order': 0,
+                    'scopes': '',
                 }
             },
             {
