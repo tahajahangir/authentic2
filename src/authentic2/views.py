@@ -75,7 +75,7 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
         return bool(fields) and app_settings.A2_PROFILE_CAN_EDIT_PROFILE
 
     @classmethod
-    def get_fields(cls):
+    def get_fields(cls, scopes=None):
         editable_profile_fields = []
         for field in app_settings.A2_PROFILE_FIELDS:
             if isinstance(field, (list, tuple)):
@@ -89,13 +89,26 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
             else:
                 if attribute.user_editable:
                     editable_profile_fields.append(field)
-        default_fields = list(models.Attribute.objects.filter(user_editable=True).values_list('name', flat=True))
-        return utils.get_fields_and_labels(
-            editable_profile_fields,
-            default_fields)
+        attributes = models.Attribute.objects.filter(user_editable=True)
+        if scopes:
+            scopes = set(scopes)
+            default_fields = [attribute.name for attribute in attributes if scopes & set(attribute.scopes.split())]
+        else:
+            default_fields = list(attributes.values_list('name', flat=True))
+        fields, labels = utils.get_fields_and_labels(
+                editable_profile_fields,
+                default_fields)
+        if scopes:
+            # restrict fields to those in the scopes
+            fields = [field for field in fields if field in default_fields]
+        return fields, labels
 
     def get_form_class(self):
-        fields, labels = self.get_fields()
+        if 'scope' in self.kwargs:
+            scopes = [self.kwargs['scope']]
+        else:
+            scopes = self.request.GET.get('scope', '').split()
+        fields, labels = self.get_fields(scopes=scopes)
         # Email must be edited through the change email view, as it needs validation
         fields = [field for field in fields if field != 'email']
         return forms.modelform_factory(compat.get_user_model(), fields=fields,
