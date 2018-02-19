@@ -42,3 +42,24 @@ def test_account_edit_view(app, simple_user):
     resp = app.get(url, status=200)
     assert 'phone' not in resp
     assert attribute.get_value(simple_user) == '0123456789'
+
+
+def test_account_edit_next_url(app, simple_user, external_redirect_next_url, assert_external_redirect):
+    utils.login(app, simple_user)
+    url = reverse('profile_edit')
+
+    attribute = Attribute.objects.create(
+        name='phone', label='phone',
+        kind='string', user_visible=True,
+        user_editable=True)
+    resp = app.get(url + '?next=%s' % external_redirect_next_url, status=200)
+    resp.form.set('edit-profile-phone', '0123456789')
+    resp = resp.form.submit()
+    assert_external_redirect(resp, reverse('account_management'))
+    assert attribute.get_value(simple_user) == '0123456789'
+
+    resp = app.get(url + '?next=%s' % external_redirect_next_url, status=200)
+    resp.form.set('edit-profile-phone', '1234')
+    resp = resp.form.submit('cancel')
+    assert_external_redirect(resp, reverse('account_management'))
+    assert attribute.get_value(simple_user) == '0123456789'

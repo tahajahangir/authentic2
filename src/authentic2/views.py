@@ -68,7 +68,6 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
     model = compat.get_user_model()
     template_names = ['profiles/edit_profile.html',
                       'authentic2/accounts_edit.html']
-    success_url = '../'
 
     @classmethod
     def can_edit_profile(cls):
@@ -99,7 +98,9 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
         fields, labels = self.get_fields()
         # Email must be edited through the change email view, as it needs validation
         fields = [field for field in fields if field != 'email']
-        return forms.modelform_factory(compat.get_user_model(), fields=fields, labels=labels)
+        return forms.modelform_factory(compat.get_user_model(), fields=fields,
+                                       labels=labels,
+                                       form=forms.EditProfileForm)
 
     def get_object(self):
         return self.request.user
@@ -107,11 +108,18 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
     def get_form_kwargs(self, **kwargs):
         kwargs = super(EditProfile, self).get_form_kwargs(**kwargs)
         kwargs['prefix'] = 'edit-profile'
+        kwargs['next_url'] = utils.select_next_url(self.request, reverse('account_management'))
         return kwargs
+
+    def get_success_url(self):
+        field_name = 'edit-profile-next_url'
+        if self.request.method == 'POST' and field_name in self.request.POST:
+            return self.request.POST[field_name]
+        return 'account_management'
 
     def post(self, request, *args, **kwargs):
         if 'cancel' in request.POST:
-            return utils.redirect(request, 'account_management')
+            return utils.redirect(request, self.get_success_url())
         return super(EditProfile, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):

@@ -283,7 +283,7 @@ class UserProfileTests(TestCase):
                                           password='secret'))
         response = self.client.get(reverse('profile_edit'))
         form = get_response_form(response)
-        self.assertEqual(set(form.fields), set())
+        self.assertEqual(set(form.fields), set(['next_url']))
 
 
 class CacheTests(TestCase):

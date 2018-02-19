@@ -103,6 +103,9 @@ class BaseUserForm(forms.ModelForm):
         return result
 
 
+class EditProfileForm(NextUrlFormMixin, BaseUserForm):
+    pass
+
 def modelform_factory(model, **kwargs):
     '''Build a modelform for the given model,
 
