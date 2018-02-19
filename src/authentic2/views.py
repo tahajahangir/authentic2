@@ -370,6 +370,11 @@ homepage = Homepage.as_view()
 class ProfileView(cbv.TemplateNamesMixin, TemplateView):
     template_names = ['idp/account_management.html', 'authentic2/accounts.html']
 
+    def dispatch(self, request, *args, **kwargs):
+        if app_settings.A2_ACCOUNTS_URL:
+            return utils.redirect(request, app_settings.A2_ACCOUNTS_URL)
+        return super(ProfileView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         ctx = super(ProfileView, self).get_context_data(**kwargs)
         frontends = utils.get_backends('AUTH_FRONTENDS')

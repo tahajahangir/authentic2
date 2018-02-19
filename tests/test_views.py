@@ -35,3 +35,12 @@ def test_account_delete(app, simple_user):
 
 def test_login_invalid_next(app):
     app.get(reverse('auth_login') + '?next=plop')
+
+
+def test_custom_account(settings, app, simple_user):
+    response = login(app, simple_user, path=reverse('account_management'))
+    assert response.status_code == 200
+    settings.A2_ACCOUNTS_URL = 'http://combo/account/'
+    response = app.get(reverse('account_management'))
+    assert response.status_code == 302
+    assert response['Location'] == settings.A2_ACCOUNTS_URL

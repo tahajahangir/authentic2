@@ -190,6 +190,7 @@ default_settings = dict(
     A2_SET_RANDOM_PASSWORD_ON_RESET=Setting(
         default=True,
         definition='Set a random password on request to reset the password from the front-office'),
+    A2_ACCOUNTS_URL=Setting(default=None, definition='IdP has no account page, redirect to this one.'),
 )
 
 app_settings = AppSettings(default_settings)
