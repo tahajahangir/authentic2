@@ -850,6 +850,8 @@ def utf8_encode(v):
 
 def good_next_url(request, next_url):
     '''Check if an URL is a good next_url'''
+    from . import hooks
+
     if not next_url:
         return False
     if (next_url.startswith('/') and (len(next_url) == 1 or next_url[1] != '/')):
@@ -859,6 +861,9 @@ def good_next_url(request, next_url):
     for origin in app_settings.A2_REDIRECT_WHITELIST:
         if same_origin(next_url, origin):
             return True
+    result = hooks.call_hooks_first_result('good_next_url', next_url)
+    if result is not None:
+        return result
     return False
 
 
