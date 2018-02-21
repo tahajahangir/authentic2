@@ -15,9 +15,15 @@ def test_good_next_url(rf, settings):
     assert not good_next_url(request, 'https://google.com/')
     assert not good_next_url(request, '')
     assert not good_next_url(request, None)
-    settings.A2_REDIRECT_WHITELIST = ['https://google.com', '//.example.com/']
-    assert good_next_url(request, 'https://google.com/')
-    assert good_next_url(request, 'https://www.example.com/')
+
+
+def test_good_next_url_backends(rf, external_redirect):
+    next_url, valid = external_redirect
+    request = rf.get('/', HTTP_HOST='example.net', **{'wsgi.url_scheme': 'https'})
+    if valid:
+        assert good_next_url(request, next_url)
+    else:
+        assert not good_next_url(request, next_url)
 
 
 def test_same_origin():

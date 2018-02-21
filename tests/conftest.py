@@ -2,6 +2,7 @@
 
 import pytest
 import mock
+import urlparse
 
 import django_webtest
 
@@ -282,3 +283,50 @@ def user_with_auto_admin_role(auto_admin_role, ou1):
                        email='user.with.auto.admin.role@example.net', ou=ou1)
     user.roles.add(auto_admin_role)
     return user
+
+
+# fixtures to check proper validation of redirect_url
+
+@pytest.fixture
+def saml_external_redirect(db):
+    from authentic2.saml.models import LibertyProvider
+    next_url = 'https://saml.example.com/whatever/'
+    LibertyProvider.objects.create(
+        entity_id='https://saml.example.com/',
+        protocol_conformance=3,
+        metadata=utils.saml_sp_metadata('https://example.com'))
+    return next_url, True
+
+
+@pytest.fixture
+def invalid_external_redirect():
+    return 'https://invalid.example.com/whatever/', False
+
+
+@pytest.fixture
+def whitelist_external_redirect(settings):
+    settings.A2_REDIRECT_WHITELIST = ['https://whitelist.example.com/']
+    return 'https://whitelist.example.com/whatever/', True
+
+
+@pytest.fixture(params=['saml', 'invalid', 'whitelist'])
+def external_redirect(request, saml_external_redirect,
+                      invalid_external_redirect, whitelist_external_redirect):
+    return locals()[request.param + '_external_redirect']
+
+
+@pytest.fixture
+def external_redirect_next_url(external_redirect):
+    return external_redirect[0]
+
+
+@pytest.fixture
+def assert_external_redirect(external_redirect):
+    next_url, valid = external_redirect
+    if valid:
+        def check_location(response, default_return):
+            assert response['Location'] == next_url
+    else:
+        def check_location(response, default_return):
+            assert response['Location'] == urlparse.urljoin('http://testserver/', default_return)
+    return check_location

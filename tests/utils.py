@@ -151,3 +151,28 @@ def get_link_from_mail(mail):
     assert links, 'there is not link in this mail'
     assert len(links) == 1, 'there are more than one link in this mail'
     return links[0]
+
+
+def saml_sp_metadata(base_url):
+    return '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<EntityDescriptor
+ entityID="{base_url}/"
+ xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+ <SPSSODescriptor
+   AuthnRequestsSigned="true"
+   WantAssertionsSigned="true"
+   protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+   <SingleLogoutService
+     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+     Location="https://files.entrouvert.org/mellon/logout" />
+   <AssertionConsumerService
+     index="0"
+     isDefault="true"
+     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+     Location="{base_url}/sso/POST" />
+   <AssertionConsumerService
+     index="1"
+     Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+     Location="{base_url}/mellon/artifactResponse" />
+ </SPSSODescriptor>
+</EntityDescriptor>'''.format(base_url=base_url)

@@ -10,16 +10,16 @@ from authentic2 import utils, models
 from utils import can_resolve_dns, get_link_from_mail
 
 
-def test_registration(app, db, settings, mailoutbox):
+def test_registration(app, db, settings, mailoutbox, external_redirect):
+    next_url, good_next_url = external_redirect
+
     settings.LANGUAGE_CODE = 'en-us'
     settings.A2_VALIDATE_EMAIL_DOMAIN = can_resolve_dns()
-    settings.A2_REDIRECT_WHITELIST = ['http://relying-party.org/']
 
     # disable existing attributes
     models.Attribute.objects.update(disabled=True)
 
     User = get_user_model()
-    next_url = 'http://relying-party.org/'
     url = utils.make_url('registration_register', params={REDIRECT_FIELD_NAME: next_url})
     response = app.get(url)
     response.form.set('email', 'testbot@entrouvert.com')
@@ -44,8 +44,13 @@ def test_registration(app, db, settings, mailoutbox):
     response.form.set('password1', 'T0==toto')
     response.form.set('password2', 'T0==toto')
     response = response.form.submit()
-    assert 'You have just created an account.' in response.content
-    assert next_url in response.content
+    if good_next_url:
+        assert 'You have just created an account.' in response.content
+        assert next_url in response.content
+    else:
+        assert response['Location'] == 'http://testserver/'
+        response = response.follow()
+        assert 'You have just created an account.' in response.content
     assert User.objects.count() == 1
     assert len(mailoutbox) == 2
     assert 'was successful' in mailoutbox[1].body
