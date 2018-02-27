@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-24 12:01+0100\n"
-"PO-Revision-Date: 2018-01-24 12:10+0100\n"
+"PO-Revision-Date: 2018-02-27 15:15+0100\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
 "Language: fr\n"
@@ -138,7 +138,7 @@ msgstr "L'identifiant est requis dans cette collectivité."
 
 #: src/authentic2/api_views.py:596
 msgid "User successfully added to role"
-msgstr "Utilisateur ajouté du rôle"
+msgstr "Utilisateur ajouté au rôle"
 
 #: src/authentic2/api_views.py:601
 msgid "User successfully removed from role"
