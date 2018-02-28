@@ -140,7 +140,7 @@ class OIDCBackend(ModelBackend):
                 try:
                     user_info = response.json()
                 except ValueError as e:
-                    logger.warngin(u'auth_oidc: bad JSON in user info response, %s (%r)', e,
+                    logger.warning(u'auth_oidc: bad JSON in user info response, %s (%r)', e,
                                    response.content)
 
         # check for required claims
