@@ -237,12 +237,13 @@ def test_authorization_code_sso(login_first, oidc_settings, oidc_client, simple_
     if oidc_client.post_logout_redirect_uris:
         params = {
             'post_logout_redirect_uri': oidc_client.post_logout_redirect_uris,
+            'state': 'xyz',
         }
     logout_url = make_url('oidc-logout', params=params)
     response = app.get(logout_url)
     if oidc_client.post_logout_redirect_uris:
         assert 'You have been logged out' in response.content
-        assert 'https://example.com' in response.content
+        assert 'https://example.com/?state=xyz' in response.content
         assert '_auth_user_id' not in app.session
     else:
         response = response.maybe_follow()

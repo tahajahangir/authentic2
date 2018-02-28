@@ -17,7 +17,7 @@ from django.utils.translation import ugettext as _
 
 from authentic2.decorators import setting_enabled
 from authentic2.utils import (login_require, redirect, timestamp_from_datetime,
-                              last_authentication_event)
+                              last_authentication_event, make_url)
 from authentic2.views import logout as a2_logout
 from authentic2 import hooks
 
@@ -433,8 +433,8 @@ def user_info(request, *args, **kwargs):
 
 @setting_enabled('ENABLE', settings=app_settings)
 def logout(request):
-    params = {}
     post_logout_redirect_uri = request.GET.get('post_logout_redirect_uri')
+    state = request.GET.get('state')
     if post_logout_redirect_uri:
         providers = models.OIDCClient.objects.filter(
             post_logout_redirect_uris__contains=post_logout_redirect_uri)
@@ -444,7 +444,8 @@ def logout(request):
         else:
             messages.warning(request, _('Invalid post logout URI'))
             return redirect(request, settings.LOGIN_REDIRECT_URL)
-        params[REDIRECT_FIELD_NAME] = post_logout_redirect_uri
+        if state:
+            post_logout_redirect_uri = make_url(post_logout_redirect_uri, params={'state': state})
     # FIXME: do something with id_token_hint
     id_token_hint = request.GET.get('id_token_hint')
     return a2_logout(request, next_url=post_logout_redirect_uri, do_local=False,
