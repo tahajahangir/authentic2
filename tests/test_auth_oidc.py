@@ -245,7 +245,7 @@ def check_simple_qs(qs):
     return qs
 
 
-def test_sso(app, caplog, code, oidc_provider, oidc_provider_jwkset, login_url, login_callback_url):
+def test_sso(app, caplog, code, oidc_provider, oidc_provider_jwkset, login_url, login_callback_url, hooks):
     OU = get_ou_model()
     cassis = OU.objects.create(name='Cassis', slug='cassis')
     OU.cached.cache.clear()
@@ -291,9 +291,12 @@ def test_sso(app, caplog, code, oidc_provider, oidc_provider_jwkset, login_url, 
         with oidc_provider_mock(oidc_provider, oidc_provider_jwkset, code,
                                 extra_id_token={'aud': 'zz'}):
             response = app.get(login_callback_url, params={'code': code, 'state': query['state']})
+    assert not hooks.auth_oidc_backend_modify_user
     with utils.check_log(caplog, 'created user'):
         with oidc_provider_mock(oidc_provider, oidc_provider_jwkset, code):
             response = app.get(login_callback_url, params={'code': code, 'state': query['state']})
+    assert len(hooks.auth_oidc_backend_modify_user) == 1
+    assert set(hooks.auth_oidc_backend_modify_user[0]['kwargs']) >= set(['user', 'provider', 'user_info', 'id_token', 'access_token'])
     assert urlparse.urlparse(response['Location']).path == '/admin/'
     assert User.objects.count() == 1
     user = User.objects.get()

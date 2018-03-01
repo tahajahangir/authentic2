@@ -14,7 +14,7 @@ from django.contrib.auth.backends import ModelBackend
 from django_rbac.utils import get_ou_model
 
 from authentic2.crypto import base64url_encode
-from authentic2 import app_settings
+from authentic2 import app_settings, hooks
 
 from . import models, utils
 
@@ -225,6 +225,11 @@ class OIDCBackend(ModelBackend):
                 save_user = True
         if user.ou != user_ou:
             user.ou = user_ou
+            save_user = True
+
+        if any(hooks.call_hooks(
+                'auth_oidc_backend_modify_user',
+                user=user, user_info=user_info, access_token=access_token, id_token=id_token, provider=provider)):
             save_user = True
 
         if save_user:
