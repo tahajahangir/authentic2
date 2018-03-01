@@ -126,6 +126,8 @@ class OIDCProvider(models.Model):
 
     @property
     def jwkset(self):
+        from authentic2.crypto import base64url_encode
+
         if self.idtoken_algo == self.ALGO_RSA:
             if self.jwkset_json:
                 return JWKSet.from_json(json.dumps(self.jwkset_json))
