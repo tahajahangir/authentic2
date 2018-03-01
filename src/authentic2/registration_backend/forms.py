@@ -68,11 +68,16 @@ class RegistrationCompletionFormNoPassword(forms.BaseUserForm):
                 username_is_unique |= ou.username_is_unique
             if username_is_unique:
                 User = get_user_model()
+                exist = False
                 try:
                     User.objects.get(username=username)
                 except User.DoesNotExist:
                     pass
+                except User.MultipleObjectsReturned:
+                    exist = True
                 else:
+                    exist = True
+                if exist:
                     raise ValidationError(_('This username is already in '
                                             'use. Please supply a different username.'))
             return username
@@ -82,11 +87,16 @@ class RegistrationCompletionFormNoPassword(forms.BaseUserForm):
             email = self.cleaned_data['email']
             if app_settings.A2_REGISTRATION_EMAIL_IS_UNIQUE:
                 User = get_user_model()
+                exist = False
                 try:
                     User.objects.get(email__iexact=email)
                 except User.DoesNotExist:
                     pass
+                except User.MultipleObjectsReturned:
+                    exist = True
                 else:
+                    exist = True
+                if exist:
                     raise ValidationError(_('This email address is already in '
                                             'use. Please supply a different email address.'))
             return BaseUserManager.normalize_email(email)

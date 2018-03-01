@@ -442,3 +442,53 @@ def test_revalidate_email(app, rf, db, settings, mailoutbox):
     response = response.follow()
     assert 'johndoe@example.com' in response.content
     assert len(mailoutbox) == 1
+
+
+def test_email_is_unique_multiple_objects_returned(app, db, settings, mailoutbox, rf):
+    settings.LANGUAGE_CODE = 'en-us'
+    settings.A2_VALIDATE_EMAIL_DOMAIN = can_resolve_dns()
+    settings.A2_REGISTRATION_EMAIL_IS_UNIQUE = True
+
+    # Create two user objects
+    User = get_user_model()
+    User.objects.create(email='testbot@entrouvert.com')
+    User.objects.create(email='testbot@entrouvert.com')
+
+    url = utils.build_activation_url(
+        rf.get('/'),
+        'testbot@entrouvert.com',
+        first_name='Test',
+        last_name='Bot',
+        password='ABcd12345',
+        next_url=None,
+        valid_email=False,
+        franceconnect=True)
+
+    response = app.get(url)
+    assert 'This email address is already in use.' in response.content
+
+
+def test_username_is_unique_multiple_objects_returned(app, db, settings, mailoutbox, rf):
+    settings.LANGUAGE_CODE = 'en-us'
+    settings.A2_VALIDATE_EMAIL_DOMAIN = can_resolve_dns()
+    settings.A2_REGISTRATION_USERNAME_IS_UNIQUE = True
+    settings.A2_REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
+    # Create two user objects
+    User = get_user_model()
+    User.objects.create(username='testbot', email='testbot1@entrouvert.com')
+    User.objects.create(username='testbot', email='testbot2@entrouvert.com')
+
+    url = utils.build_activation_url(
+        rf.get('/'),
+        'testbot@entrouvert.com',
+        username='testbot',
+        first_name='Test',
+        last_name='Bot',
+        password='ABcd12345',
+        next_url=None,
+        valid_email=False,
+        franceconnect=True)
+
+    response = app.get(url)
+    assert 'This username is already in use.' in response.content
