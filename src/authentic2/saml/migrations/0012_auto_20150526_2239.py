@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='libertyprovider',
             name='protocol_conformance',
-            field=models.IntegerField(choices=[(3, b'SAML 2.0')]),
+            field=models.IntegerField(verbose_name='Protocol conformance', choices=[(3, b'SAML 2.0')]),
         ),
     ]

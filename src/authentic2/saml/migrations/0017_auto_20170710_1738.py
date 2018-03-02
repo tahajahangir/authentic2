@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='libertyprovider',
             name='entity_id',
-            field=models.URLField(unique=True, max_length=256),
+            field=models.URLField(unique=True, max_length=256, verbose_name='Entity ID'),
         ),
     ]

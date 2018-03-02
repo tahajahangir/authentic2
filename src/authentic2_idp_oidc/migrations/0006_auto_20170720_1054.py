@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='oidcclient',
             name='authorization_mode',
-            field=models.PositiveIntegerField(default=1, verbose_name='authorization mode', choices=[(1, 'authorization by service'), (2, 'authorization by ou')]),
+            field=models.PositiveIntegerField(default=1, verbose_name='authorization mode', choices=[(1, 'authorization by service'), (2, 'authorization by ou'), (3, 'none')]),
         ),
         migrations.AlterField(
             model_name='oidcclient',
