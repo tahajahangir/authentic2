@@ -9,7 +9,8 @@
   {% url "auth_homepage" as homepage_url %}
   {% blocktrans with email=request.session.registered_email %}
     <p>An email was sent to {{ email }}.</p>
-    <p>Follow instruction in this email to continue your registration.</p>
+    <p>Follow instruction in this email to continue your registration, this
+    email will be valid during {{account_activation_days}} days.</p>
     <p><a href="{{ homepage_url }}">Back</a></p>
   {% endblocktrans %}
 {% endblock %}

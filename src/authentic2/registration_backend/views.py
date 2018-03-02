@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core import signing
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, CreateView
 from django.contrib.auth import get_user_model
 from django.forms import CharField, Form
@@ -382,3 +383,14 @@ class DeleteView(FormView):
         return super(DeleteView, self).form_valid(form)
 
 registration_completion = valid_token(RegistrationCompletionView.as_view())
+
+
+class RegistrationCompleteView(TemplateView):
+    template_name = 'registration/registration_complete.html'
+
+    def get_context_data(self, **kwargs):
+        return super(RegistrationCompleteView, self).get_context_data(
+            account_activation_days=settings.ACCOUNT_ACTIVATION_DAYS,
+            **kwargs)
+
+registration_complete = RegistrationCompleteView.as_view()

@@ -28,6 +28,7 @@ def test_registration(app, db, settings, mailoutbox, external_redirect):
     assert urlparse(response['Location']).path == reverse('registration_complete')
 
     response = response.follow()
+    assert '2 days' in response.content
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
@@ -92,7 +93,9 @@ def test_registration_realm(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('registration_complete')
 
     response = response.follow()
+    assert '2 days' in response.content
     assert 'testbot@entrouvert.com' in response.content
+    assert '2 days' in response.content
     assert len(mailoutbox) == 1
 
     link = get_link_from_mail(mailoutbox[0])
@@ -144,6 +147,7 @@ def test_username_settings(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('registration_complete')
 
     response = response.follow()
+    assert '2 days' in response.content
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
     link = get_link_from_mail(mailoutbox[0])
@@ -196,6 +200,7 @@ def test_username_is_unique(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('registration_complete')
 
     response = response.follow()
+    assert '2 days' in response.content
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
@@ -241,6 +246,7 @@ def test_email_is_unique(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('registration_complete')
 
     response = response.follow()
+    assert '2 days' in response.content
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
@@ -265,6 +271,7 @@ def test_email_is_unique(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('registration_complete')
 
     response = response.follow()
+    assert '2 days' in response.content
     assert 'testbot@entrouvert.com' in response.content
     assert not 'This email address is already in use.' in response.content
     assert len(mailoutbox) == 3
@@ -300,6 +307,7 @@ def test_attribute_model(app, db, settings, mailoutbox):
     assert urlparse(response['Location']).path == reverse('registration_complete')
 
     response = response.follow()
+    assert '2 days' in response.content
     assert 'testbot@entrouvert.com' in response.content
     assert len(mailoutbox) == 1
 
@@ -440,6 +448,7 @@ def test_revalidate_email(app, rf, db, settings, mailoutbox):
     response = response.form.submit()
     assert urlparse(response['Location']).path == reverse('registration_complete')
     response = response.follow()
+    assert '2 days' in response.content
     assert 'johndoe@example.com' in response.content
     assert len(mailoutbox) == 1
 
