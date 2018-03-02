@@ -6,6 +6,8 @@ if 'PASSWORD_HASHERS' not in locals():
 
 PASSWORD_HASHERS = ('django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',) + PASSWORD_HASHERS
 
+A2_CACHE_ENABLED = False
+
 LANGUAGE_CODE = 'en'
 DATABASES = {
     'default': {

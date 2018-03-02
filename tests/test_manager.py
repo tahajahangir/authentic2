@@ -294,15 +294,8 @@ def test_manager_one_ou(app, superuser, admin, simple_role, settings):
 
         # test user listing ou search
         response = response.click(href='users')
-        assert len(response.form.fields['search-ou']) == 1
+        assert 'search-ou' not in response.form.fields
         assert len(response.form.fields['search-text']) == 1
-        field = response.form['search-ou']
-        options = field.options
-        assert len(options) == 3
-        for key, checked, label in options:
-            assert not checked or key == 'all'
-        assert 'all' in [o[0] for o in options]
-        assert 'none' in [o[0] for o in options]
         # verify table shown
         q = response.pyquery.remove_namespaces()
         assert len(q('table tbody tr')) == 2
@@ -310,75 +303,35 @@ def test_manager_one_ou(app, superuser, admin, simple_role, settings):
 
         # test user's role page
         response = app.get('/manage/users/%d/roles/' % admin.pk)
-        assert len(response.form.fields['search-ou']) == 1
-        field = response.form['search-ou']
-        options = field.options
-        assert len(options) == 3
-        for key, checked, label in options:
-            assert not checked or key == str(get_default_ou().pk)
+        form = response.forms['search-form']
+        assert 'search-ou' not in form.fields
         q = response.pyquery.remove_namespaces()
         assert len(q('table tbody tr')) == 1
         assert q('table tbody tr').text() == u'simple role'
 
-        response.form.set('search-ou', 'all')
-        response = response.form.submit()
-        q = response.pyquery.remove_namespaces()
-        assert len(q('table tbody tr')) == 1
-        assert q('table tbody tr').text() == 'None'
-
-        form = response.forms['search-form']
         form.set('search-internals', True)
         response = form.submit()
         q = response.pyquery.remove_namespaces()
-        assert len(q('table tbody tr')) == 4
+        assert len(q('table tbody tr')) == 5
         # admin enroled only in the Manager role, other roles are inherited
-        assert len(q('table tbody tr td.via')) == 4
-        assert len(q('table tbody tr td.via:empty')) == 1
+        assert len(q('table tbody tr td.via')) == 5
+        assert len(q('table tbody tr td.via:empty')) == 2
         for elt in q('table tbody td.name a'):
-            assert 'Manager' in elt.text
-
-        form = response.forms['search-form']
-        form.set('search-ou', 'none')
-        form.set('search-internals', True)
-        response = form.submit()
-        q = response.pyquery.remove_namespaces()
-        assert len(q('table tbody tr')) == 4
-        for elt in q('table tbody td.name a'):
-            assert 'Manager' in elt.text
+            assert 'Manager' in elt.text or elt.text == 'simple role'
 
         # test role listing
         response = app.get('/manage/roles/')
-        assert len(response.form.fields['search-ou']) == 1
-        field = response.form['search-ou']
-        options = field.options
-        assert len(options) == 3
-        for key, checked, label in options:
-            assert not checked or key == 'all'
+        assert 'search-ou' not in response.form.fields
         q = response.pyquery.remove_namespaces()
         assert len(q('table tbody tr')) == 1
         assert q('table tbody td.name').text() == u'simple role'
 
-        response.form.set('search-ou', 'all')
-        response = response.form.submit()
-        q = response.pyquery.remove_namespaces()
-        assert len(q('table tbody tr')) == 1
-        assert q('table tbody td.name').text() == u'simple role'
-
-        response.form.set('search-ou', 'all')
         response.form.set('search-internals', True)
         response = response.form.submit()
         q = response.pyquery.remove_namespaces()
         assert len(q('table tbody tr')) == 5
         for elt in q('table tbody td.name a'):
             assert 'Manager' in elt.text or elt.text == u'simple role'
-
-        response.form.set('search-ou', 'none')
-        response.form.set('search-internals', True)
-        response = response.form.submit()
-        q = response.pyquery.remove_namespaces()
-        assert len(q('table tbody tr')) == 4
-        for elt in q('table tbody td.name a'):
-            assert 'Manager' in elt.text
 
     test_user_listing(admin)
     app.session.flush()

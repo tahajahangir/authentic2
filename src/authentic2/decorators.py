@@ -131,6 +131,8 @@ class CacheDecoratorBase(object):
         @wraps(func)
         def f(*args, **kwargs):
             try:
+                if not app_settings.A2_CACHE_ENABLED:
+                    raise CacheUnusable
                 now = time.time()
                 key = self.key(*args, **kwargs)
                 value, tstamp = self.get(key)

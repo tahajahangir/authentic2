@@ -3,6 +3,8 @@ import json
 import urlparse
 import base64
 
+import pytest
+
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -289,6 +291,10 @@ class UserProfileTests(TestCase):
 
 class CacheTests(TestCase):
     urls = 'cache_urls'
+
+    @pytest.fixture(autouse=True)
+    def cache_settings(self, settings):
+        settings.A2_CACHE_ENABLED = True
 
     def test_cache_decorator_base(self):
         import random
