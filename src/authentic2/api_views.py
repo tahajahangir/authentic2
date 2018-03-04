@@ -484,7 +484,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_role_model()
-        fields = ('uuid', 'name', 'slug', 'description', 'ou',)
+        fields = ('uuid', 'name', 'slug', 'ou',)
         extra_kwargs = {'uuid': {'read_only': True}}
 
 
