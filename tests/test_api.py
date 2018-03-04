@@ -674,7 +674,7 @@ def test_api_delete_role(app, admin_ou1, role_ou1):
     app.authorization = ('Basic', (admin_ou1.username, admin_ou1.username))
     Role = get_role_model()
 
-    app.delete('/api/roles/role_ou1/')
+    app.delete('/api/roles/{}/'.format(role_ou1.uuid))
     assert not len(Role.objects.filter(slug='role_ou1'))
 
 
@@ -682,25 +682,23 @@ def test_api_delete_role_unauthorized(app, simple_user, role_ou1):
     app.authorization = ('Basic', (simple_user.username, simple_user.username))
     Role = get_role_model()
 
-    app.delete('/api/roles/role_ou1/', status=404)
+    app.delete('/api/roles/{}/'.format(role_ou1.uuid), status=404)
     assert len(Role.objects.filter(slug='role_ou1'))
 
 
 def test_api_patch_role(app, admin_ou1, role_ou1):
     app.authorization = ('Basic', (admin_ou1.username, admin_ou1.username))
-    Role = get_role_model()
 
     role_data = {
         'slug': 'updated-role',
     }
-    resp = app.patch_json('/api/roles/role_ou1/', params=role_data)
-    assert not len(Role.objects.filter(slug='role_ou1'))
-    assert len(Role.objects.filter(slug='updated-role'))
+    app.patch_json('/api/roles/{}/'.format(role_ou1.uuid), params=role_data)
 
     # The role API won't change the organizational unit attribute:
-    role = Role.objects.get(slug='updated-role')
-    assert role.ou.slug == get_default_ou().slug
-    assert role.ou.slug != 'ou1'
+    role_ou1.refresh_from_db()
+    assert role_ou1.name == 'role_ou1'
+    assert role_ou1.slug == 'updated-role'
+    assert role_ou1.ou.slug == 'ou1'
 
 
 def test_api_patch_role_unauthorized(app, simple_user, role_ou1):
@@ -710,28 +708,25 @@ def test_api_patch_role_unauthorized(app, simple_user, role_ou1):
     role_data = {
         'slug': 'updated-role',
     }
-    resp = app.patch_json('/api/roles/role_ou1/', params=role_data, status=404)
-    assert len(Role.objects.filter(slug='role_ou1'))
+    app.patch_json('/api/roles/{}/'.format(role_ou1.uuid), params=role_data, status=404)
+    role_ou1.refresh_from_db()
+    assert role_ou1.slug == 'role_ou1'
     assert not len(Role.objects.filter(slug='updated-role'))
 
 
 def test_api_put_role(app, admin_ou1, role_ou1, ou1):
     app.authorization = ('Basic', (admin_ou1.username, admin_ou1.username))
-    Role = get_role_model()
 
     role_data = {
         'name': 'updated-role',
         'slug': 'updated-role',
-        'ou': 'ou1'
+        'ou': 'ou2'
     }
-    resp = app.put_json('/api/roles/role_ou1/', params=role_data)
-    assert not len(Role.objects.filter(slug='role_ou1'))
-    assert len(Role.objects.filter(slug='updated-role'))
-
-    # The role API won't change the organizational unit attribute:
-    role = Role.objects.get(slug='updated-role')
-    assert role.ou.slug == get_default_ou().slug
-    assert role.ou.slug != 'ou1'
+    app.put_json('/api/roles/{}/'.format(role_ou1.uuid), params=role_data)
+    role_ou1.refresh_from_db()
+    assert role_ou1.name == 'updated-role'
+    assert role_ou1.slug == 'updated-role'
+    assert role_ou1.ou.slug == 'ou1'
 
 
 def test_api_put_role_unauthorized(app, simple_user, role_ou1, ou1):
@@ -741,11 +736,13 @@ def test_api_put_role_unauthorized(app, simple_user, role_ou1, ou1):
     role_data = {
         'name': 'updated-role',
         'slug': 'updated-role',
-        'ou': 'ou1'
+        'ou': 'ou2'
     }
-    resp = app.put_json('/api/roles/role_ou1/', params=role_data, status=404)
-    assert len(Role.objects.filter(slug='role_ou1'))
-    assert not len(Role.objects.filter(slug='updated-role'))
+    app.put_json('/api/roles/{}/'.format(role_ou1.uuid), params=role_data, status=404)
+    role_ou1.refresh_from_db()
+    assert role_ou1.name == 'role_ou1'
+    assert role_ou1.slug == 'role_ou1'
+    assert role_ou1.ou.slug == 'ou1'
 
 
 def test_api_post_role(app, admin_ou1, ou1):
@@ -758,18 +755,16 @@ def test_api_post_role(app, admin_ou1, ou1):
         }
     resp = app.post_json('/api/roles/', params=role_data)
     assert isinstance(resp.json, dict)
-    Role = get_role_model()
+    uuid = resp.json['uuid']
 
     # Check attribute values against the server's response:
-    for key, value in role_data.items():
-        assert key in resp.json.keys()
-        assert value in resp.json.values()
+    assert set(role_data.items()) < set(resp.json.items())
 
     # Check attributes values against the DB:
-    posted_role = Role.objects.get(slug='coffee-manager')
-    assert posted_role.slug == role_data['slug']
-    assert posted_role.name == role_data['name']
-    assert posted_role.ou.slug == 'ou1'
+    role = get_role_model().objects.get(uuid=uuid)
+    assert role.slug == role_data['slug']
+    assert role.name == role_data['name']
+    assert role.ou.slug == role_data['ou']
 
 
 def test_api_post_role_no_ou(app, superuser):
@@ -781,9 +776,9 @@ def test_api_post_role_no_ou(app, superuser):
         'name': 'Tea Manager',
         }
     resp = app.post_json('/api/roles/', params=role_data)
-    new_role = Role.objects.get(slug='tea-manager')
-    default_ou = get_default_ou()
-    assert new_role.ou == default_ou
+    uuid = resp.json['uuid']
+    role = Role.objects.get(uuid=uuid)
+    assert role.ou == get_default_ou()
 
 
 def test_api_post_role_unauthorized(app, simple_user, ou1):
@@ -796,13 +791,13 @@ def test_api_post_role_unauthorized(app, simple_user, ou1):
         'ou': 'ou1'
         }
 
-    resp = app.post_json('/api/roles/', params=role_data, status=403)
+    app.post_json('/api/roles/', params=role_data, status=403)
     assert not len(Role.objects.filter(slug='mocca-manager'))
 
 
 def test_api_get_role_description(app, admin_rando_role, role_random):
     app.authorization = ('Basic', (admin_rando_role.username, admin_rando_role.username))
-    resp = app.get('/api/roles/rando/')
+    resp = app.get('/api/roles/{}/'.format(role_random.uuid))
 
     assert resp.json['slug'] == 'rando'
     assert resp.json['ou'] == 'ou_rando'
@@ -810,7 +805,7 @@ def test_api_get_role_description(app, admin_rando_role, role_random):
 
 def test_api_get_role_not_found(app, superuser):
     app.authorization = ('Basic', (superuser.username, superuser.username))
-    resp = app.get('/api/roles/thisisnotavalidroleslug/', status=404)
+    app.get('/api/roles/thisisnotavalidroleslug/', status=404)
 
 
 def test_api_get_role_list(app, admin_ou1, role_ou1, role_random):

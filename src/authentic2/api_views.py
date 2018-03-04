@@ -623,7 +623,7 @@ class UsersAPI(HookMixin, ExceptionHandlerMixin, ModelViewSet):
 class RolesAPI(ExceptionHandlerMixin, ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = RoleSerializer
-    lookup_field = 'slug'
+    lookup_field = 'uuid'
 
     def get_queryset(self):
         return self.request.user.filter_by_perm('a2_rbac.view_role', get_role_model().objects.all())
