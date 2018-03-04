@@ -448,7 +448,7 @@ class RoleSerializer(serializers.ModelSerializer):
     ou = serializers.SlugRelatedField(
         many=False,
         required=False,
-        default=get_default_ou,
+        default=CreateOnlyDefault(get_default_ou),
         queryset=get_ou_model().objects.all(),
         slug_field='slug')
 
