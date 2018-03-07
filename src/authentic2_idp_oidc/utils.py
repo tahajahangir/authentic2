@@ -161,5 +161,15 @@ def create_user_info(client, user, scope_set, id_token=False):
     if 'email' in scope_set:
         user_info['email'] = user.email
         user_info['email_verified'] = True
+    if 'roles' in scope_set:
+        roles = user_info['roles'] = []
+        for role in user.roles_and_parents().select_related('ou'):
+            roles.append({
+                'uuid': role.uuid,
+                'name': role.name,
+                'slug': role.slug,
+                'ou__name': role.ou.name,
+                'ou__slug': role.ou.slug
+            })
     hooks.call_hooks('idp_oidc_modify_user_info', client, user, scope_set, user_info)
     return user_info
