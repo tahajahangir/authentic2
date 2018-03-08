@@ -27,7 +27,7 @@ from django_filters.rest_framework import FilterSet
 
 from .custom_user.models import User
 from . import utils, decorators, attribute_kinds, app_settings, hooks
-from .models import Attribute, PasswordReset
+from .models import Attribute, PasswordReset, Service
 from .a2_rbac.utils import get_default_ou
 
 
@@ -548,6 +548,14 @@ class UsersAPI(HookMixin, ExceptionHandlerMixin, ModelViewSet):
         if self.request.method == 'GET':
             qs = qs.prefetch_related('attribute_values', 'attribute_values__attribute')
         qs = self.request.user.filter_by_perm(['custom_user.view_user'], qs)
+        # filter users authorized for a specified service
+        if 'service-slug' in self.request.GET and 'service-ou' in self.request.GET:
+            service_slug = self.request.GET['service-slug']
+            service_ou = self.request.GET['service-ou']
+            service = Service.objects.filter(slug=service_slug, ou__slug=service_ou).prefetch_related('authorized_roles').first()
+            if service and service.authorized_roles.all():
+                qs = qs.filter(roles__in=service.authorized_roles.children())
+                qs = qs.distinct()
         new_qs = hooks.call_hooks_first_result('api_modify_queryset', self, qs)
         if new_qs is not None:
             return new_qs

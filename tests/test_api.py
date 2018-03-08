@@ -141,6 +141,39 @@ def test_api_users_list(app, user):
     assert resp.json['next'] is None
 
 
+def test_api_users_list_by_authorized_service(app, superuser):
+    from authentic2.models import Service
+
+    app.authorization = ('Basic', (superuser.username, superuser.username))
+    User = get_user_model()
+    Role = get_role_model()
+
+    user1 = User.objects.create(username='user1')
+    user2 = User.objects.create(username='user2')
+    user3 = User.objects.create(username='user3')
+
+    role1 = Role.objects.create(name='role1')
+    role2 = Role.objects.create(name='role2')
+    role1.add_child(role2)
+    user1.roles = [role1]
+    user2.roles = [role2]
+
+    service1 = Service.objects.create(ou=get_default_ou(), name='service1', slug='service1')
+    service1.add_authorized_role(role1)
+
+    service2 = Service.objects.create(ou=get_default_ou(), name='service2', slug='service2')
+
+    resp = app.get('/api/users/')
+    assert len(resp.json['results']) == 4
+
+    resp = app.get('/api/users/?service-ou=default&service-slug=service1')
+    assert len(resp.json['results']) == 2
+    assert set(user['username'] for user in resp.json['results']) == set(['user1', 'user2'])
+
+    resp = app.get('/api/users/?service-ou=default&service-slug=service2')
+    assert len(resp.json['results']) == 4
+
+
 def test_api_users_create(settings, app, api_user):
     from django.contrib.auth import get_user_model
     from authentic2.models import Attribute, AttributeValue

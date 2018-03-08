@@ -335,7 +335,7 @@ class Service(models.Model):
     authorized_roles = models.ManyToManyField(
         get_role_model_name(), verbose_name=_('authorized services'),
         through='AuthorizedRole', through_fields=('service', 'role'),
-        related_name='authorized_roles', blank=True)
+        related_name='allowed_services', blank=True)
     unauthorized_url = models.URLField(
         verbose_name=_('callback url when unauthorized'),
         max_length=256, null=True, blank=True)
@@ -377,7 +377,7 @@ class Service(models.Model):
     def authorize(self, user):
         if not self.authorized_roles.exists():
             return True
-        if user.roles_and_parents().filter(authorized_roles=self).exists():
+        if user.roles_and_parents().filter(allowed_services=self).exists():
             return True
         raise ServiceAccessDenied(service=self)
 

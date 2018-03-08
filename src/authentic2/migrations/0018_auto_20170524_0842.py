@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='service',
             name='authorized_roles',
-            field=models.ManyToManyField(related_name='authorized_roles', verbose_name='authorized services', to=settings.RBAC_ROLE_MODEL, through='authentic2.AuthorizedRole', blank=True),
+            field=models.ManyToManyField(related_name='allowed_services', verbose_name='authorized services', to=settings.RBAC_ROLE_MODEL, through='authentic2.AuthorizedRole', blank=True),
         ),
     ]
