@@ -29,7 +29,7 @@ from authentic2.a2_rbac.models import Role
 
 from authentic2.compat_lasso import lasso
 
-from authentic2 import crypto
+from authentic2 import crypto, app_settings
 from authentic2.decorators import to_list
 from authentic2.compat import get_user_model
 from authentic2.models import UserExternalId
@@ -217,7 +217,7 @@ class LDAPBackend(object):
         'bindpw': None,
         'bindsasl': (),
         'user_dn_template': None,
-        'user_filter': 'uid=%s',
+        'user_filter': 'uid=%s',  # will be '(|(mail=%s)(uid=%s))' if A2_ACCEPT_EMAIL_AUTHENTICATION is set (see update_default)
         'sync_ldap_users_filter': None,
         'user_basedn': None,
         'group_dn_template': None,
@@ -1093,6 +1093,8 @@ class LDAPBackend(object):
         for d in cls._DEFAULTS:
             if d not in block:
                 block[d] = cls._DEFAULTS[d]
+                if d == 'user_filter' and app_settings.A2_ACCEPT_EMAIL_AUTHENTICATION:
+                    block[d] = '(|(mail=%s)(uid=%s))'
             else:
                 if isinstance(cls._DEFAULTS[d], six.string_types):
                     if not isinstance(block[d], six.string_types):
