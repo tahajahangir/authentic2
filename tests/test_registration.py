@@ -4,6 +4,7 @@ from urlparse import urlparse
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME
+from django.utils.http import urlquote
 
 from authentic2 import utils, models
 
@@ -501,3 +502,86 @@ def test_username_is_unique_multiple_objects_returned(app, db, settings, mailout
 
     response = app.get(url)
     assert 'This username is already in use.' in response.content
+
+
+def test_registration_redirect(app, db, settings, mailoutbox, external_redirect):
+    next_url, good_next_url = external_redirect
+
+    settings.A2_REGISTRATION_REDIRECT = 'http://cms/welcome/'
+    settings.LANGUAGE_CODE = 'en-us'
+    settings.A2_VALIDATE_EMAIL_DOMAIN = can_resolve_dns()
+
+    new_next_url = settings.A2_REGISTRATION_REDIRECT
+    if good_next_url:
+        new_next_url += '?next=' + urlquote(next_url)
+
+    # disable existing attributes
+    models.Attribute.objects.update(disabled=True)
+
+    User = get_user_model()
+    url = utils.make_url('registration_register', params={REDIRECT_FIELD_NAME: next_url})
+    response = app.get(url)
+    response.form.set('email', 'testbot@entrouvert.com')
+    response = response.form.submit()
+
+    assert urlparse(response['Location']).path == reverse('registration_complete')
+
+    response = response.follow()
+    assert '2 days' in response.content
+    assert 'testbot@entrouvert.com' in response.content
+    assert len(mailoutbox) == 1
+
+    link = get_link_from_mail(mailoutbox[0])
+    response = app.get(link)
+    response.form.set('password1', 'T0==toto')
+    response.form.set('password2', 'T0==toto')
+    response = response.form.submit()
+
+    assert 'You have just created an account.' in response.content
+    assert new_next_url in response.content
+
+    assert User.objects.count() == 1
+    assert len(mailoutbox) == 2
+    assert 'was successful' in mailoutbox[1].body
+
+    new_user = User.objects.get()
+    assert new_user.email == 'testbot@entrouvert.com'
+    assert new_user.username is None
+    assert new_user.check_password('T0==toto')
+    assert new_user.is_active
+    assert not new_user.is_staff
+    assert not new_user.is_superuser
+    assert str(app.session['_auth_user_id']) == str(new_user.pk)
+
+    response = app.get('/login/')
+    response.form.set('username', 'testbot@entrouvert.com')
+    response.form.set('password', 'T0==toto')
+    response = response.form.submit(name='login-password-submit')
+    assert urlparse(response['Location']).path == reverse('auth_homepage')
+
+
+def test_registration_redirect_tuple(app, db, settings, mailoutbox, external_redirect):
+    next_url, good_next_url = external_redirect
+
+    settings.A2_REGISTRATION_REDIRECT = 'http://cms/welcome/', 'target'
+    settings.A2_VALIDATE_EMAIL_DOMAIN = can_resolve_dns()
+
+    new_next_url = settings.A2_REGISTRATION_REDIRECT[0]
+    if good_next_url:
+        new_next_url += '?target=' + urlquote(next_url)
+
+    # disable existing attributes
+    models.Attribute.objects.update(disabled=True)
+
+    url = utils.make_url('registration_register', params={REDIRECT_FIELD_NAME: next_url})
+    response = app.get(url)
+    response.form.set('email', 'testbot@entrouvert.com')
+    response = response.form.submit()
+    response = response.follow()
+    link = get_link_from_mail(mailoutbox[0])
+    response = app.get(link)
+    response.form.set('password1', 'T0==toto')
+    response.form.set('password2', 'T0==toto')
+    response = response.form.submit()
+    assert new_next_url in response.content
+

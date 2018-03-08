@@ -100,6 +100,8 @@ default_settings = dict(
     A2_REGISTRATION_CAN_CHANGE_PASSWORD = Setting(default=True, definition='Allow user to change its own password'),
     A2_REGISTRATION_EMAIL_BLACKLIST = Setting(default=[], definition='List of forbidden email '
                                               'wildcards, ex.: ^.*@ville.fr$'),
+    A2_REGISTRATION_REDIRECT = Setting(default=None, definition='Forced redirection after each redirect, NEXT_URL '
+                                       ' substring is replaced by the original next_url passed to /accounts/register/'),
     A2_PROFILE_CAN_CHANGE_EMAIL = Setting(default=True,
                 definition='Can user self change their email'),
     A2_PROFILE_CAN_EDIT_PROFILE = Setting(default=True,

@@ -6,6 +6,7 @@ import random
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
+from django.utils.http import urlquote
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core import signing
@@ -119,9 +120,22 @@ class RegistrationCompletionView(CreateView):
             return ['registration/registration_completion_form.html']
 
     def get_success_url(self):
+        try:
+            redirect_url, next_field = app_settings.A2_REGISTRATION_REDIRECT
+        except Exception:
+            redirect_url = app_settings.A2_REGISTRATION_REDIRECT
+            next_field = REDIRECT_FIELD_NAME
+
         if self.token and self.token.get(REDIRECT_FIELD_NAME):
-            return self.token[REDIRECT_FIELD_NAME]
-        return make_url(self.success_url)
+            url = self.token[REDIRECT_FIELD_NAME]
+            if redirect_url:
+                url = make_url(redirect_url, params={next_field: url})
+        else:
+            if redirect_url:
+                url = redirect_url
+            else:
+                url = make_url(self.success_url)
+        return url
 
     def dispatch(self, request, *args, **kwargs):
         self.token = request.token
