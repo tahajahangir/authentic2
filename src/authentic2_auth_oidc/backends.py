@@ -218,12 +218,27 @@ class OIDCBackend(ModelBackend):
                                u' allow it', id_token.sub, id_token.iss)
                 return None
 
+        if created:
+            logger.info(u'auth_oidc: created user %s for sub %s and issuer %s',
+                        user, id_token.sub, id_token.iss)
+
+        if linked:
+            logger.info(u'auth_oidc: linked user %s to sub %s and issuer %s',
+                        user, id_token.sub, id_token.iss)
+
         # legacy attributes
         for attribute, value, verified in mappings:
-            if attribute in ('username', 'first_name', 'last_name', 'email'):
+            if attribute not in ('username', 'first_name', 'last_name', 'email'):
+                continue
+            if getattr(user, attribute) != value:
+                logger.info(u'auth_oidc: set user %s attribute %s to value %s',
+                            user, attribute, value)
                 setattr(user, attribute, value)
                 save_user = True
+
         if user.ou != user_ou:
+            logger.info(u'auth_oidc: set user %s ou to %s',
+                        user, user_ou)
             user.ou = user_ou
             save_user = True
 
@@ -237,16 +252,12 @@ class OIDCBackend(ModelBackend):
 
         # new style attributes
         for attribute, value, verified in mappings:
-            if attribute in attributes_map:
+            if attribute not in attributes_map:
+                continue
+            if attributes_map[attribute].get_value(user, verified=verified) != value:
+                logger.info(u'auth_oidc: set user %s attribute %s to %s',
+                            user, attribute, value)
                 attributes_map[attribute].set_value(user, value, verified=verified)
-
-        if created:
-            logger.info(u'auth_oidc: created user %s for sub %s and issuer %s',
-                        user, id_token.sub, id_token.iss)
-
-        if linked:
-            logger.info(u'auth_oidc: linked user %s to sub %s and issuer %s',
-                        user, id_token.sub, id_token.iss)
 
         return user
 

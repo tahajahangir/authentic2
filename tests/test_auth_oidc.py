@@ -3,6 +3,7 @@ import datetime
 import pytest
 import urlparse
 import json
+import time
 
 from jwcrypto.jwk import JWKSet, JWK
 from jwcrypto.jwt import JWT
@@ -328,6 +329,16 @@ def test_sso(app, caplog, code, oidc_provider, oidc_provider_jwkset, login_url, 
     assert User.objects.count() == 1
     user = User.objects.get()
     assert user.ou == get_default_ou()
+    last_modified = user.modified
+
+    time.sleep(0.1)
+
+    with oidc_provider_mock(oidc_provider, oidc_provider_jwkset, code):
+        response = app.get(login_callback_url, params={'code': code, 'state': query['state']})
+    assert User.objects.count() == 1
+    user = User.objects.get()
+    assert user.ou == get_default_ou()
+    assert user.modified == last_modified
 
     response = app.get(reverse('account_management'))
     with utils.check_log(caplog, 'revoked token from OIDC'):
