@@ -69,6 +69,13 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
     template_names = ['profiles/edit_profile.html',
                       'authentic2/accounts_edit.html']
 
+    def get_template_names(self):
+        template_names = []
+        if 'scope' in self.kwargs:
+            template_names.append('authentic2/accounts_edit_%s.html' % self.kwargs['scope'])
+        template_names.extend(self.template_names)
+        return template_names
+
     @classmethod
     def can_edit_profile(cls):
         fields, labels = cls.get_fields()
