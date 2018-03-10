@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block title %}
-{% trans "Registration" %}
+{{ view.title }}
 {% endblock %}
 
 {% load breadcrumbs %}
@@ -13,7 +13,7 @@
 
 {% block content %}
 
-<h2>{% trans "Registration" %}</h2>
+<h2>{{ view.title }}</h2>
 
 <form method="post">
   {% csrf_token %}

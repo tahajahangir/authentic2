@@ -68,6 +68,7 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
     model = compat.get_user_model()
     template_names = ['profiles/edit_profile.html',
                       'authentic2/accounts_edit.html']
+    title = _('Edit account data')
 
     def get_template_names(self):
         template_names = []
@@ -171,6 +172,7 @@ class EmailChangeView(cbv.TemplateNamesMixin, FormView):
         'profiles/email_change.html',
         'authentic2/change_email.html'
     ]
+    title = _('Email Change')
     success_url = '..'
 
     def get_form_class(self):
@@ -397,6 +399,7 @@ homepage = Homepage.as_view()
 
 class ProfileView(cbv.TemplateNamesMixin, TemplateView):
     template_names = ['idp/account_management.html', 'authentic2/accounts.html']
+    title = _('Your account')
 
     def dispatch(self, request, *args, **kwargs):
         if app_settings.A2_ACCOUNTS_URL:

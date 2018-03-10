@@ -14,6 +14,7 @@ from . import cbv, profile_forms, utils, hooks
 class PasswordResetView(cbv.NextURLViewMixin, FormView):
     '''Ask for an email and send a password reset link by mail'''
     form_class = profile_forms.PasswordResetForm
+    title = _('Password Reset')
 
     def get_template_names(self):
         return [
@@ -49,6 +50,7 @@ class PasswordResetConfirmView(cbv.RedirectToNextURLViewMixin, FormView):
        the user.
     '''
     form_class = SetPasswordForm
+    title = _('Password Reset')
 
     def get_template_names(self):
         return [

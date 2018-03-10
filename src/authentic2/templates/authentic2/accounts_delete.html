@@ -2,13 +2,13 @@
 {% load i18n %}
 
 {% block page-title %}
-  {{ block.super }} - {% trans "Delete account" %}
+  {{ block.super }} - {{ view.title }}
 {% endblock %}
 
 {% block breadcrumb %}
   {{ block.super }}
   <a href="{% url "account_management" %}">{% trans "Your account" %}</a>
-  <a href="#">{% trans "Delete account" %}</a>
+  <a href="#">{{ view.title }}</a>
 {% endblock %}
 
 

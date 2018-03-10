@@ -52,6 +52,7 @@ def valid_token(method):
 class BaseRegistrationView(FormView):
     form_class = import_module_or_class(app_settings.A2_REGISTRATION_FORM_CLASS)
     template_name = 'registration/registration_form.html'
+    title = _('Registration')
 
     def dispatch(self, request, *args, **kwargs):
         self.token = {}
@@ -349,6 +350,7 @@ class RegistrationCompletionView(CreateView):
 class DeleteView(FormView):
     template_name = 'authentic2/accounts_delete.html'
     success_url = reverse_lazy('auth_logout')
+    title = _('Delete account')
 
     def dispatch(self, request, *args, **kwargs):
         if not app_settings.A2_REGISTRATION_CAN_DELETE_ACCOUNT:

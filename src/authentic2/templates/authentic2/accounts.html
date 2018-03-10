@@ -2,12 +2,12 @@
 {% load i18n %}
 
 {% block page-title %}
-  {{ block.super }} - {% trans "Your account" %}
+  {{ block.super }} - {{ view.title }}
 {% endblock %}
 
 {% block breadcrumb %}
   {{ block.super }}
-  <a href="">{% trans "Your account" %}</a>
+  <a href="">{{ view.title }}</a>
 {% endblock %}
 
 {% block content %}

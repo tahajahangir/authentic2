@@ -12,13 +12,13 @@
 {% endblock %}
 
 {% block page-title %}
-  {{ block.super }} - {% trans "Edit account data" %}
+  {{ block.super }} - {{ view.title }}
 {% endblock %}
 
 {% block breadcrumb %}
   {{ block.super }}
   <a href="..">{% trans "Your account" %}</a>
-  <a href="">{% trans "Edit account data" %}</a>
+  <a href="">{{ view.title }}</a>
 {% endblock %}
 
 {% block content %}
