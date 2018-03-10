@@ -30,6 +30,7 @@ def password_change_view(request, *args, **kwargs):
         return redirect(request, post_change_redirect)
     kwargs['post_change_redirect'] = post_change_redirect
     extra_context = kwargs.setdefault('extra_context', {})
+    extra_context['view'] = password_change_view
     extra_context[REDIRECT_FIELD_NAME] = post_change_redirect
     if not request.user.has_usable_password():
         kwargs['password_change_form'] = SET_PASSWORD_FORM_CLASS
@@ -38,6 +39,9 @@ def password_change_view(request, *args, **kwargs):
         hooks.call_hooks('event', name='change-password', user=request.user, request=request)
         messages.info(request, _('Password changed'))
     return response
+
+password_change_view.title = _('Password Change')
+password_change_view.do_not_call_in_templates = True
 
 
 urlpatterns = patterns('authentic2.views',
