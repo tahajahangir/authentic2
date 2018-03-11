@@ -30,3 +30,10 @@
   <a href="{% url 'a2-manager-homepage' %}">{% trans 'Administration' as default_site_tile %}{% firstof manager_site_title default_site_tile %}</a>
   {% endif %}
 {% endblock %}
+
+{% block content %}
+  <div class="content">
+    {% block main %}
+    {% endblock %}
+  </div>
+{% endblock %}

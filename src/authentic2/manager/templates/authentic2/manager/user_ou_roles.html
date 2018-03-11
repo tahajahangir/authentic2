@@ -1,4 +1,4 @@
-{% extends "authentic2/manager/sidebar.html" %}
+{% extends "authentic2/manager/base.html" %}
 {% load i18n staticfiles django_tables2 %}
 
 {% block breadcrumb %}
@@ -47,7 +47,9 @@
 {% endblock %}
 
 {% block sidebar %}
-  {% include "authentic2/manager/search_form.html" %}
+  <aside id="sidebar">
+    {% include "authentic2/manager/search_form.html" %}
+  </aside>
 {% endblock %}
 
 {% block main %}
