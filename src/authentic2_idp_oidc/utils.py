@@ -9,6 +9,7 @@ from jwcrypto.jwt import JWT
 
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
+from django.utils.encoding import smart_bytes
 
 from authentic2 import hooks, crypto
 
@@ -173,3 +174,40 @@ def create_user_info(client, user, scope_set, id_token=False):
             })
     hooks.call_hooks('idp_oidc_modify_user_info', client, user, scope_set, user_info)
     return user_info
+
+
+def get_issuer(request):
+    return request.build_absolute_uri('/')
+
+
+def get_session_id(request, client):
+    '''Derive an OIDC Session Id from the real session identifier, the sector
+       identifier of the RP and the secret key of the Django instance'''
+    session_key = smart_bytes(request.session.session_key)
+    sector_identifier = smart_bytes(get_sector_identifier(client))
+    secret_key = smart_bytes(settings.SECRET_KEY)
+    return hashlib.md5(session_key + sector_identifier + secret_key).hexdigest()
+
+
+def get_oidc_sessions(request):
+    return request.session.get('oidc_sessions', {})
+
+
+def add_oidc_session(request, client):
+    oidc_sessions = request.session.setdefault('oidc_sessions', {})
+    if not client.frontchannel_logout_uri:
+        return
+    uri = client.frontchannel_logout_uri
+    oidc_session = {
+        'frontchannel_logout_uri': uri,
+        'frontchannel_timeout': client.frontchannel_timeout,
+        'name': client.name,
+        'sid': get_session_id(request, client),
+        'iss': get_issuer(request),
+    }
+    if oidc_sessions.get(uri) == oidc_session:
+        # already present
+        return
+    oidc_sessions[uri] = oidc_session
+    # force session save
+    request.session.modified = True

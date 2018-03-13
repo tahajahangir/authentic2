@@ -27,6 +27,10 @@ class AppSettings(object):
         return self._setting('SCOPES', [])
 
     @property
+    def DEFAULT_FRONTCHANNEL_TIMEOUT(self):
+        return self._setting('DEFAULT_FRONTCHANNEL_TIMEOUT', 10000)
+
+    @property
     def IDTOKEN_DURATION(self):
         return self._setting('IDTOKEN_DURATION', 30)
 

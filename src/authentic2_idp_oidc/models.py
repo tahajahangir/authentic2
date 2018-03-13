@@ -115,6 +115,13 @@ class OIDCClient(Service):
     has_api_access = models.BooleanField(
         verbose_name=_('has API access'),
         default=False)
+    frontchannel_logout_uri = models.URLField(
+        verbose_name=_('frontchannel logout URI'),
+        blank=True)
+    frontchannel_timeout = models.PositiveIntegerField(
+        verbose_name=_('frontchannel timeout'),
+        null=True,
+        blank=True)
 
     authorizations = GenericRelation('OIDCAuthorization',
                                      content_type_field='client_ct',

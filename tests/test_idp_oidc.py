@@ -47,17 +47,20 @@ def test_get_jwkset(oidc_settings):
     from authentic2_idp_oidc.utils import get_jwkset
     get_jwkset()
 
+
 OIDC_CLIENT_PARAMS = [
     {
         'authorization_flow': OIDCClient.FLOW_IMPLICIT,
     },
-    {},
+    {
+        'post_logout_redirect_uris': 'https://example.com/',
+    },
     {
         'identifier_policy': OIDCClient.POLICY_UUID,
+        'post_logout_redirect_uris': 'https://example.com/',
     },
     {
         'identifier_policy': OIDCClient.POLICY_EMAIL,
-        'post_logout_redirect_uris': '',
     },
     {
         'idtoken_algo': OIDCClient.ALGO_HMAC,
@@ -71,6 +74,14 @@ OIDC_CLIENT_PARAMS = [
     {
         'authorization_flow': OIDCClient.FLOW_IMPLICIT,
         'idtoken_duration': datetime.timedelta(hours=1),
+        'post_logout_redirect_uris': 'https://example.com/',
+    },
+    {
+        'frontchannel_logout_uri': 'https://example.com/southpark/logout/',
+    },
+    {
+        'frontchannel_logout_uri': 'https://example.com/southpark/logout/',
+        'frontchannel_timeout': 3000,
     },
 ]
 
@@ -85,7 +96,6 @@ def oidc_client(request, superuser, app):
     response.form.set('ou', get_default_ou().pk)
     response.form.set('unauthorized_url', 'https://example.com/southpark/')
     response.form.set('redirect_uris', 'https://example.com/callback')
-    response.form.set('post_logout_redirect_uris', 'https://example.com/')
     for key, value in request.param.iteritems():
         response.form.set(key, value)
     response = response.form.submit().follow()
@@ -233,23 +243,26 @@ def test_authorization_code_sso(login_first, oidc_settings, oidc_client, simple_
     assert response.json['email_verified'] is True
 
     # Now logout
-    params = {}
     if oidc_client.post_logout_redirect_uris:
         params = {
             'post_logout_redirect_uri': oidc_client.post_logout_redirect_uris,
             'state': 'xyz',
         }
-    logout_url = make_url('oidc-logout', params=params)
-    response = app.get(logout_url)
-    if oidc_client.post_logout_redirect_uris:
+        logout_url = make_url('oidc-logout', params=params)
+        response = app.get(logout_url)
         assert 'You have been logged out' in response.content
         assert 'https://example.com/?state=xyz' in response.content
         assert '_auth_user_id' not in app.session
     else:
-        response = response.maybe_follow()
-        assert 'You have been logged out' in response.content
-        assert response.request.environ['HTTP_HOST'] == 'testserver'
-        assert response.request.environ['PATH_INFO'] == '/login/'
+        response = app.get(make_url('account_management'))
+        response = response.click('Logout')
+        if oidc_client.frontchannel_logout_uri:
+            iframes = response.pyquery('iframe[src="https://example.com/southpark/logout/"]')
+            assert iframes
+            if oidc_client.frontchannel_timeout:
+                assert iframes.attr('onload').endswith(', %d)' % oidc_client.frontchannel_timeout)
+            else:
+                assert iframes.attr('onload').endswith(', 10000)')
 
 
 def assert_oidc_error(response, error, error_description=None, fragment=False):

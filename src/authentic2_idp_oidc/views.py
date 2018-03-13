@@ -27,7 +27,7 @@ from . import app_settings, models, utils
 @setting_enabled('ENABLE', settings=app_settings)
 def openid_configuration(request, *args, **kwargs):
     metadata = {
-        'issuer': request.build_absolute_uri('/'),
+        'issuer': utils.get_issuer(request),
         'authorization_endpoint': request.build_absolute_uri(reverse('oidc-authorize')),
         'token_endpoint': request.build_absolute_uri(reverse('oidc-token')),
         'jwks_uri': request.build_absolute_uri(reverse('oidc-certs')),
@@ -41,6 +41,8 @@ def openid_configuration(request, *args, **kwargs):
             'RS256', 'HS256',
         ],
         'userinfo_endpoint': request.build_absolute_uri(reverse('oidc-user-info')),
+        'frontchannel_logout_supported': True,
+        'frontchannel_logout_session_supported': True,
     }
     return HttpResponse(json.dumps(metadata), content_type='application/json')
 
@@ -279,12 +281,13 @@ def authorize(request, *args, **kwargs):
             acr = '1'
         id_token = utils.create_user_info(client, request.user, scopes, id_token=True)
         id_token.update({
-            'iss': request.build_absolute_uri('/'),
+            'iss': utils.get_issuer(request),
             'aud': client.client_id,
             'exp': timestamp_from_datetime(start + idtoken_duration(client)),
             'iat': timestamp_from_datetime(start),
             'auth_time': last_auth['when'],
             'acr': acr,
+            'sid': utils.get_session_id(request, client),
         })
         if nonce is not None:
             id_token['nonce'] = nonce
@@ -302,6 +305,7 @@ def authorize(request, *args, **kwargs):
         # query is transfered through the hashtag
         response = redirect(request, redirect_uri + '#%s' % urlencode(params), resolve=False)
     hooks.call_hooks('event', name='sso-success', idp='oidc', service=client, user=request.user)
+    utils.add_oidc_session(request, client)
     return response
 
 
@@ -384,7 +388,7 @@ def token(request, *args, **kwargs):
     # prefill id_token with user info
     id_token = utils.create_user_info(client, oidc_code.user, oidc_code.scope_set(), id_token=True)
     id_token.update({
-        'iss': request.build_absolute_uri('/'),
+        'iss': utils.get_issuer(request),
         'sub': utils.make_sub(client, oidc_code.user),
         'aud': client.client_id,
         'exp': timestamp_from_datetime(start + idtoken_duration(client)),
