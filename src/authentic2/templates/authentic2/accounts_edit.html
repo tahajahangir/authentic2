@@ -26,7 +26,7 @@
     {% csrf_token %}
     {{ form.as_p }}
     {% if form.instance and form.instance.id %}
-      <input type="submit" value="{% trans "Modify" %}"/>
+      <input type="submit" value="{% trans "Submit" %}"/>
       <input type="submit" name="cancel" formnovalidate value="{% trans "Cancel" %}"/>
     {% else %}
       <input type="submit" value="{% trans "Create" %}"/>
