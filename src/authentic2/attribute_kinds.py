@@ -26,6 +26,8 @@ DEFAULT_TITLE_CHOICES = (
 
 
 class BirthdateWidget(widgets.DateWidget):
+    help_text = _('Format: yyyy-mm-dd')
+
     def __init__(self, *args, **kwargs):
         options = kwargs.setdefault('options', {})
         options['endDate'] = '-1d'

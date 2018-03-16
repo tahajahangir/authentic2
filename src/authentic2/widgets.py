@@ -52,7 +52,7 @@ BOOTSTRAP_INPUT_TEMPLATE = """
       %(rendered_widget)s
       %(clear_button)s
       <span class="add-on"><i class="icon-th"></i></span>
-      <span class="helptext">%(format_label)s %(format)s</span>
+      <span class="helptext">%(help_text)s</span>
        <script type="text/javascript">
            $("#%(id)s").datetimepicker({%(options)s});
        </script>
@@ -75,6 +75,7 @@ class PickerWidgetMixin(object):
 
     format_name = None
     glyphicon = None
+    help_text = None
 
     def __init__(self, attrs=None, options=None, usel10n=None):
 
@@ -118,14 +119,17 @@ class PickerWidgetMixin(object):
         # Use provided id or generate hex to avoid collisions in document
         id = final_attrs.get('id', uuid.uuid4().hex)
 
+        help_text = self.help_text
+        if not help_text:
+            help_text = '%s %s' % (_('Format:'), self.options['format'])
+
         return mark_safe(BOOTSTRAP_INPUT_TEMPLATE % dict(
                     id=id,
                     rendered_widget=rendered_widget,
                     clear_button=CLEAR_BTN_TEMPLATE if self.options.get('clearBtn') else '',
                     glyphicon=self.glyphicon,
                     options=js_options,
-                    format_label=_('Format:'),
-                    format=self.options['format']
+                    help_text=help_text,
                     )
         )
 
