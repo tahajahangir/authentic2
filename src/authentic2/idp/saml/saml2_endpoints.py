@@ -1164,7 +1164,7 @@ def logout_synchronous_other_backends(request, logout, django_sessions_keys):
         logger.info('no backends')
     ok = True
     for backend in backends:
-        ok = ok and backends.can_synchronous_logout(django_sessions_keys)
+        ok = ok and backend.can_synchronous_logout(django_sessions_keys)
     if not ok:
         return return_logout_error(request, logout,
                 lasso.SAML2_STATUS_CODE_UNSUPPORTED_BINDING)
