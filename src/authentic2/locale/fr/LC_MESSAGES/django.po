@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 15:47+0100\n"
-"PO-Revision-Date: 2018-03-12 15:58+0100\n"
+"POT-Creation-Date: 2018-03-17 17:39+0100\n"
+"PO-Revision-Date: 2018-03-17 17:39+0100\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
 "Language: fr\n"
@@ -127,13 +127,13 @@ msgstr "Utilisateur ajouté au rôle"
 msgid "User successfully removed from role"
 msgstr "Utilisateur retiré du rôle"
 
-#: app_settings.py:119
+#: app_settings.py:121
 msgid "Required. At most 30 characters. Letters, digits, and @/./+/-/_ only."
 msgstr ""
 "Requis. 30 caractères maximum. Uniquement des lettres, nombres et les "
 "caractères « @ », « . », « + », « - » et « _ »."
 
-#: app_settings.py:121
+#: app_settings.py:123
 #: templates/authentic2/api_user_create_registration_email_body.txt:3
 msgid "Username"
 msgstr "Identifiant"
@@ -148,61 +148,65 @@ msgctxt "title"
 msgid "Mr"
 msgstr "Monsieur"
 
-#: attribute_kinds.py:41
+#: attribute_kinds.py:29
+msgid "Format: yyyy-mm-dd"
+msgstr "Format : jj/mm/aaaa"
+
+#: attribute_kinds.py:43
 msgid "birthdate must be in the past."
 msgstr "Une date de naissance doit être dans le passé."
 
-#: attribute_kinds.py:49
+#: attribute_kinds.py:51
 msgid "Phone number can start with a + an must contain only digits."
 msgstr ""
 "Un numéro de téléphone peut commencer par un + et ne doit contenir que des "
 "chiffres."
 
-#: attribute_kinds.py:56
+#: attribute_kinds.py:58
 msgid "ex.: 0699999999, +33 6 99 99 99 99"
 msgstr "ex.: 0699999999"
 
-#: attribute_kinds.py:71
+#: attribute_kinds.py:73
 msgid "The value must be a valid french postcode"
 msgstr "Vous devez entrer un code postal"
 
-#: attribute_kinds.py:76
+#: attribute_kinds.py:78
 msgid "ex.: 13260"
 msgstr "ex : 13260"
 
-#: attribute_kinds.py:96
+#: attribute_kinds.py:98
 msgid "string"
 msgstr "chaîne de caractère"
 
-#: attribute_kinds.py:104
+#: attribute_kinds.py:106
 msgid "title"
 msgstr "civilité"
 
-#: attribute_kinds.py:113
+#: attribute_kinds.py:115
 msgid "boolean"
 msgstr "booléen"
 
-#: attribute_kinds.py:120
+#: attribute_kinds.py:122
 msgid "date"
 msgstr "date"
 
-#: attribute_kinds.py:131
+#: attribute_kinds.py:133
 msgid "birthdate"
 msgstr "date de naissance"
 
-#: attribute_kinds.py:139
+#: attribute_kinds.py:141
 msgid "french postcode"
 msgstr "code postal"
 
-#: attribute_kinds.py:145
+#: attribute_kinds.py:147
 msgid "phone number"
 msgstr "numéro de téléphone"
 
-#: attribute_kinds.py:179
+#: attribute_kinds.py:181
 msgid "SIRET number must contain 14 digits"
 msgstr "Le SIRET doit contenir 14 chiffres"
 
-#: attribute_kinds.py:182
+#: attribute_kinds.py:184
 msgid "SIRET validation code does not match"
 msgstr "Les clé de validation de votre SIRET sont inexactes"
 
@@ -648,30 +652,30 @@ msgstr "Le nouveau mot de passe doit être différent de l'ancien."
 msgid "Password is invalid"
 msgstr "Le mot de passe est invalide"
 
-#: registration_backend/views.py:43
+#: registration_backend/views.py:44
 msgid "Your activation key is expired"
 msgstr "Votre clé d'activation a expiré"
 
-#: registration_backend/views.py:46
+#: registration_backend/views.py:47
 msgid "Activation failed"
 msgstr "Échec à l'activation du compte"
 
-#: registration_backend/views.py:55
+#: registration_backend/views.py:56
 #: templates/registration/registration_completion_choose.html:6
 #: templates/registration/registration_completion_form.html:17
 #: templates/registration/registration_completion_form.html:26
 msgid "Registration"
 msgstr "Création d'un compte"
 
-#: registration_backend/views.py:330
+#: registration_backend/views.py:344
 msgid "You have just created an account."
 msgstr "Vous venez de créer un compte."
 
-#: registration_backend/views.py:355 templates/authentic2/accounts.html:41
+#: registration_backend/views.py:369 templates/authentic2/accounts.html:41
 msgid "Delete account"
 msgstr "Supprimer votre compte"
 
-#: registration_backend/views.py:386
+#: registration_backend/views.py:400
 msgid ""
 "Your account has been scheduled for deletion. You cannot use it anymore."
 msgstr ""
@@ -759,8 +763,13 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: templates/authentic2/accounts_edit.html:29
-msgid "Modify"
-msgstr "Modifier"
+#: templates/registration/password_change_form.html:21
+#: templates/registration/password_reset_confirm.html:16
+#: templates/registration/password_reset_form.html:16
+#: templates/registration/registration_completion_form.html:31
+#: templates/registration/registration_form.html:21
+msgid "Submit"
+msgstr "Valider"
 
 #: templates/authentic2/accounts_edit.html:32
 msgid "Create"
@@ -1245,14 +1254,6 @@ msgstr ""
 "Pour modifier votre mot de passe vous devez fournir votre mot de passe "
 "actuel ainsi que le nouveau, puis confirmer ce dernier."
 
-#: templates/registration/password_change_form.html:21
-#: templates/registration/password_reset_confirm.html:16
-#: templates/registration/password_reset_form.html:16
-#: templates/registration/registration_completion_form.html:31
-#: templates/registration/registration_form.html:21
-msgid "Submit"
-msgstr "Valider"
-
 #: templates/registration/password_reset_confirm.html:21
 msgid "Password reset failed"
 msgstr "Ré-initialistion du mot de passe échouée"
@@ -1535,9 +1536,12 @@ msgstr ""
 "Cette page est périmée car vous vous êtes connecté entre temps; nous l'avons "
 "rechargé pour vous."
 
-#: widgets.py:127
+#: widgets.py:124
 msgid "Format:"
 msgstr "Format :"
+
+#~ msgid "Modify"
+#~ msgstr "Modifier"
 
 #~ msgid "Authentic2 Plugin Template"
 #~ msgstr "Modèle de greffon Authentic 2"
