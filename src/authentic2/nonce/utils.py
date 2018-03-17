@@ -76,7 +76,7 @@ def accept_nonce_file_storage(path, now, value, context=None,
     try:
         os.link(temp_file.name, file_path)
     except OSError, e:
-        if e.eerno == errno.EEXIST:
+        if e.errno == errno.EEXIST:
             unlink_if_exists(temp_file.name)
         return False
     return True
