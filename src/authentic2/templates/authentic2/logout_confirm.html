@@ -16,7 +16,7 @@
     <form method="post">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next_url }}">
-      <input type="submit" name="submit" value="{% trans "Continue" %}">
+      <button name="submit">{% trans "Continue" %}</button>
       <a href="{{ next_url }}">{% trans "Cancel" %}</a>
     </form>
   </p>

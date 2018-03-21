@@ -6,9 +6,9 @@
 <form method="post" action="">
 {% csrf_token %}
 {{ form.as_p }}
-<input type="submit" name="{{ submit_name }}" value="{% trans "Log in" %}"/>
+<button class="submit-button" name="{{ submit_name }}">{% trans "Log in" %}</button>
 {% if cancel %}
-<input type="submit" name="cancel" value="{% trans 'Cancel' %}"/>
+<button class="cancel-button" name="cancel">{% trans 'Cancel' %}"</button>
 {% endif %}
 </form>
 </div>

@@ -16,7 +16,7 @@
       </ul>
     {% endif %}
     {% csrf_token %}
-    <input type="submit" name="accept" value="{% trans "Accept" %}">
-    <input type="submit" name="refuse" value="{% trans "Refuse" %}">
+    <button name="accept">{% trans "Accept" %}</button>
+    <button name="refuse">{% trans "Refuse" %}</button>
   </form>
 {% endblock %}

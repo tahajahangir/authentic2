@@ -17,7 +17,7 @@
   {% csrf_token %}
   <p>{% trans "Delete my account and all my personal datas ?" %}</p>
   {{ form.as_p }}
-  <input type="submit" name="submit" value="{% trans "Delete" %}"/>
-  <input type="submit" name="cancel" value="{% trans "Cancel" %}"/>
+  <button class="delete-button" name="submit">{% trans "Delete" %}</button>
+  <button class="cancel-button" name="cancel">{% trans "Cancel" %}</button>
 </form>
 {% endblock %}

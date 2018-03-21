@@ -28,11 +28,11 @@
 <input type="hidden" name="next" value="{{ next }}" />
 <input type="hidden" name="nonce" value="{{ nonce }}" />
 {% if allow_selection %}
-<input type="submit" name="accept" value="{% trans 'Send selected' %}"/>
+<button name="accept">{% trans 'Send selected' %}</button>
 {% else %}
-<input type="submit" name="accept" value="{% trans 'Send all' %}"/>
+<button name="accept">{% trans 'Send all' %}</button>
 {% endif %}
-<input type="submit" name="refuse" value="{% trans 'Refuse all' %}"/>
+<button name="refuse">{% trans 'Refuse all' %}</button>
 </form>
 </div>
 

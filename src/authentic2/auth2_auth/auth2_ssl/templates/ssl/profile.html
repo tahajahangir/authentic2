@@ -18,7 +18,7 @@
             {% endfor %}
           </dl>
         </p>
-        <input type="submit" class="submit-button a2-ssl-certificate-submit-button" value="{% trans "Delete" %}">
+        <button class="submit-button a2-ssl-certificate-submit-button">{% trans "Delete" %}</button>
       </form>
     </p>
   {% endfor %}
@@ -27,7 +27,7 @@
     <form action="{% url "user_signin_ssl" %}" method="get">
       <label for="id_del_cert">{% trans "Add a certificate?" %}</label>
       <input type="hidden" name="next" value="{% url "account_management" %}#a2-ssl-certificate-profile" />
-      <input type="submit" class="submit-button a2-ssl-certificate-submit-button" value="{% trans "Add" %}">
+      <button class="submit-button a2-ssl-certificate-submit-button">{% trans "Add" %}</button>
     </form>
   </p>
 </div>

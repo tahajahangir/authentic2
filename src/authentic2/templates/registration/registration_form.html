@@ -18,7 +18,7 @@
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
-  <input type="submit" value="{% trans 'Submit' %}" />
+  <button class="submit-button">{% trans 'Submit' %}</button>
 </form>
 
 {% for id, block in frontends.items %}

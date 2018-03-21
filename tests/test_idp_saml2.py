@@ -258,8 +258,7 @@ class SamlSSOTestCase(SamlBaseTestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'].split(';')[0], 'text/html')
-        self.assertInHTML(u'<input type="submit" name="cancel" '
-                          'value="%s"/>' % _('Cancel'), response.content,
+        self.assertInHTML(u'<button class="cancel-button" name="cancel">%s</button>' % _('Cancel'), response.content,
                           count=1)
         if cancel:
             response = client.post(url, {

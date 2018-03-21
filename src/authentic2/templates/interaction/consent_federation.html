@@ -20,8 +20,8 @@
 {% csrf_token %}
 <input type="hidden" name="next" value="{{ next }}" />
 <input type="hidden" name="nonce" value="{{ nonce }}" />
-<input type="submit" name="accept" value="{% trans 'Accept' %}"/>
-<input type="submit" name="refuse" value="{% trans 'Refuse' %}"/>
+<button name="accept">{% trans 'Accept' %}</button>
+<button name="refuse">{% trans 'Refuse' %}</button>
 </form>
 </div>
 

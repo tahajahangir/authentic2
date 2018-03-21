@@ -102,11 +102,16 @@ table.users tbody tr td:nth-child(2):hover {
   width: 30%;
 }
 
-.other_actions input[type=submit] {
+.other_actions button {
   display: block;
   margin: 5px;
   width: 100%;
   white-space: normal;
+}
+
+.other_actions .user-roles button {
+  display: inline-block;
+  width: auto;
 }
 
 li#roles a { background-image: url(icon-personnes.png); }
@@ -128,7 +133,7 @@ li#users a:hover { background-image: url(icon-user-hover.png); }
   max-width: 50%;
 }
 
-.warning-box input[type=submit] {
+.warning-box button {
   float: right;
 }
 

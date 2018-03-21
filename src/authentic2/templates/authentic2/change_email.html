@@ -17,7 +17,7 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="{% trans "Validate" %}"/>
-    <input type="submit" name="cancel" formnovalidate value="{% trans "Cancel" %}"/>
+    <button class="submit-button">{% trans "Validate" %}</button>
+    <button class="cancel-button" name="cancel" formnovalidate>{% trans "Cancel" %}</button>
   </form>
 {% endblock %}
