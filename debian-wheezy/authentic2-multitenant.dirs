@@ -1,4 +1,5 @@
 etc/authentic2-multitenant
+etc/authentic2-multitenant/settings.d
 usr/lib/authentic2-multitenant
 var/lib/authentic2-multitenant/tenants
 var/lib/authentic2-multitenant/static
