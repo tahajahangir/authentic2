@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.utils.encoding import smart_bytes, smart_text
+from django.utils.encoding import smart_bytes, smart_text, force_text
 
 from authentic2.a2_rbac.models import Role
 
@@ -763,7 +763,7 @@ class LDAPBackend(object):
             old = attribute_map.setdefault(to_attribute, [])
             new = set(old) | set(attribute_map[from_attribute])
             attribute_map[to_attribute] = list(new)
-        attribute_map['dn'] = dn
+        attribute_map['dn'] = force_text(dn)
         return attribute_map
 
     @classmethod
