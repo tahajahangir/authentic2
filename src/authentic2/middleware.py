@@ -134,6 +134,9 @@ class StoreRequestMiddleware(object):
         StoreRequestMiddleware.collection.pop(threading.currentThread(), None)
         return response
 
+    def process_exception(self, request, exception):
+        StoreRequestMiddleware.collection.pop(threading.currentThread(), None)
+
     @classmethod
     def get_request(cls):
         return cls.collection.get(threading.currentThread())
