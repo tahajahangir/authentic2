@@ -8,6 +8,7 @@ class AppConfig(AppConfig):
     def ready(self):
         from django.db.models.signals import post_save
         from django_rbac.utils import get_ou_model
+        from django_select2 import conf
 
         post_save.connect(
             self.post_save_ou,
