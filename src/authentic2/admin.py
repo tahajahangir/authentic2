@@ -308,12 +308,16 @@ class AttributeForm(forms.ModelForm):
         model = models.Attribute
         fields = '__all__'
 
+
 class AttributeAdmin(admin.ModelAdmin):
     form = AttributeForm
-    list_display = ('label', 'name', 'kind', 'order', 'required',
-            'asked_on_registration', 'user_editable',
-            'user_visible')
+    list_display = ('label', 'disabled', 'name', 'kind', 'order', 'required',
+                    'asked_on_registration', 'user_editable', 'user_visible')
     list_editable = ('order',)
+
+    def get_queryset(self, request):
+        return self.model.all_objects.all()
+
 
 admin.site.register(models.Attribute, AttributeAdmin)
 
