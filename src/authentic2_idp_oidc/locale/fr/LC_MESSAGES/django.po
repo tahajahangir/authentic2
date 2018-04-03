@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-01-24 12:02+0100\n"
-"PO-Revision-Date: 2018-01-24 12:13+0100\n"
+"PO-Revision-Date: 2018-04-03 09:50+0200\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: None\n"
 "Language: \n"
@@ -177,7 +177,7 @@ msgstr "Vos prénom, nom et identifiants"
 
 #: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:13
 msgid "Your email"
-msgstr "Votre adresse de courriel"
+msgstr "Votre adresse de courriel :"
 
 #: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:19
 msgid "Accept"
