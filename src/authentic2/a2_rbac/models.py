@@ -93,6 +93,9 @@ class OrganizationalUnit(OrganizationalUnitAbstractBase):
         return cls.objects.all()
 
 
+OrganizationalUnit._meta.natural_key = [['uuid'], ['slug'], ['name']]
+
+
 class Permission(PermissionAbstractBase):
     class Meta:
         verbose_name = _('permission')
@@ -101,6 +104,9 @@ class Permission(PermissionAbstractBase):
     mirror_roles = GenericRelation(rbac_utils.get_role_model_name(),
                                    content_type_field='admin_scope_ct',
                                    object_id_field='admin_scope_id')
+
+
+Permission._meta.natural_key = ['operation', 'ou', 'target']
 
 
 class Role(RoleAbstractBase):
@@ -206,6 +212,11 @@ class Role(RoleAbstractBase):
             'ou__name': self.ou.name if self.ou else None,
             'ou__slug': self.ou.slug if self.ou else None,
         }
+
+
+Role._meta.natural_key = [
+    ['uuid'], ['slug', 'ou'], ['name', 'ou'], ['slug', 'service'], ['name', 'service']
+]
 
 
 class RoleParenting(RoleParentingAbstractBase):

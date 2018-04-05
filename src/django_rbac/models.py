@@ -117,6 +117,9 @@ class Operation(models.Model):
     objects = managers.OperationManager()
 
 
+Operation._meta.natural_key = ['slug']
+
+
 class PermissionAbstractBase(models.Model):
     operation = models.ForeignKey(
         to='Operation',

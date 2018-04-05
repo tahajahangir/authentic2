@@ -23,6 +23,8 @@ except ImportError:
 from django.contrib.contenttypes.models import ContentType
 
 from . import managers
+# install our natural_key implementation
+from . import natural_key
 from .utils import ServiceAccessDenied
 
 
@@ -405,6 +407,9 @@ class Service(models.Model):
             'ou__slug': self.ou.slug if self.ou else None,
             'roles': [role.to_json() for role in roles],
         }
+
+
+Service._meta.natural_key = [['slug', 'ou']]
 
 
 class AuthorizedRole(models.Model):
