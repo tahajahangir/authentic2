@@ -136,7 +136,7 @@ class EditProfile(cbv.HookMixin, cbv.TemplateNamesMixin, UpdateView):
         field_name = 'edit-profile-next_url'
         if self.request.method == 'POST' and field_name in self.request.POST:
             return self.request.POST[field_name]
-        return 'account_management'
+        return reverse('account_management')
 
     def post(self, request, *args, **kwargs):
         if 'cancel' in request.POST:

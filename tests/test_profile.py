@@ -14,8 +14,22 @@ def test_account_edit_view(app, simple_user):
     url = reverse('profile_edit')
     resp = app.get(url, status=200)
 
-    attribute = Attribute.objects.create(name='phone', label='phone',
+    attribute = Attribute.objects.create(
+        name='phone', label='phone',
         kind='string', user_visible=True, user_editable=True)
+
+    resp = app.get(url, status=200)
+    resp = app.post(url, params={
+                        'csrfmiddlewaretoken': resp.form['csrfmiddlewaretoken'].value,
+                        'edit-profile-first_name': resp.form['edit-profile-first_name'].value,
+                        'edit-profile-last_name': resp.form['edit-profile-last_name'].value,
+                        'edit-profile-phone': '1234'
+                    },
+                    status=302)
+    # verify that missing next_url in POST is ok
+    assert resp['Location'].endswith(reverse('account_management'))
+    assert attribute.get_value(simple_user) == '1234'
+
     resp = app.get(url, status=200)
     resp.form.set('edit-profile-phone', '0123456789')
     resp = resp.form.submit().follow()
@@ -52,6 +66,7 @@ def test_account_edit_next_url(app, simple_user, external_redirect_next_url, ass
         name='phone', label='phone',
         kind='string', user_visible=True,
         user_editable=True)
+
     resp = app.get(url + '?next=%s' % external_redirect_next_url, status=200)
     resp.form.set('edit-profile-phone', '0123456789')
     resp = resp.form.submit()
