@@ -92,6 +92,15 @@ class OrganizationalUnit(OrganizationalUnitAbstractBase):
     def cached(cls):
         return cls.objects.all()
 
+    def export_json(self):
+        return {
+            'uuid': self.uuid, 'slug': self.slug, 'name': self.name,
+            'description': self.description, 'default': self.default,
+            'email_is_unique': self.email_is_unique,
+            'username_is_unique': self.username_is_unique,
+            'validate_emails': self.validate_emails
+        }
+
 
 OrganizationalUnit._meta.natural_key = [['uuid'], ['slug'], ['name']]
 
@@ -213,6 +222,29 @@ class Role(RoleAbstractBase):
             'ou__slug': self.ou.slug if self.ou else None,
         }
 
+    def export_json(self, attributes=False, parents=False, permissions=False):
+        d = {
+            'uuid': self.uuid, 'slug': self.slug, 'name': self.name,
+            'description': self.description, 'external_id': self.external_id,
+            'ou': self.ou and self.ou.natural_key_json(),
+            'service': self.service and self.service.natural_key_json()
+        }
+
+        if attributes:
+            for attribute in self.attributes.all():
+                d.setdefault('attributes', []).append(attribute.to_json())
+
+        if parents:
+            RoleParenting = rbac_utils.get_role_parenting_model()
+            for parenting in RoleParenting.objects.filter(child_id=self.id, direct=True):
+                d.setdefault('parents', []).append(parenting.parent.natural_key_json())
+
+        if permissions:
+            for perm in self.permissions.all():
+                d.setdefault('permissions', []).append(perm.export_json())
+
+        return d
+
 
 Role._meta.natural_key = [
     ['uuid'], ['slug', 'ou'], ['name', 'ou'], ['slug', 'service'], ['name', 'service']
@@ -249,6 +281,10 @@ class RoleAttribute(models.Model):
         unique_together = (
             ('role', 'name', 'kind', 'value'),
         )
+
+    def to_json(self):
+        return {'name': self.name, 'kind': self.kind, 'value': self.value}
+
 
 GenericRelation(Permission,
                 content_type_field='target_ct',

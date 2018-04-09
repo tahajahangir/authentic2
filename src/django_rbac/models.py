@@ -114,6 +114,9 @@ class Operation(models.Model):
     def __unicode__(self):
         return unicode(_(self.name))
 
+    def export_json(self):
+        return {'slug': self.slug, 'name': self.name}
+
     objects = managers.OperationManager()
 
 
@@ -144,6 +147,14 @@ class PermissionAbstractBase(models.Model):
                 self.ou.natural_key(),
                 self.target and self.target_ct.natural_key(),
                 self.target and self.target.natural_key()]
+
+    def export_json(self):
+        return {
+            "operation": self.operation.natural_key_json(),
+            "ou": self.ou and self.ou.natural_key_json(),
+            'target_ct': self.target_ct.natural_key_json(),
+            "target": self.target.natural_key_json()
+        }
 
     def __unicode__(self):
         ct = ContentType.objects.get_for_id(self.target_ct_id)

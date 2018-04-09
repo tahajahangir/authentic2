@@ -1047,3 +1047,8 @@ def send_email_change_email(user, email, request=None, context=None, template_na
         context=ctx,
         legacy_subject_templates=legacy_subject_templates,
         legacy_body_templates=legacy_body_templates)
+
+
+def update_model(obj, d):
+    for attr, value in d.items():
+        setattr(obj, attr, value)
