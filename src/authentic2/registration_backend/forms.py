@@ -103,6 +103,7 @@ class RegistrationCompletionFormNoPassword(forms.BaseUserForm):
 
     def save(self, commit=True):
         self.instance.email_verified = True
+        self.instance.is_active = True
         user = super(RegistrationCompletionFormNoPassword, self).save(commit=commit)
         if commit and app_settings.A2_REGISTRATION_GROUPS:
             groups = []
