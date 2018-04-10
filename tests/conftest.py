@@ -330,3 +330,11 @@ def assert_external_redirect(external_redirect):
         def check_location(response, default_return):
             assert response['Location'] == urlparse.urljoin('http://testserver/', default_return)
     return check_location
+
+
+@pytest.fixture
+def french_translation():
+    from django.utils.translation import activate, deactivate
+    activate('fr')
+    yield
+    deactivate()

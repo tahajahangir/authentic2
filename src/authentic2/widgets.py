@@ -121,7 +121,7 @@ class PickerWidgetMixin(object):
 
         help_text = self.help_text
         if not help_text:
-            help_text = '%s %s' % (_('Format:'), self.options['format'])
+            help_text = u'%s %s' % (_('Format:'), self.options['format'])
 
         return mark_safe(BOOTSTRAP_INPUT_TEMPLATE % dict(
                     id=id,
