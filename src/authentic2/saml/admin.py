@@ -18,7 +18,7 @@ from authentic2.saml.models import (LibertyProvider, LibertyServiceProvider,
                                     KeyValue, LibertySession, SAMLAttribute)
 
 from authentic2.decorators import to_iter
-from authentic2.attributes_ng.engine import get_attribute_names
+from authentic2.attributes_ng.engine import get_service_attributes
 
 from . import admin_views
 
@@ -107,18 +107,9 @@ class SAMLAttributeInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         service = kwargs.pop('service', None)
         super(SAMLAttributeInlineForm, self).__init__(*args, **kwargs)
-        choices = self.choices({
-                'user': None,
-                'request': None,
-                'service': service,
-        })
+        choices = get_service_attributes(service)
         self.fields['attribute_name'].choices = choices
         self.fields['attribute_name'].widget = forms.Select(choices=choices)
-
-    @to_iter
-    def choices(self, ctx):
-        return ([('', _('None'))] + get_attribute_names(ctx)
-                + [('@verified_attributes@', _('List of verified attributes'))])
 
     class Meta:
         model = SAMLAttribute

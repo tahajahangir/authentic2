@@ -1,6 +1,47 @@
+from django import forms
 from django.contrib import admin
+from django.utils.functional import curry
+
+from authentic2.attributes_ng.engine import get_service_attributes
 
 from . import models
+
+
+class OIDCClaimInlineForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(OIDCClaimInlineForm, self).__init__(*args, **kwargs)
+        choices = get_service_attributes(self.instance.client_id)
+        self.fields['value'].choices = choices
+        self.fields['value'].widget = forms.Select(choices=choices)
+
+    class Meta:
+        model = models.OIDCClaim
+        fields = ['name', 'value', 'scopes']
+
+
+class OIDCClaimInlineAdmin(admin.TabularInline):
+
+    model = models.OIDCClaim
+    form = OIDCClaimInlineForm
+    extra = 0
+
+    def get_formset(self, request, obj=None, **kwargs):
+        initial = []
+        # formsets are only saved if formset.has_changed() is True, so only set initial
+        # values on the GET (display of the creation form)
+        if request.method == 'GET' and not obj:
+            initial.extend([
+                {'name': 'preferred_username', 'value': 'django_user_username', 'scopes': 'profile'},
+                {'name': 'given_name', 'value': 'django_user_first_name', 'scopes': 'profile'},
+                {'name': 'family_name', 'value': 'django_user_last_name', 'scopes': 'profile'},
+                {'name': 'email', 'value': 'django_user_email', 'scopes': 'email'},
+                {'name': 'email_verified', 'value': 'django_user_email_verified', 'scopes': 'email'},
+            ])
+            self.extra = 5
+        formset = super(OIDCClaimInlineAdmin, self).get_formset(request, obj=obj, **kwargs)
+        formset.__init__ = curry(formset.__init__, initial=initial)
+        return formset
 
 
 class OIDCClientAdmin(admin.ModelAdmin):
@@ -8,6 +49,7 @@ class OIDCClientAdmin(admin.ModelAdmin):
     list_filter = ['ou', 'identifier_policy']
     date_hierarchy = 'modified'
     readonly_fields = ['created', 'modified']
+    inlines = [OIDCClaimInlineAdmin]
 
 
 class OIDCAuthorizationAdmin(admin.ModelAdmin):

@@ -12,6 +12,7 @@ from django.conf import settings
 from django.utils.encoding import smart_bytes
 
 from authentic2 import hooks, crypto
+from authentic2.attributes_ng.engine import get_attributes
 
 from . import app_settings
 
@@ -149,29 +150,32 @@ def reverse_pairwise_sub(client, sub):
         return None
 
 
+def normalize_claim_values(values):
+    values_list = []
+    if isinstance(values, basestring) or not hasattr(values, '__iter__'):
+        return values
+    for value in values:
+        if isinstance(value, bool):
+            value = str(value).lower()
+        values_list.append(value)
+    return values_list
+
+
 def create_user_info(client, user, scope_set, id_token=False):
     '''Create user info dictionnary'''
     user_info = {
         'sub': make_sub(client, user)
     }
-    if 'profile' in scope_set:
-        user_info['family_name'] = user.last_name
-        user_info['given_name'] = user.first_name
-        if user.username:
-            user_info['preferred_username'] = user.username.split('@', 1)[0]
-    if 'email' in scope_set:
-        user_info['email'] = user.email
-        user_info['email_verified'] = True
-    if 'roles' in scope_set:
-        roles = user_info['roles'] = []
-        for role in user.roles_and_parents().select_related('ou'):
-            roles.append({
-                'uuid': role.uuid,
-                'name': role.name,
-                'slug': role.slug,
-                'ou__name': role.ou.name,
-                'ou__slug': role.ou.slug
-            })
+    attributes = get_attributes({
+        'user': user, 'request': None, 'service': client,
+        '__wanted_attributes': client.get_wanted_attributes()})
+    for claim in client.oidcclaim_set.filter(name__isnull=False):
+        if not set(claim.get_scopes()).intersection(scope_set):
+            continue
+        user_info[claim.name] = normalize_claim_values(attributes[claim.value])
+        # check if attribute is verified
+        if claim.value + ':verified' in attributes:
+            user_info[claim.value + '_verified'] = True
     hooks.call_hooks('idp_oidc_modify_user_info', client, user, scope_set, user_info)
     return user_info
 

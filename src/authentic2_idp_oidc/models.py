@@ -2,6 +2,7 @@ import uuid
 from importlib import import_module
 
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -9,6 +10,7 @@ from django.conf import settings
 from django.utils.timezone import now
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 
+from authentic2.managers import GenericManager
 from authentic2.models import Service
 
 from . import utils, managers
@@ -40,7 +42,7 @@ class OIDCClient(Service):
     POLICY_UUID = 1
     POLICY_PAIRWISE = 2
     POLICY_EMAIL = 3
-    POLICY_PAIRWISE_REVERSIBLE = 4 
+    POLICY_PAIRWISE_REVERSIBLE = 4
 
     IDENTIFIER_POLICIES = [
         (POLICY_UUID, _('uuid')),
@@ -138,6 +140,9 @@ class OIDCClient(Service):
     def clean(self):
         self.redirect_uris = strip_words(self.redirect_uris)
         self.post_logout_redirect_uris = strip_words(self.post_logout_redirect_uris)
+
+    def get_wanted_attributes(self):
+        return self.oidcclaim_set.filter(name__isnull=False).values_list('value', flat=True)
 
     def __repr__(self):
         return ('<OIDCClient name:%r client_id:%r identifier_policy:%r>' %
@@ -293,3 +298,23 @@ GenericRelation('authentic2_idp_oidc.OIDCAuthorization',
                 content_type_field='client_ct',
                 object_id_field='client_id').contribute_to_class(
                     OrganizationalUnit, 'oidc_authorizations')
+
+
+class OIDCClaim(models.Model):
+    client = models.ForeignKey(
+        to=OIDCClient, verbose_name=_('client'))
+    name = models.CharField(
+        max_length=128, blank=True,
+        verbose_name=_('attribute name'))
+    value = models.CharField(
+        max_length=128, blank=True,
+        verbose_name=_('attribute value'))
+    scopes = models.CharField(
+        max_length=128, blank=True,
+        verbose_name=_('attribute scopes'))
+
+    def __unicode__(self):
+        return u'%s - %s - %s' % (self.name, self.value, self.scopes)
+
+    def get_scopes(self):
+        return self.scopes.strip().split(',')

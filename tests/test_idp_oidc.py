@@ -13,12 +13,14 @@ import utils
 from django.core.urlresolvers import reverse
 from django.utils.timezone import now
 
-from authentic2_idp_oidc.models import OIDCClient, OIDCAuthorization, OIDCCode, OIDCAccessToken
+from authentic2_idp_oidc.models import OIDCClient, OIDCAuthorization, OIDCCode, OIDCAccessToken, OIDCClaim
 from authentic2_idp_oidc.utils import make_sub
 from authentic2.a2_rbac.utils import get_default_ou
 from authentic2.utils import make_url
 from authentic2_auth_oidc.utils import parse_timestamp
 from django_rbac.utils import get_role_model
+
+pytestmark = pytest.mark.django_db
 
 JWKSET = {
     "keys": [
@@ -231,7 +233,7 @@ def test_authorization_code_sso(login_first, oidc_settings, oidc_client, simple_
     assert claims['given_name'] == simple_user.first_name
     assert claims['family_name'] == simple_user.last_name
     assert claims['email'] == simple_user.email
-    assert claims['email_verified'] is True
+    assert claims['email_verified'] is False
 
     user_info_url = make_url('oidc-user-info')
     response = app.get(user_info_url, headers=bearer_authentication_headers(access_token))
@@ -240,7 +242,16 @@ def test_authorization_code_sso(login_first, oidc_settings, oidc_client, simple_
     assert response.json['given_name'] == simple_user.first_name
     assert response.json['family_name'] == simple_user.last_name
     assert response.json['email'] == simple_user.email
-    assert response.json['email_verified'] is True
+    assert response.json['email_verified'] is False
+
+    # when adding extra attributes
+    OIDCClaim.objects.create(client=oidc_client, name='ou', value='django_user_ou_name', scopes='profile')
+    OIDCClaim.objects.create(client=oidc_client, name='roles', value='a2_role_names', scopes='profile, role')
+    simple_user.roles.add(get_role_model().objects.create(
+        name='Whatever', slug='whatever', ou=get_default_ou()))
+    response = app.get(user_info_url, headers=bearer_authentication_headers(access_token))
+    assert response.json['ou'] == simple_user.ou.name
+    assert response.json['roles'][0] == 'Whatever'
 
     # Now logout
     if oidc_client.post_logout_redirect_uris:
@@ -830,3 +841,25 @@ def test_registration_service_slug(oidc_settings, app, simple_oidc_client, simpl
     assert hooks.event[2]['kwargs']['name'] == 'login'
     assert hooks.event[2]['kwargs']['how'] == 'email'
     assert hooks.event[2]['kwargs']['service'] == 'client'
+
+
+def test_oidclient_claims_data_migration():
+    from django.db import connection
+    from django.db.migrations.executor import MigrationExecutor
+
+    executor = MigrationExecutor(connection)
+    app = 'authentic2_idp_oidc'
+    migrate_from = [(app, '0009_auto_20180313_1156')]
+    migrate_to = [(app, '0010_oidcclaim')]
+    executor.migrate(migrate_from)
+    executor.loader.build_graph()
+
+    old_apps = executor.loader.project_state(migrate_from).apps
+    OIDCClient = old_apps.get_model('authentic2_idp_oidc', 'OIDCClient')
+    client = OIDCClient(name='test', slug='test', redirect_uris='https://example.net/')
+    client.save()
+
+    executor.migrate(migrate_to)
+    executor.loader.build_graph()
+    client = OIDCClient.objects.first()
+    assert OIDCClaim.objects.filter(client=client.id).count() == 5

@@ -1,11 +1,13 @@
 import logging
 
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import ugettext as _
 
-from ..decorators import to_list
+from ..decorators import to_iter, to_list
 from .. import app_settings, plugins, utils
 
-__ALL__ = ['get_attribute_names', 'get_attributes']
+__ALL__ = ['get_attribute_names', 'get_attributes', 'get_service_attributes']
+
 
 class UnsortableError(Exception):
     '''
@@ -93,3 +95,10 @@ def get_attributes(ctx):
     for source, instance in source_and_instances:
         ctx.update(source.get_attributes(instance, ctx.copy()))
     return ctx
+
+
+@to_iter
+def get_service_attributes(service):
+    ctx = {'request': None, 'user': None, 'service': service}
+    return ([('', _('None'))] + get_attribute_names(ctx)
+            + [('@verified_attributes@', _('List of verified attributes'))])
