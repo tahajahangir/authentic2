@@ -20,9 +20,16 @@ def get_instances(ctx):
 def get_attribute_names(instance, ctx):
     User = get_user_model()
     for field in User._meta.fields:
+        if field.name == 'ou':
+            continue
         name = 'django_user_' + str(field.name)
         description = field.verbose_name + u' (%s)' % name
         yield name, description
+
+    yield 'django_user_ou_uuid', _('OU UUIDs') + u' (django_user_ou_uuid)'
+    yield 'django_user_ou_slug', _('OU slug') + u' (django_user_ou_slug)'
+    yield 'django_user_ou_name', _('OU name') + u' (django_user_ou_name)'
+
     for attribute in Attribute.objects.all():
         name = 'django_user_' + str(attribute.name)
         description = attribute.label + u' (%s)' % name
@@ -51,10 +58,16 @@ def get_attributes(instance, ctx):
     if not user or not isinstance(user, User):
         return ctx
     for field in User._meta.fields:
+        if field.name == 'ou':
+            continue
         value = getattr(user, field.name)
         if value is None:
             continue
         ctx['django_user_' + str(field.name)] = getattr(user, field.name)
+    # set OU value
+    if user.ou:
+        for attr in ('uuid', 'slug', 'name'):
+            ctx['django_user_ou_' + attr] = getattr(user.ou, attr)
     for av in AttributeValue.objects.with_owner(user):
         ctx['django_user_' + str(av.attribute.name)] = av.to_python()
         ctx['django_user_' + str(av.attribute.name) + ':verified'] = av.verified
