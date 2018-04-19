@@ -7,6 +7,7 @@ try:
     from django.contrib.contenttypes.fields import GenericRelation
 except ImportError:
     from django.contrib.contenttypes.generic import GenericRelation
+from django.contrib.auth.models import AbstractBaseUser
 
 from django_rbac.models import PermissionMixin
 from django_rbac.utils import get_role_parenting_model
@@ -16,7 +17,6 @@ from authentic2.decorators import errorcollector, RequestCache
 from authentic2.models import Service, AttributeValue, Attribute
 
 from .managers import UserManager
-from .base_user import AbstractBaseUser
 
 
 @RequestCache
