@@ -15,8 +15,9 @@ def user_login_success(identifier):
 def user_login_failure(identifier):
     cache.add(key(identifier), 0)
     count = cache.incr(key(identifier))
+    logger = logging.getLogger('authentic2.user_login_failure')
+    logger.info(u'user %s failed to login', identifier)
     if app_settings.A2_LOGIN_FAILURE_COUNT_BEFORE_WARNING and count >= app_settings.A2_LOGIN_FAILURE_COUNT_BEFORE_WARNING:
-        logger = logging.getLogger('authentic2.user_login_failure')
         logger.warning(u'user %s failed to login more than %d times in a row',
                        identifier, count)
 
