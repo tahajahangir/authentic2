@@ -1,13 +1,9 @@
-from collections import defaultdict
-import time
-
 from import_export.resources import ModelResource
 from import_export.fields import Field
 from import_export.widgets import Widget
 
 from authentic2.compat import get_user_model
 from authentic2.a2_rbac.models import Role
-from django_rbac.utils import get_role_model
 
 
 class ListWidget(Widget):
@@ -17,20 +13,9 @@ class ListWidget(Widget):
     def render(self, value):
         return u', '.join(map(unicode, value.all()))
 
+
 class UserResource(ModelResource):
     roles = Field()
-
-    def __init__(self, *args, **kwargs):
-        super(UserResource, self).__init__(*args, **kwargs)
-        Role = get_role_model()
-        # Limit to role with at least a member
-
-        # all_roles = Role.objects.filter(members__isnull=False).prefetch_related('parent_relation__parent')
-        # Compute a map of role to their parents
-        #self.parents_maps = defaultdict(lambda:set())
-        #for role in all_roles:
-        #    for parent_relation in role.parent_relation.all():
-        #        self.parents_maps[role].add(parent_relation.parent)
 
     def dehydrate_roles(self, instance):
         result = set()
