@@ -12,25 +12,30 @@ from django_rbac.models import PermissionMixin
 from django_rbac.utils import get_role_parenting_model
 
 from authentic2 import utils, validators, app_settings
-from authentic2.decorators import errorcollector
+from authentic2.decorators import errorcollector, RequestCache
 from authentic2.models import Service, AttributeValue, Attribute
 
 from .managers import UserManager
 from .base_user import AbstractBaseUser
 
 
+@RequestCache
+def get_attributes():
+    return Attribute.objects.all()
+
+
 class Attributes(object):
     def __init__(self, owner, verified=None):
         super(Attributes, self).__setattr__('owner', owner)
         super(Attributes, self).__setattr__('verified', verified)
-        attributes = Attribute.objects.all()
+        attributes = get_attributes()
         at_map = {attribute.name: attribute for attribute in attributes}
         for attribute in attributes:
             at_map[attribute.id] = attribute
         super(Attributes, self).__setattr__('attributes', at_map)
         values = {}
         super(Attributes, self).__setattr__('values', values)
-        for atv in self.owner.attribute_values.select_related().all():
+        for atv in self.owner.attribute_values.all():
             try:
                 attribute = at_map[atv.attribute_id]
             except KeyError:
