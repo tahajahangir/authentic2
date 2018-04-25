@@ -335,8 +335,11 @@ class ExportMixin(object):
     def get_export_prefix(self):
         return self.export_prefix
 
+    def get_resource(self):
+        return self.resource_class()
+
     def get_dataset(self):
-        return self.resource_class().export(self.get_data())
+        return self.get_resource().export(self.get_data())
 
     def get(self, request, *args, **kwargs):
         export_format = kwargs['format'].lower()
