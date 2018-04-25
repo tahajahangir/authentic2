@@ -1,4 +1,5 @@
 import uuid
+import collections
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -13,6 +14,8 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect, QueryDict
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import View
+
+from import_export.fields import Field
 
 from authentic2.constants import SWITCH_USER_SESSION_KEY
 from authentic2.models import Attribute, PasswordReset
@@ -302,6 +305,19 @@ class UsersExportView(ExportMixin, UsersView):
     permissions = ['custom_user.view_user']
     resource_class = UserResource
     export_prefix = 'users-'
+
+    def get_resource(self):
+        '''Subclass default UserResource class to dynamically add field for extra attributes'''
+        attrs = collections.OrderedDict()
+        for attribute in Attribute.objects.all():
+            attrs['attribute_%s' % attribute.name] = Field(attribute='attributes__%s' % attribute.name)
+        custom_class = type('UserResourceClass', (self.resource_class,), attrs)
+        return custom_class()
+
+    def get_queryset(self):
+        '''Prefetch attribute values.'''
+        qs = super(UsersExportView, self).get_queryset()
+        return qs.prefetch_related('attribute_values', 'attribute_values__attribute')
 
 users_export = UsersExportView.as_view()
 
