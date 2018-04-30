@@ -86,16 +86,6 @@ If SAML_ENCRYPTION_PUBLIC_KEY or SAML_ENCRYPTION_PRIVATE_KEY are not given,
 the signature keys are used for encryption.
 
 
-Activate or deactivate Authentic 2 as an OpenID provider
-========================================================
-
-Variable: IDP_OPENID
-
-Values:
-
-* False: deactivate OpenID provider
-* True: activate OpenID provider
-
 Activate or deactivate Authentic 2 as a CAS server
 ==================================================
 

@@ -140,8 +140,6 @@ def extract_settings_from_environ():
            'A2_AUTH_PASSWORD_ENABLE',
            'SSLAUTH_ENABLE',
            'A2_IDP_SAML2_ENABLE',
-           'IDP_OPENID',
-
     )
 
     def to_boolean(name, default=True):

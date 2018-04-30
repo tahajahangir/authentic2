@@ -5,9 +5,6 @@ SECRET_KEY = 'changeme'
 # Activate SAML 2 idp
 A2_IDP_SAML2_ENABLE = True
 
-# Activate OpenID idp
-A2_IDP_OPENID_ENABLE = True
-
 # Debugging helper
 try:
 	import debug_toolbar

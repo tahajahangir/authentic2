@@ -64,8 +64,6 @@ TIME_ZONE = 'Europe/Paris'
 #A2_IDP_SAML2_ENABLE = False
 # CAS 1.0 / 2.0 IDP
 #A2_IDP_CAS_ENABLE = False
-# OpenID 1.0 / 2.0 IDP
-#A2_IDP_OPENID_ENABLE = False
 
 # Authentifications
 #A2_AUTH_PASSWORD_ENABLE = True

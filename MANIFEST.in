@@ -13,7 +13,6 @@ recursive-include src/authentic2/manager/static *.css *.js *.png
 recursive-include src/authentic2/saml/templates *.html *.txt *.xml
 recursive-include src/authentic2/templates *.html *.txt *.xml
 recursive-include src/authentic2/idp/templates *.html *.txt *.xml
-recursive-include src/authentic2_idp_openid/templates *.html *.txt *.xml
 recursive-include src/authentic2_idp_cas/templates *.html *.txt *.xml
 recursive-include src/authentic2/idp/saml/templates *.html *.txt *.xml
 recursive-include src/authentic2/auth2_auth/auth2_ssl/templates *.html *.txt *.xml
@@ -30,7 +29,6 @@ recursive-include src/authentic2/locale *.po *.mo
 recursive-include src/authentic2/saml/locale *.po *.mo
 recursive-include src/authentic2/idp/locale *.po *.mo
 recursive-include src/authentic2/idp/saml/locale *.po *.mo
-recursive-include src/authentic2_idp_openid/locale *.po *.mo
 recursive-include src/authentic2_idp_cas/locale *.po *.mo
 recursive-include src/authentic2/auth2_auth/locale *.po *.mo
 recursive-include src/authentic2/auth2_auth/auth2_ssl/locale *.po *.mo

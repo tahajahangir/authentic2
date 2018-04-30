@@ -28,7 +28,7 @@ Depends: ${misc:Depends}, ${python:Depends},
     python-six (>= 1.0),
     python-django-filters (>= 1)
 Provides: ${python:Provides}
-Recommends: python-openid, python-ldap
+Recommends: python-ldap
 Suggests: python-raven
 Description: Versatile identity server
  Authentic is a versatile identity provider aiming to address a broad

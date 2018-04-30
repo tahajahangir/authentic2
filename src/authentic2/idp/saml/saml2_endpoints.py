@@ -140,7 +140,7 @@ def fill_assertion(request, saml_request, assertion, provider_id, nid_format):
        policy.
 
     TODO: determine and add attributes from the session, for anonymous users
-    (pseudonymous federation, openid without accounts)
+    (pseudonymous federation)
     # TODO: add information from the login event, of the session or linked
     # to the request id
     # TODO: use information from the consent event to specialize release of

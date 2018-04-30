@@ -7,7 +7,7 @@ broad range of needs, from simple to complex setups; it has support for many
 protocols and can bridge between them.
 
 Authentic 2 supports many protocols and standards, including SAML2, CAS,
-OpenID, LDAP, X509 and OAUTH2.
+LDAP, X509 and OAUTH2.
 
 Authentic 2 is under the GNU AGPL version 3 licence.
 
@@ -23,14 +23,13 @@ Features
 --------
 
 * SAML 2.0 Identity and service provider
-* OpenID 1.0 and 2.0 identity provider
 * Server CAS 1.0 and 2.0 using a plugin
 * Standards authentication mechanisms:
 
     * Login/password through internal directory or LDAP
     * X509 certificate over SSL/TLS
 
-* Protocol proxying, for instance between OpenID and SAML
+* Protocol proxying
 * Support of LDAP v2 and v3 directories
 * Support of the PAM backend
 * One-time password (OATH and Google-Authenticator) using a plugin
@@ -89,9 +88,3 @@ Copyright
 Authentic is copyrighted by Entr'ouvert and is licensed through the GNU Affero
 General Public Licence, version 3 or later. A copy of the whole license text
 is available in the COPYING file.
-
-The OpenID IdP originates in the project django_openid_provider by Roman
-Barczy¿ski, which is under the Apache 2.0 licence. This imply that you must
-distribute authentic2 under the AGPL3 licence when distributing this part of
-the project which is the only AGPL licence version compatible with the
-Apache 2.0 licence.
