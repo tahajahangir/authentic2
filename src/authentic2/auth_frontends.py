@@ -21,7 +21,7 @@ class LoginPasswordBackend(object):
         is_post = request.method == 'POST' and self.submit_name in request.POST
         data = request.POST if is_post else None
         form = forms.AuthenticationForm(request=request, data=data)
-        if app_settings.ACCEPT_EMAIL_AUTHENTICATION:
+        if app_settings.A2_ACCEPT_EMAIL_AUTHENTICATION:
             form.fields['username'].label = _('Username or email')
         if app_settings.A2_USERNAME_LABEL:
             form.fields['username'].label = app_settings.A2_USERNAME_LABEL

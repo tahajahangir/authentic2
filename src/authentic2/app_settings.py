@@ -31,11 +31,6 @@ class AppSettings(object):
         return self._settings
 
     @property
-    def ACCEPT_EMAIL_AUTHENTICATION(self):
-        return getattr(self.settings,
-                'A2_ACCEPT_EMAIL_AUTHENTICATION', True)
-
-    @property
     def REALMS(self):
         realms = {}
         if self.A2_REGISTRATION_REALM:
@@ -194,6 +189,8 @@ default_settings = dict(
         definition='Set a random password on request to reset the password from the front-office'),
     A2_ACCOUNTS_URL=Setting(default=None, definition='IdP has no account page, redirect to this one.'),
     A2_CACHE_ENABLED=Setting(default=True, definition='Disable all cache decorators for testing purpose.'),
+    A2_ACCEPT_EMAIL_AUTHENTICATION=Setting(default=True, definition='Enable authentication by email'),
+
 )
 
 app_settings = AppSettings(default_settings)

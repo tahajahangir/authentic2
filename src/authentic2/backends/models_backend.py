@@ -27,7 +27,7 @@ class ModelBackend(ModelBackend):
         username_field = 'username'
         queries = []
         try:
-            if app_settings.ACCEPT_EMAIL_AUTHENTICATION \
+            if app_settings.A2_ACCEPT_EMAIL_AUTHENTICATION \
                     and UserModel._meta.get_field('email'):
                 queries.append(models.Q(**{'email__iexact': username}))
         except models.FieldDoesNotExist:
