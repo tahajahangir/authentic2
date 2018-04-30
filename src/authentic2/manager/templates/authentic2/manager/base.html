@@ -13,6 +13,10 @@
   <h2>{% block page_title %}{{ title }}{% endblock %}</h2>
 {% endblock %}
 
+{% block css %}
+{# don't use gadjo default behaviour of loading $static/css/style.css #}
+{% endblock %}
+
 {% block extrascripts %}
   {{ block.super }}
   <script>
