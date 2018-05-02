@@ -11,8 +11,9 @@ from django.conf import settings
 
 from authentic2 import utils
 
-skipif_no_partial_index = pytest.mark.skipif('sqlite' in settings.DATABASES['default']['ENGINE'],
-                                             reason='partial indexes do not work with sqlite')
+
+skipif_sqlite = pytest.mark.skipif('sqlite' in settings.DATABASES['default']['ENGINE'],
+                                   reason='this test does not work with sqlite')
 
 
 def login(app, user, path=None, password=None):

@@ -4,10 +4,10 @@ from authentic2.models import Attribute, AttributeValue
 
 import threading
 
-from utils import skipif_no_partial_index
+from utils import skipif_sqlite
 
 
-@skipif_no_partial_index
+@skipif_sqlite
 def test_attribute_value_uniqueness(migrations, transactional_db, simple_user, concurrency):
     from django.db.transaction import set_autocommit
     # disabled default attributes
