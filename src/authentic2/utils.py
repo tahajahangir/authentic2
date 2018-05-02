@@ -10,7 +10,7 @@ import datetime
 import copy
 
 from functools import wraps
-from itertools import islice, chain
+from itertools import islice, chain, count
 
 from importlib import import_module
 
@@ -770,7 +770,22 @@ def batch(iterable, size):
     sourceiter = iter(iterable)
     while True:
         batchiter = islice(sourceiter, size)
+        # call next() at least one time to advance, if the caller does not
+        # consume the returned iterators, sourceiter will never be exhausted.
         yield chain([batchiter.next()], batchiter)
+
+
+def batch_queryset(qs, size=1000):
+    '''Batch prefetched potentially very large queryset, it's a middle ground
+       between using .iterator() which cannot be prefetched and prefetching a full
+       table, which can take a larte place in memory.
+    '''
+    for i in count(0):
+        chunk = qs[i * size:(i + 1) * size]
+        if not chunk:
+            break
+        for row in chunk:
+            yield row
 
 
 def lower_keys(d):
