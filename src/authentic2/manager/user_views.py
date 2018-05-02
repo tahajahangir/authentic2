@@ -298,22 +298,10 @@ class UserEditView(OtherActionsMixin, ActionMixin, BaseEditView):
 user_edit = UserEditView.as_view()
 
 
-# Mock object to disable Queryset specialization by django-import-export
-class IterateIterable(object):
-    def __init__(self, qs):
-        self.qs = qs
-
-    def __iter__(self):
-        return self.qs.__iter__()
-
-
 class UsersExportView(ExportMixin, UsersView):
     permissions = ['custom_user.view_user']
     resource_class = UserResource
     export_prefix = 'users-'
-
-    def get_data(self):
-        return IterateIterable(self.get_queryset())
 
 users_export = UsersExportView.as_view()
 

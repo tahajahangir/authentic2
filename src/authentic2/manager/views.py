@@ -22,7 +22,7 @@ from django_select2.views import AutoResponseView
 from django_rbac.utils import get_ou_model
 
 from authentic2.forms import modelform_factory
-from authentic2.utils import redirect
+from authentic2.utils import redirect, batch_queryset
 from authentic2.decorators import json as json_view
 from authentic2 import hooks
 
@@ -129,12 +129,6 @@ class FilterTableQuerysetByPermMixin(object):
         if getattr(self, 'filter_table_by_perm', True):
             qs = filter_view(self.request, qs)
         return qs
-
-
-class FilterDatasetQuerysetByPermMixin(object):
-    def get_dataset(self):
-        qs = super(FilterDatasetQuerysetByPermMixin, self).get_dataset()
-        return filter_view(self.request, qs)
 
 
 class TableQuerysetMixin(object):
@@ -337,6 +331,10 @@ class ExportMixin(object):
 
     def get_resource(self):
         return self.resource_class()
+
+    def get_data(self):
+        qs = self.get_queryset()
+        return batch_queryset(qs)
 
     def get_dataset(self):
         return self.get_resource().export(self.get_data())
