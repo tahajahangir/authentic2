@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: authentic2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-17 10:39+0200\n"
+"POT-Creation-Date: 2018-05-02 11:49+0200\n"
 "PO-Revision-Date: 2018-04-17 10:40+0200\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: French <fr@li.org>\n"
@@ -396,7 +396,15 @@ msgid ""
 "and applications."
 msgstr "Gérer les collectivités, les utilisateurs, les rôles et les services"
 
-#: manager/templates/authentic2/manager/homepage.html:23
+#: manager/templates/authentic2/manager/homepage.html:11
+msgid "Export Site"
+msgstr "Exporter le site"
+
+#: manager/templates/authentic2/manager/homepage.html:12
+msgid "Import Site"
+msgstr "Importer un site"
+
+#: manager/templates/authentic2/manager/homepage.html:29
 #: manager/templates/authentic2/manager/user_add.html:10
 #: manager/templates/authentic2/manager/user_detail.html:24
 #: manager/templates/authentic2/manager/user_edit.html:7
@@ -651,6 +659,14 @@ msgid ""
 msgstr ""
 "Souhaitez-vous vraiment retirer le rôle « %(name)s » du service "
 "« %(object)s » ?"
+
+#: manager/templates/authentic2/manager/site_import.html:5
+msgid "Site Import"
+msgstr "Importation de site"
+
+#: manager/templates/authentic2/manager/site_import.html:14
+msgid "Import"
+msgstr "Importer"
 
 #: manager/templates/authentic2/manager/user_change_email.html:6
 msgid ""
@@ -947,6 +963,10 @@ msgstr "Supprimer l'objet « %s »"
 #, python-format
 msgid "Edit %s"
 msgstr "Éditer l'objet « %s »"
+
+#: manager/views.py:632
+msgid "File is not in the expected JSON format."
+msgstr "Le fichier n'est pas au format JSON attendu."
 
 #~ msgid "Logout"
 #~ msgstr "Déconnexion"

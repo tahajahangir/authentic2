@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 17:39+0100\n"
+"POT-Creation-Date: 2018-05-02 12:09+0200\n"
 "PO-Revision-Date: 2018-03-17 17:39+0100\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
@@ -326,6 +326,10 @@ msgid ""
 msgstr ""
 "Vous avez fait trop d'erreurs de connexions, vous devez attendre <span class="
 "\"js-seconds-until\">%s</span> secondes avant de pouvoir à nouveau essayer."
+
+#: forms.py:197
+msgid "Site Export File"
+msgstr "Fichier d'export de site"
 
 #: hashers.py:82 hashers.py:112
 msgid "algorithm"
