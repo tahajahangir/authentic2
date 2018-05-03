@@ -191,3 +191,7 @@ class AuthenticationForm(auth_forms.AuthenticationForm):
             if keys:
                 self.exponential_backoff.success(*keys)
         return self.cleaned_data
+
+
+class SiteImportForm(forms.Form):
+    site_json = forms.FileField(label=_('Site Export File'))

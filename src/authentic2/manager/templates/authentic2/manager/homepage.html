@@ -5,7 +5,14 @@
 {% endblock %}
 
 {% block appbar %}
-  {% blocktrans %}Here you can manage objects related to organizational units, users, roles and applications.{% endblocktrans %}
+  <h2>{% blocktrans %}Here you can manage objects related to organizational units, users, roles and applications.{% endblocktrans %}</h2>
+  {% if user.is_superuser %}
+  <a class="extra-actions-menu-opener"></a>
+  <ul class="extra-actions-menu">
+    <li><a href="{% url 'a2-manager-site-export' %}">{% trans 'Export Site' %}</a></li>
+    <li><a href="{% url 'a2-manager-site-import' %}">{% trans 'Import Site' %}</a></li>
+  </ul>
+  {% endif %}
 {% endblock %}
 
 {% block content %}

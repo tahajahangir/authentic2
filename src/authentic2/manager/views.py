@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic.base import ContextMixin
 from django.views.generic.edit import FormMixinBase
 from django.views.generic import (FormView, UpdateView, CreateView, DeleteView, TemplateView,
-                                  DetailView)
+                                  DetailView, View)
 from django.views.generic.detail import SingleObjectMixin
 from django.http import HttpResponse, Http404
 from django.utils.encoding import force_text
@@ -21,7 +21,8 @@ from django_select2.views import AutoResponseView
 
 from django_rbac.utils import get_ou_model
 
-from authentic2.forms import modelform_factory
+from authentic2.data_transfer import export_site, import_site, DataImportError, ImportContext
+from authentic2.forms import modelform_factory, SiteImportForm
 from authentic2.utils import redirect, batch_queryset
 from authentic2.decorators import json as json_view
 from authentic2 import hooks
@@ -608,3 +609,44 @@ class Select2View(AutoResponseView):
         return widget
 
 select2 = Select2View.as_view()
+
+
+class SiteExport(View):
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise PermissionDenied
+        return HttpResponse(
+            json.dumps(export_site(), indent=4), content_type='application/json')
+
+
+site_export = SiteExport.as_view()
+
+
+class SiteImportView(FormView):
+    form_class = SiteImportForm
+    template_name = 'authentic2/manager/site_import.html'
+    success_url = reverse_lazy('a2-manager-homepage')
+
+    def form_valid(self, form):
+        try:
+            json_site = json.load(self.request.FILES['site_json'])
+        except ValueError:
+            form.add_error('site_json', _('File is not in the expected JSON format.'))
+            return self.form_invalid(form)
+
+        try:
+            import_site(json_site, ImportContext())
+        except DataImportError as e:
+            form.add_error('site_json', unicode(e))
+            return self.form_invalid(form)
+
+        return super(SiteImportView, self).form_valid(form)
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise PermissionDenied
+        return super(SiteImportView, self).dispatch(request, *args, **kwargs)
+
+
+site_import = SiteImportView.as_view()

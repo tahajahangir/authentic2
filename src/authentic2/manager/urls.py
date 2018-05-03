@@ -115,6 +115,10 @@ urlpatterns = required(
 
         # backoffice menu as json
         url(r'^menu.json$', views.menu_json),
+
+        # general management
+        url(r'^site-export/$', views.site_export, name='a2-manager-site-export'),
+        url(r'^site-import/$', views.site_import, name='a2-manager-site-import'),
     )
 )
 

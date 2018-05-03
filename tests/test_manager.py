@@ -1,8 +1,11 @@
 import pytest
+import json
 from urlparse import urlparse
 
 from django.core.urlresolvers import reverse
 from django.core import mail
+
+from webtest import Upload
 
 from authentic2.a2_rbac.utils import get_default_ou
 
@@ -552,3 +555,84 @@ def test_manager_many_ou_auto_admin_role(app, ou1, admin, user_with_auto_admin_r
         assert set(names) == {u'Auto Admin Role'}
 
     test_user_listing_auto_admin_role(user_with_auto_admin_role)
+
+
+def test_manager_site_export(app, superuser):
+    response = login(app, superuser, '/manage/site-export/')
+    assert 'roles' in response.json
+    assert 'ous' in response.json
+
+
+def test_manager_site_export_forbidden(app, simple_user):
+    login(app, simple_user)
+    app.get('/manage/site-export/', status=403)
+
+
+def test_manager_site_import(app, db, superuser):
+    site_import = login(app, superuser, '/manage/site-import/')
+    form = site_import.form
+    site_export = {
+        'roles': [
+            {
+                "description": "", "service": None, "name": "basic",
+                "attributes": [],
+                "ou": {
+                    "slug": "default",
+                    "uuid": "ba60d9e6c2874636883bdd604b23eab2",
+                    "name": "Collectivit\u00e9 par d\u00e9faut"
+                },
+                "external_id": "",
+                "slug": "basic",
+                "uuid": "6eb7bbf64bf547119120f925f0e560ac"
+            }]
+    }
+    form['site_json'] = Upload(
+        'site_export.json', json.dumps(site_export), 'application/octet-stream')
+    res = form.submit()
+    assert res.status_code == 302
+    assert get_role_model().objects.get(slug='basic')
+
+
+def test_manager_site_import_error(app, db, superuser):
+    site_import = login(app, superuser, '/manage/site-import/')
+    form = site_import.form
+    site_export = {
+        'roles': [
+            {
+                "description": "", "service": None, "name": "basic",
+                "attributes": [],
+                "ou": {
+                    "slug": "unkown-ou",
+                    "uuid": "ba60d9e6c2874636883bdd604b23eab2",
+                    "name": "unkown ou"
+                },
+                "external_id": "",
+                "slug": "basic",
+                "uuid": "6eb7bbf64bf547119120f925f0e560ac"
+            }]
+    }
+    form['site_json'] = Upload(
+        'site_export.json', json.dumps(site_export), 'application/octet-stream')
+    res = form.submit()
+    assert res.status_code == 200
+    assert 'missing Organizational Unit' in res.text
+    Role = get_role_model()
+    with pytest.raises(Role.DoesNotExist):
+        Role.objects.get(slug='basic')
+
+
+def test_manager_site_import_forbidden(app, simple_user):
+    login(app, simple_user)
+    app.get('/manage/site-import/', status=403)
+
+
+def test_manager_homepatge_import_export(superuser, app):
+    manager_home_page = login(app, superuser, reverse('a2-manager-homepage'))
+    assert 'site-import' in manager_home_page.text
+    assert 'site-export' in manager_home_page.text
+
+
+def test_manager_homepatge_import_export_hidden(admin, app):
+    manager_home_page = login(app, admin, reverse('a2-manager-homepage'))
+    assert 'site-import' not in manager_home_page.text
+    assert 'site-export' not in manager_home_page.text

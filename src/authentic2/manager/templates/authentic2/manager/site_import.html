@@ -1,0 +1,18 @@
+{% extends "authentic2/manager/form.html" %}
+{% load i18n %}
+
+{% block appbar %}
+<h2>{% trans "Site Import" %}</h2>
+{% endblock %}
+
+{% block content %}
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="buttons">
+    <button>{% trans "Import" %}</button>
+    <a class="cancel" href="{% url 'a2-manager-homepage' %}">{% trans 'Cancel' %}</a>
+  </div>
+</form>
+{% endblock %}
