@@ -253,6 +253,12 @@ def test_authorization_code_sso(login_first, oidc_settings, oidc_client, simple_
     assert response.json['ou'] == simple_user.ou.name
     assert response.json['roles'][0] == 'Whatever'
 
+    # check against a user without username
+    simple_user.username = None
+    simple_user.save()
+    response = app.get(user_info_url, headers=bearer_authentication_headers(access_token))
+    assert 'preferred_username' not in response.json
+
     # Now logout
     if oidc_client.post_logout_redirect_uris:
         params = {

@@ -172,6 +172,8 @@ def create_user_info(client, user, scope_set, id_token=False):
     for claim in client.oidcclaim_set.filter(name__isnull=False):
         if not set(claim.get_scopes()).intersection(scope_set):
             continue
+        if not claim.value in attributes:
+            continue
         user_info[claim.name] = normalize_claim_values(attributes[claim.value])
         # check if attribute is verified
         if claim.value + ':verified' in attributes:
