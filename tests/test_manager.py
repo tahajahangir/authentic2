@@ -636,3 +636,47 @@ def test_manager_homepatge_import_export_hidden(admin, app):
     manager_home_page = login(app, admin, reverse('a2-manager-homepage'))
     assert 'site-import' not in manager_home_page.text
     assert 'site-export' not in manager_home_page.text
+
+
+def test_manager_ou(app, superuser_or_admin, ou1):
+    OU = get_ou_model()
+
+    manager_home_page = login(app, superuser_or_admin, reverse('a2-manager-homepage'))
+    ou_homepage = manager_home_page.click(href='organizational-units')
+    assert set([e.text for e in ou_homepage.pyquery('td.name')]) == set(['OU1', 'Default organizational unit'])
+
+    # add a new ou
+    add_ou_page = ou_homepage.click('Add')
+    add_ou_page.form.set('name', 'ou2')
+    add_ou_page.form.set('default', True)
+    ou_homepage = add_ou_page.form.submit().follow()
+    ou2 = OU.objects.get(name='ou2')
+    assert set([e.text for e in ou_homepage.pyquery('td.name')]) == set(['OU1', 'Default organizational unit', 'ou2'])
+    assert len(ou_homepage.pyquery('tr[data-pk="%s"] td.default span.true' % ou2.pk)) == 1
+
+    # FIXME: table lines are not clickable as they do not contain an anchor
+    # default ou cannot be deleted
+    ou2_detail_page = app.get(reverse('a2-manager-ou-detail', kwargs={'pk': ou2.pk}))
+    assert ou2_detail_page.pyquery('a.disabled').text() == 'Delete'
+
+    # but ou1 can be deleted
+    ou1_detail_page = app.get(reverse('a2-manager-ou-detail', kwargs={'pk': ou1.pk}))
+    ou1_delete_page = ou1_detail_page.click('Delete')
+    ou_homepage = ou1_delete_page.form.submit().follow()
+    assert set([e.text for e in ou_homepage.pyquery('td.name')]) == set(['Default organizational unit', 'ou2'])
+
+    # remake old default ou the default one
+    old_default = OU.objects.get(name__contains='Default')
+    old_default_detail_page = app.get(reverse('a2-manager-ou-detail', kwargs={'pk': old_default.pk}))
+    assert not old_default_detail_page.pyquery('input[name="default"][checked="checked"]')
+    old_default_edit_page = old_default_detail_page.click('Edit')
+    old_default_edit_page.form.set('default', True)
+    old_default_detail_page = old_default_edit_page.form.submit().follow()
+    # check detail page has changed
+    assert old_default_detail_page.pyquery('input[name="default"][checked="checked"]')
+    # check ou homepage has changed too
+    ou_homepage = old_default_detail_page.click('Organizational unit')
+    assert set([e.text for e in ou_homepage.pyquery('td.name')]) == set(['Default organizational unit', 'ou2'])
+    assert len(ou_homepage.pyquery('span.true')) == 1
+    assert len(ou_homepage.pyquery('tr[data-pk="%s"] td.default span.true' % ou2.pk)) == 0
+    assert len(ou_homepage.pyquery('tr[data-pk="%s"] td.default span.true' % old_default.pk)) == 1

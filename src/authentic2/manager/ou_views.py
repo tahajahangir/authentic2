@@ -39,6 +39,10 @@ class OrganizationalUnitDetailView(views.BaseDetailView):
     def title(self):
         return unicode(self.object)
 
+    def authorize(self, request, *args, **kwargs):
+        super(OrganizationalUnitDetailView, self).authorize(request, *args, **kwargs)
+        self.can_delete = self.can_delete and not self.object.default
+
 detail = OrganizationalUnitDetailView.as_view()
 
 
