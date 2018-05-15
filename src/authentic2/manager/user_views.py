@@ -257,7 +257,12 @@ class UserDetailView(OtherActionsMixin, BaseDetailView):
 
     def get_context_data(self, **kwargs):
         kwargs['default_ou'] = get_default_ou
-        kwargs['roles'] = self.object.roles_and_parents()
+        roles = self.object.roles_and_parents().order_by('ou__name', 'name')
+        roles_by_ou = collections.OrderedDict()
+        for role in roles:
+            roles_by_ou.setdefault(role.ou.name if role.ou else '', []).append(role)
+        kwargs['roles'] = roles
+        kwargs['roles_by_ou'] = roles_by_ou
         # show modify roles button only if something is possible
         kwargs['can_change_roles'] = self.has_perm_on_roles(self.request.user, self.object)
         user_data = []

@@ -98,6 +98,16 @@ table.users tbody tr td:nth-child(2):hover {
   width: auto;
 }
 
+.user-roles ul {
+	margin-left: 2rem;
+	padding-left: 0;
+}
+
+.user-roles ul ul {
+	margin-left: 1rem;
+	margin-bottom: 1ex;
+}
+
 li#roles a { background-image: url(icon-personnes.png); }
 li#roles a:hover { background-image: url(icon-personnes-hover.png); }
 

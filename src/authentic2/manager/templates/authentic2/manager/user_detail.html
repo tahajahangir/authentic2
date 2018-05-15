@@ -65,14 +65,23 @@
 
   {{ block.super }}
 
-  {% if roles or can_change_roles %}
+  {% if roles_by_ou or can_change_roles %}
   <div class="user-roles">
     <strong>{% trans "Roles" %}</strong>
     <ul>
-      {% for role in object.roles_and_parents %}
-      <li {% if role.description %}title="{{ role.description }}"{% endif %}>
-        <a href="{% url "a2-manager-role-members" pk=role.pk %}">{% if multiple_ou and role.ou %}{{ role.ou }} &#8212; {% endif %}{{ role }}</a>
-      </li>
+      {% for ou, ou_roles in roles_by_ou.items %}
+        {% if multiple_ou %}
+	<li>{% if ou %}{{ ou }}{% else %}{% trans "All organizational units" %}{% endif %}
+              <ul>
+        {% endif %}
+              {% for role in ou_roles %}
+                <li {% if role.description %}title="{{ role.description }}"{% endif %}>
+                <a href="{% url "a2-manager-role-members" pk=role.pk %}">{{ role }}</a></li>
+              {% endfor %}
+        {% if multiple_ou %}
+              </ul>
+          </li>
+        {% endif %}
       {% endfor %}
     </ul>
 
