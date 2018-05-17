@@ -24,6 +24,8 @@ def natural_key_json(self):
             names.add(key)
 
     for name in names:
+        if name.endswith('__isnull'):
+            name = name.split('__isnull')[0]
         field = self._meta.get_field(name)
         if not (field.concrete or isinstance(field, GenericForeignKey)):
             raise ValueError('field %s is not concrete' % name)
@@ -49,6 +51,9 @@ def get_by_natural_key_json(self, d):
     for natural_key in natural_keys:
         get_kwargs = {}
         for name in natural_key:
+            isnull = name.endswith('__isnull')
+            if isnull:
+                name = name.split('__isnull')[0]
             field = model._meta.get_field(name)
             if not (field.concrete or isinstance(field, GenericForeignKey)):
                 raise ValueError('field %s is not concrete' % name)
@@ -57,34 +62,44 @@ def get_by_natural_key_json(self, d):
             try:
                 value = d[name]
             except KeyError:
-                break
+                if not isnull:
+                    break
+                value = None
             if isinstance(field, GenericForeignKey):
-                try:
-                    ct_nk = d[field.ct_field]
-                except KeyError:
+                if isnull and value:
                     break
-                try:
-                    ct = ContentType.objects.get_by_natural_key_json(ct_nk)
-                except ContentType.DoesNotExist:
-                    break
-                related_model = ct.model_class()
-                try:
-                    value = related_model._default_manager.get_by_natural_key_json(value)
-                except related_model.DoesNotExist:
-                    break
-                get_kwargs[field.ct_field] = ct
-                name = field.fk_field
-                value = value.pk
+                elif not isnull:
+                    if not value:
+                        break
+                    try:
+                        ct_nk = d[field.ct_field]
+                    except KeyError:
+                        break
+                    try:
+                        ct = ContentType.objects.get_by_natural_key_json(ct_nk)
+                    except ContentType.DoesNotExist:
+                        break
+                    related_model = ct.model_class()
+                    try:
+                        value = related_model._default_manager.get_by_natural_key_json(value)
+                    except related_model.DoesNotExist:
+                        break
+                    name = field.fk_field
+                    value = value.pk
             elif field.is_relation:
-                if value is None:
-                    name = '%s__isnull' % name
-                    value = True
-                else:
+                if isnull and value:
+                    break
+                elif not isnull:
+                    if not value:
+                        break
                     try:
                         value = field.related_model._default_manager.get_by_natural_key_json(value)
                     except field.related_model.DoesNotExist:
                         break
-            get_kwargs[name] = value
+            if isnull:
+                get_kwargs[name + '__isnull'] = True
+            else:
+                get_kwargs[name] = value
         else:
             try:
                 return self.get(**get_kwargs)

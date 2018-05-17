@@ -1,3 +1,5 @@
+import pytest
+
 from django.contrib.contenttypes.models import ContentType
 from authentic2.a2_rbac.models import Role, OrganizationalUnit as OU, Permission
 
@@ -29,12 +31,20 @@ def test_natural_key_json(db, ou1):
         }
         assert role == Role.objects.get_by_natural_key_json(nk)
         assert role == Role.objects.get_by_natural_key_json({'uuid': role.uuid})
-        assert role == Role.objects.get_by_natural_key_json({'slug': role.slug, 'ou': ou_nk})
-        assert role == Role.objects.get_by_natural_key_json({'name': role.name, 'ou': ou_nk})
+        if service_nk:
+            with pytest.raises(Role.DoesNotExist):
+                Role.objects.get_by_natural_key_json({'slug': role.slug, 'ou': ou_nk})
+        else:
+            assert Role.objects.get_by_natural_key_json({'slug': role.slug, 'ou': ou_nk}) == role
+        if service_nk:
+            with pytest.raises(Role.DoesNotExist):
+                assert Role.objects.get_by_natural_key_json({'name': role.name, 'ou': ou_nk})
+        else:
+            assert Role.objects.get_by_natural_key_json({'name': role.name, 'ou': ou_nk}) == role
         assert role == Role.objects.get_by_natural_key_json(
-            {'slug': role.slug, 'service': service_nk})
+            {'slug': role.slug, 'ou': ou_nk, 'service': service_nk})
         assert role == Role.objects.get_by_natural_key_json(
-            {'name': role.name, 'service': service_nk})
+            {'name': role.name, 'ou': ou_nk, 'service': service_nk})
 
     for permission in Permission.objects.all():
         ou_nk = permission.ou and permission.ou.natural_key_json()

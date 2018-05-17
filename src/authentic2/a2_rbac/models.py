@@ -115,7 +115,10 @@ class Permission(PermissionAbstractBase):
                                    object_id_field='admin_scope_id')
 
 
-Permission._meta.natural_key = ['operation', 'ou', 'target']
+Permission._meta.natural_key = [
+    ['operation', 'ou', 'target'],
+    ['operation', 'ou__isnull', 'target'],
+]
 
 
 class Role(RoleAbstractBase):
@@ -247,7 +250,13 @@ class Role(RoleAbstractBase):
 
 
 Role._meta.natural_key = [
-    ['uuid'], ['slug', 'ou'], ['name', 'ou'], ['slug', 'service'], ['name', 'service']
+    ['uuid'],
+    ['slug', 'ou__isnull', 'service__isnull'],
+    ['name', 'ou__isnull', 'service__isnull'],
+    ['slug', 'ou', 'service'],
+    ['name', 'ou', 'service'],
+    ['slug', 'ou', 'service__isnull'],
+    ['name', 'ou', 'service__isnull'],
 ]
 
 
