@@ -637,14 +637,14 @@ class SiteImportView(FormView):
             return self.form_invalid(form)
 
         try:
-            import_site(json_site, ImportContext())
+            with transaction.atomic():
+                import_site(json_site, ImportContext())
         except DataImportError as e:
             form.add_error('site_json', unicode(e))
             return self.form_invalid(form)
 
         return super(SiteImportView, self).form_valid(form)
 
-    @transaction.atomic
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             raise PermissionDenied
