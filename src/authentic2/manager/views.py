@@ -2,6 +2,7 @@ import json
 import inspect
 
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.views.generic.base import ContextMixin
 from django.views.generic.edit import FormMixinBase
 from django.views.generic import (FormView, UpdateView, CreateView, DeleteView, TemplateView,
@@ -643,6 +644,7 @@ class SiteImportView(FormView):
 
         return super(SiteImportView, self).form_valid(form)
 
+    @transaction.atomic
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             raise PermissionDenied
