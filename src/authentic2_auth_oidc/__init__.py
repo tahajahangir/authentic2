@@ -66,12 +66,3 @@ class Plugin(object):
             return
         logger.info(u'revoked token from OIDC provider %s', provider.issuer)
 
-    def get_admin_modules(self):
-        from admin_tools.dashboard import modules
-        return [modules.ModelList(
-            _('OpenID Connect authentication'),
-            models=(
-                'authentic2_auth_oidc.models.OIDCProvider',
-                'authentic2_auth_oidc.models.OIDCAccount',
-            ),
-        )]

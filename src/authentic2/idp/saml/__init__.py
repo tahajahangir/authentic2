@@ -22,17 +22,6 @@ class Plugin(object):
     def get_apps(self):
         return ['authentic2.idp.saml']
 
-    def get_admin_modules(self):
-        from admin_tools.dashboard import modules
-        return [modules.ModelList(
-            _('SAML2'),
-            models=(
-                'authentic2.saml.models.LibertyProvider',
-                'authentic2.saml.models.SPOptionsIdPPolicy',
-                'authentic2.saml.models.IdPOptionsSPPolicy',
-            ),
-        )]
-
     def get_idp_backends(self):
         return ['authentic2.idp.saml.backend.SamlBackend']
 

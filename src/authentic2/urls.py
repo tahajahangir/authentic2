@@ -24,7 +24,6 @@ not_homepage_patterns = [
 not_homepage_patterns += [
     url(r'^accounts/', include(app_settings.A2_REGISTRATION_URLCONF)),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^idp/', include('authentic2.idp.urls')),
     url(r'^manage/', include('authentic2.manager.urls')),
     url(r'^api/', include('authentic2.api_urls'))

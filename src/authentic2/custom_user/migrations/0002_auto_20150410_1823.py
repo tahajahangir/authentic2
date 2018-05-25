@@ -38,7 +38,6 @@ class ThirdPartyAlterField(migrations.AlterField):
 class Migration(migrations.Migration):
     dependencies = [
         ('custom_user', '0001_initial'),
-        ('menu', '__first__'),
         ('admin', '__first__'),
     ]
 
@@ -51,14 +50,6 @@ class Migration(migrations.Migration):
             ThirdPartyAlterField(
                 app_label='admin',
                 model_name='logentry',
-                name='user',
-                field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
-                preserve_default=True
-            ),
-            # Django admin-tools menu bookmark
-            ThirdPartyAlterField(
-                app_label='menu',
-                model_name='bookmark',
                 name='user',
                 field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
                 preserve_default=True

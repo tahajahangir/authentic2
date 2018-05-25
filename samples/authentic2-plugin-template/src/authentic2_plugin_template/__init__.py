@@ -26,13 +26,9 @@ class Plugin(object):
     def get_idp_backends(self):
         return []
 
-    def get_admin_modules(self):
-        from . import dashboard
-        return dashboard.get_admin_modules()
-
     def service_list(self, request):
         '''For IdP plugins this method add links to the user homepage.
-           
+
            It must return a list of authentic2.utils.Service objects, each
            object has a name and can have an url and some actions.
 
@@ -49,7 +45,7 @@ class Plugin(object):
     def logout_list(self, request):
         '''For IdP or SP plugins this method add actions to logout from remote
            IdP or SP.
-           
+
            It must returns a list of HTML fragments, each fragment is
            responsible for calling the view doing the logout. Views are usually
            called using <img/> or <iframge/> tags and finally redirect to an

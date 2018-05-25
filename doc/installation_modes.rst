@@ -17,7 +17,6 @@ The other Authentic 2 dependencies are:
 - Django>=1.7.6,<1.9
 - requests>=2.
 - django-model-utils>=2
-- django-admin-tools>=0.5.2
 - dnspython>=1.12
 - django-select2>=4.3.0
 - django-tables2>=1.0

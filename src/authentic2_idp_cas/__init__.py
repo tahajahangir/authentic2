@@ -31,12 +31,3 @@ class Plugin(object):
             content = render_to_string('authentic2_idp_cas/logout_fragment.html', ctx)
             fragments.append(content)
         return fragments
-
-    def get_admin_modules(self):
-        from admin_tools.dashboard import modules
-        return [modules.ModelList(
-            _('CAS'),
-            models=(
-                '%s.*' % __name__,
-            ),
-        )]

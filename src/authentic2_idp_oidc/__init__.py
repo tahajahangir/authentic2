@@ -32,12 +32,3 @@ class Plugin(object):
                     'authentic2_idp_oidc/logout_fragment.html',
                     ctx))
         return fragments
-
-    def get_admin_modules(self):
-        from admin_tools.dashboard import modules
-        return [modules.ModelList(
-            _('OpenID Connect authentication'),
-            models=(
-                'authentic2_idp_oidc.models.*',
-            ),
-        )]
