@@ -13,7 +13,7 @@ import urllib
 from xml.dom.minidom import parseString
 
 from django.http import HttpResponseRedirect
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
@@ -228,7 +228,7 @@ def idp_selection(request):
     return HttpResponseRedirect('%s?idp_selected=%s' \
         % (reverse(disco), idp_selected))
 
-urlpatterns = patterns('',
-    (r'^disco$', disco),
-    (r'^idp_selection$', idp_selection),
-)
+urlpatterns = [
+    url(r'^disco$', disco),
+    url(r'^idp_selection$', idp_selection),
+]

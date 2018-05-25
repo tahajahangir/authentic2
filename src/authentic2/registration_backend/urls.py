@@ -1,4 +1,3 @@
-from django.conf.urls import patterns
 from django.conf.urls import url
 
 from django.views.generic.base import TemplateView
@@ -6,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 from .views import RegistrationView, registration_completion, DeleteView, registration_complete
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^activate/(?P<registration_token>[\w: -]+)/$',
 	registration_completion, name='registration_activate'),
     url(r'^register/$',
@@ -21,4 +20,4 @@ urlpatterns = patterns('',
     url(r'^delete/$',
         login_required(DeleteView.as_view()),
         name='delete_account'),
-)
+]

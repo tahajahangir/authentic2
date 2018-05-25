@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from . import api_views
 
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^register/$', api_views.register,
                            name='a2-api-register'),
                        url(r'^password-change/$', api_views.password_change,
@@ -13,5 +13,6 @@ urlpatterns = patterns('',
                            api_views.role_memberships, name='a2-api-role-member'),
                        url(r'^check-password/$', api_views.check_password,
                            name='a2-api-check-password'),
-)
+]
+
 urlpatterns += api_views.router.urls

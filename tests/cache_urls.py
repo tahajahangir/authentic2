@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.http import HttpResponse
 
 from authentic2.decorators import SessionCache, DjangoCache
@@ -24,7 +24,7 @@ def session_cache(request):
     value = session_cache_function()
     return HttpResponse('%s' % value)
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^django_cache/$', cached_view),
-    url(r'^session_cache/$', session_cache),
-)
+    url(r'^session_cache/$', session_cache)
+]

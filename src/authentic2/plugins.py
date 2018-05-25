@@ -7,7 +7,7 @@ import pkg_resources
 import logging
 
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 
 
 logger = logging.getLogger(__name__)
@@ -59,9 +59,8 @@ def register_plugins_urls(urlpatterns,
         if hasattr(plugin, 'get_after_urls'):
             urls = plugin.get_after_urls()
             after_urls.append(url('^', include(urls)))
-    before_patterns = patterns('', *before_urls)
-    after_patterns = patterns('', *after_urls)
-    return before_patterns + urlpatterns + after_patterns
+
+    return before_urls + urlpatterns + after_urls
 
 def register_plugins_installed_apps(installed_apps, group_name=DEFAULT_GROUP_NAME):
     '''Call get_apps() on all plugins of group_name and add the returned

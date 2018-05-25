@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from django.views.i18n import javascript_catalog
 from django.contrib.auth.decorators import login_required
@@ -13,8 +13,7 @@ def manager_login_required(func):
 
 
 urlpatterns = required(
-    manager_login_required, patterns(
-        'authentic2.views',
+    manager_login_required, [
         # homepage
         url(r'^$', views.homepage, name='a2-manager-homepage'),
 
@@ -119,12 +118,12 @@ urlpatterns = required(
         # general management
         url(r'^site-export/$', views.site_export, name='a2-manager-site-export'),
         url(r'^site-import/$', views.site_import, name='a2-manager-site-import'),
-    )
+    ]
 )
 
-urlpatterns += patterns('',
+urlpatterns += [
         url(r'^jsi18n/$', javascript_catalog,
             {'packages': ('authentic2.manager',)},
             name='a2-manager-javascript-catalog'),
     url(r'^select2.json$', views.select2, name='django_select2-json'),
-)
+]

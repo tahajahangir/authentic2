@@ -2,7 +2,7 @@ import logging
 
 from django.contrib import admin
 from django.utils.translation import ugettext as _
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.conf import settings
 from django.forms import ModelForm
 from django import forms
@@ -160,13 +160,12 @@ class LibertyProviderAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super(LibertyProviderAdmin, self).get_urls()
-        urls = patterns('',
+        urls = [
             url(r'^add-from-url/$',
                 self.admin_site.admin_view(admin_views.AddLibertyProviderFromUrlView.as_view(model_admin=self)),
                 name='saml_libertyprovider_add_from_url'),
-            ) + urls
+            ] + urls
         return urls
-
 
 class LibertyFederationAdmin(admin.ModelAdmin):
     search_fields = ('name_id_content', 'user__username')
@@ -198,7 +197,6 @@ class SPOptionsIdPPolicyAdmin(admin.ModelAdmin):
             'iframe_logout_timeout',
             'http_method_for_slo_request',
     )
-
 
 admin.site.register(SPOptionsIdPPolicy, SPOptionsIdPPolicyAdmin)
 admin.site.register(LibertyProvider, LibertyProviderAdmin)

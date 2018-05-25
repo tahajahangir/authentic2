@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from . import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url('^login/?$', views.login, name='a2-idp-cas-login'),
     url('^continue/$', views._continue, name='a2-idp-cas-continue'),
     url('^validate/?$', views.validate, name='a2-idp-cas-validate'),
@@ -12,4 +12,4 @@ urlpatterns = patterns('',
     url('^proxy/?$', views.proxy, name='a2-idp-cas-proxy'),
     url('^proxyValidate/?$', views.proxy_validate,
         name='a2-idp-cas-proxy-validate'),
-)
+]

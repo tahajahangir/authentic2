@@ -1,7 +1,9 @@
-from django.conf.urls import url, patterns
+from django.conf.urls import url
+from authentic2.idp.interactions import consent_federation, consent_attributes
 
-urlpatterns = patterns('authentic2.idp.interactions',
-        url(r'^consent_federation', 'consent_federation',
-            name='a2-consent-federation'),
-        url(r'^consent_attributes', 'consent_attributes',
-            name='a2-consent-attributes'))
+urlpatterns = [
+    url(r'^consent_federation', consent_federation,
+        name='a2-consent-federation'),
+    url(r'^consent_attributes', consent_attributes,
+        name='a2-consent-attributes')
+]

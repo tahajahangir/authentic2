@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib.auth import views as auth_views, REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -9,6 +9,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 
 from authentic2.utils import import_module_or_class, redirect
 from . import app_settings, decorators, profile_views, hooks
+from .views import (logged_in, edit_profile, email_change, email_change_verify, profile)
 
 SET_PASSWORD_FORM_CLASS = import_module_or_class(
         app_settings.A2_REGISTRATION_SET_PASSWORD_FORM_CLASS)
@@ -44,14 +45,14 @@ password_change_view.title = _('Password Change')
 password_change_view.do_not_call_in_templates = True
 
 
-urlpatterns = patterns('authentic2.views',
-    url(r'^logged-in/$', 'logged_in', name='logged-in'),
-    url(r'^edit/$', 'edit_profile', name='profile_edit'),
-    url(r'^edit/(?P<scope>[-\w]+)/$', 'edit_profile', name='profile_edit_with_scope'),
-    url(r'^change-email/$', 'email_change', name='email-change'),
-    url(r'^change-email/verify/$', 'email_change_verify',
+urlpatterns = [
+    url(r'^logged-in/$', logged_in, name='logged-in'),
+    url(r'^edit/$', edit_profile, name='profile_edit'),
+    url(r'^edit/(?P<scope>[-\w]+)/$', edit_profile, name='profile_edit_with_scope'),
+    url(r'^change-email/$', email_change, name='email-change'),
+    url(r'^change-email/verify/$', email_change_verify,
         name='email-change-verify'),
-    url(r'^$', 'profile', name='account_management'),
+    url(r'^$', profile, name='account_management'),
     url(r'^password/change/$',
         password_change_view,
         {'password_change_form': CHANGE_PASSWORD_FORM_CLASS},
@@ -90,4 +91,4 @@ urlpatterns = patterns('authentic2.views',
         auth_views.password_reset_done,
         name='auth_password_reset_done'),
     url(r'^switch-back/$', profile_views.switch_back, name='a2-switch-back'),
-)
+]

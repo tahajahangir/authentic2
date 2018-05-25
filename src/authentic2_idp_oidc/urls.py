@@ -1,9 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from . import views
 
 
-__patterns = [
+urlpatterns = [
     url(r'^.well-known/openid-configuration$',
         views.openid_configuration,
         name='oidc-openid-configuration'),
@@ -23,5 +23,3 @@ __patterns = [
         views.logout,
         name='oidc-logout'),
 ]
-
-urlpatterns = patterns('', *__patterns)

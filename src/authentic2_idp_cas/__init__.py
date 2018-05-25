@@ -6,15 +6,14 @@ from .constants import SESSION_CAS_LOGOUTS
 class Plugin(object):
     def get_before_urls(self):
         from . import app_settings
-        from django.conf.urls import patterns, include
+        from django.conf.urls import include, url
         from authentic2.decorators import setting_enabled, required
 
         return required(
                 (
                     setting_enabled('ENABLE', settings=app_settings),
                 ),
-                patterns('',
-                    (r'^idp/cas/', include(__name__ + '.urls'))))
+                [url(r'^idp/cas/', include(__name__ + '.urls'))])
 
     def get_apps(self):
         return [__name__]
