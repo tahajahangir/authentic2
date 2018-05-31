@@ -463,7 +463,6 @@ def sso(request):
                 "answered because no valid protocol binding could be found")
             logger.warning("the request cannot be answered because no "
                 "valid protocol binding could be found")
-            login.response.status.statusMessage = 'No valid protocol binding could be found'
             return HttpResponseBadRequest(message, content_type='text/plain')
         except lasso.ProviderMissingPublicKeyError, e:
             log_info_authn_request_details(login)
