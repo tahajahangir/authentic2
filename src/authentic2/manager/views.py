@@ -548,13 +548,15 @@ class HomepageView(TitleMixin, PermissionMixin, MediaMixin, TemplateView):
             'label': _('Organizational units'),
             'order': -1,
             'permission': 'a2_rbac.search_organizationalunit',
+            'slug': 'organizational-units',
         },
         {
             'class': 'icon-users',
             'href': reverse_lazy('a2-manager-users'),
             'label': _('Users'),
             'order': -1,
-            'permission': 'a2_rbac.search_user',
+            'permission': 'custom_user.search_user',
+            'slug': 'users',
         },
         {
             'class': 'icon-roles',
@@ -562,13 +564,15 @@ class HomepageView(TitleMixin, PermissionMixin, MediaMixin, TemplateView):
             'label': _('Roles'),
             'order': -1,
             'permission': 'a2_rbac.search_role',
+            'slug': 'roles',
         },
         {
             'class': 'icon-services',
             'href': reverse_lazy('a2-manager-services'),
             'label': _('Services'),
             'order': -1,
-            'permission': 'a2_rbac.search_service',
+            'permission': 'authentic2.search_service',
+            'slug': 'services',
         },
     ]
 
@@ -580,14 +584,14 @@ class HomepageView(TitleMixin, PermissionMixin, MediaMixin, TemplateView):
     def get_homepage_entries(self):
         entries = []
         for entry in self.default_entries:
-            if 'permission' in entry and not self.request.user.has_perm(entry['permission']):
+            if 'permission' in entry and not self.request.user.has_perm_any(entry['permission']):
                 continue
             entries.append(entry)
         for hook_entries in hooks.call_hooks('manager_homepage_entries', self):
             if not hasattr(hook_entries, 'append'):
                 hook_entries = [hook_entries]
             for entry in hook_entries:
-                if 'permission' in entry and not self.request.user.has_perm(entry['permission']):
+                if 'permission' in entry and not self.request.user.has_perm_any(entry['permission']):
                     continue
                 entries.append(entry)
         # use possible key order to sort
