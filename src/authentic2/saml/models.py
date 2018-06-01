@@ -555,6 +555,9 @@ class LibertySession(models.Model):
 
     @classmethod
     def get_for_nameid_and_session_indexes(cls, issuer_id, provider_id, name_id, session_indexes):
+        if not name_id:
+            # logout request did not contain any NameID, bad !
+            return LibertySession.objects.none()
         kwargs = nameid2kwargs(name_id)
         name_id_qualifier = kwargs['name_id_qualifier']
         qs = LibertySession.objects.filter(provider_id=provider_id,

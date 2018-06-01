@@ -1410,6 +1410,10 @@ def slo(request):
             title=_('You are being redirected to "%s"') % provider.name)
     logger.info('asynchronous slo from %s' % logout.remoteProviderId)
     # Filter sessions
+    if not logout.request.nameId:
+        logger.warning('slo refused, no NameID in the SLO request')
+        return return_logout_error(request, logout,
+                AUTHENTIC_STATUS_CODE_MISSING_NAMEID)
     all_sessions = LibertySession.get_for_nameid_and_session_indexes(
             logout.server.providerId, logout.remoteProviderId,
             logout.request.nameId, logout.request.sessionIndexes)
