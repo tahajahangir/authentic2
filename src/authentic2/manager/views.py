@@ -541,11 +541,64 @@ class HomepageView(TitleMixin, PermissionMixin, MediaMixin, TemplateView):
     template_name = 'authentic2/manager/homepage.html'
     permissions = ['a2_rbac.search_role', 'a2_rbac.search_organizationalunit',
                    'auth.search_group', 'custom_user.search_user']
+    default_entries = [
+        {
+            'class': 'icon-organizational-units',
+            'href': reverse_lazy('a2-manager-ous'),
+            'label': _('Organizational units'),
+            'order': -1,
+            'permission': 'a2_rbac.search_organizationalunit',
+        },
+        {
+            'class': 'icon-users',
+            'href': reverse_lazy('a2-manager-users'),
+            'label': _('Users'),
+            'order': -1,
+            'permission': 'a2_rbac.search_user',
+        },
+        {
+            'class': 'icon-roles',
+            'href': reverse_lazy('a2-manager-roles'),
+            'label': _('Roles'),
+            'order': -1,
+            'permission': 'a2_rbac.search_role',
+        },
+        {
+            'class': 'icon-services',
+            'href': reverse_lazy('a2-manager-services'),
+            'label': _('Services'),
+            'order': -1,
+            'permission': 'a2_rbac.search_service',
+        },
+    ]
 
     def dispatch(self, request, *args, **kwargs):
         if app_settings.HOMEPAGE_URL:
             return redirect(request, app_settings.HOMEPAGE_URL)
         return super(HomepageView, self).dispatch(request, *args, **kwargs)
+
+    def get_homepage_entries(self):
+        entries = []
+        for entry in self.default_entries:
+            if 'permission' in entry and not self.request.user.has_perm(entry['permission']):
+                continue
+            entries.append(entry)
+        for hook_entries in hooks.call_hooks('manager_homepage_entries', self):
+            if not hasattr(hook_entries, 'append'):
+                hook_entries = [hook_entries]
+            for entry in hook_entries:
+                if 'permission' in entry and not self.request.user.has_perm(entry['permission']):
+                    continue
+                entries.append(entry)
+        # use possible key order to sort
+        # list.sort() is supposed to be a stable sort (already sorted entries
+        # are kept in the same order)
+        entries.sort(key=lambda d: d.get('order', 0))
+        return entries
+
+    def get_context_data(self, **kwargs):
+        kwargs['entries'] = self.get_homepage_entries()
+        return super(HomepageView, self).get_context_data(**kwargs)
 
 
 homepage = HomepageView.as_view()

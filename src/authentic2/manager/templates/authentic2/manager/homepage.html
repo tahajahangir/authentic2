@@ -17,34 +17,11 @@
 
 {% block content %}
   <ul class="apps">
-    {% if perms.any.a2_rbac.search_organizationalunit %}
-      <li class="icon-organizational-units">
-        <a href="{% url "a2-manager-ous" %}">
-          {% trans "Organizational units" %}
-        </a>
+    {% for entry in entries %}
+      <li {% if entry.class %}class="{{ entry.class }}"{% endif %}>
+          <a href="{{ entry.href }}">{{ entry.label }}</a>
       </li>
-    {% endif %}
-    {% if perms.any.custom_user.search_user %}
-      <li class="icon-users">
-        <a href="{% url "a2-manager-users" %}">
-          {% trans "Users" %}
-        </a>
-      </li>
-    {% endif %}
-    {% if perms.any.a2_rbac.search_role %}
-      <li class="icon-roles">
-        <a href="{% url "a2-manager-roles" %}">
-          {% trans "Roles" %}
-        </a>
-      </li>
-    {% endif %}
-    {% if perms.any.authentic2.search_service %}
-      <li class="icon-services">
-        <a href="{% url "a2-manager-services" %}">
-          {% trans "Services" %}
-        </a>
-      </li>
-    {% endif %}
+    {% endfor %}
   </ul>
   <br style="clear: both;"/>
 {% endblock %}
