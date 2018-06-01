@@ -608,35 +608,19 @@ class HomepageView(TitleMixin, PermissionMixin, MediaMixin, TemplateView):
 homepage = HomepageView.as_view()
 
 
-@json_view
-def menu_json(request):
-    menu_entries = []
-    if request.user.has_perm_any(('a2_rbac.add_organizationalunit',
-                                  'a2_rbac.change_organizationalunit')):
-        menu_entries.append({
-            'label': force_text(_('Organizational units')),
-            'slug': 'organizational-units',
-            'url': request.build_absolute_uri(reverse('a2-manager-ous'))
-        })
-    if request.user.has_perm_any('custom_user.view_user'):
-        menu_entries.append({
-            'label': force_text(_('Users')),
-            'slug': 'users',
-            'url': request.build_absolute_uri(reverse('a2-manager-users'))
-        })
-    if request.user.has_perm_any('a2_rbac.view_role'):
-        menu_entries.append({
-            'label': force_text(_('Roles')),
-            'slug': 'roles',
-            'url': request.build_absolute_uri(reverse('a2-manager-roles'))
-        })
-    if request.user.has_perm_any('a2_rbac.view_service'):
-        menu_entries.append({
-            'label': force_text(_('Services')),
-            'slug': 'services',
-            'url': request.build_absolute_uri(reverse('a2-manager-services'))
-        })
-    return menu_entries
+class MenuJson(HomepageView):
+    def get(self, request, *args, **kwargs):
+        menu_entries = []
+        for entry in self.get_homepage_entries():
+            menu_entries.append({
+                'label': unicode(entry['label']),
+                'slug': entry.get('slug', ''),
+                'url': unicode(entry['href']),
+            })
+        return menu_entries
+
+
+menu_json = json_view(MenuJson.as_view())
 
 
 class HideOUColumnMixin(object):
