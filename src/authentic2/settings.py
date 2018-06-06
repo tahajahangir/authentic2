@@ -1,13 +1,16 @@
 import logging
 import logging.config
 # Load default from Django
-from django.conf.global_settings import *
+from django.conf import global_settings
 import os
 
 import django
 
 from gadjo.templatetags.gadjo import xstatic
 from . import plugins, logger
+
+# debian/debian_config.py::extract_settings_from_environ expects CACHES to be in its NAMESPACE
+CACHES = global_settings.CACHES
 
 BASE_DIR = os.path.dirname(__file__)
 ### Quick-start development settings - unsuitable for production
@@ -90,7 +93,7 @@ TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-STATICFILES_FINDERS = STATICFILES_FINDERS + ('gadjo.finders.XStaticFinder',)
+STATICFILES_FINDERS = list(global_settings.STATICFILES_FINDERS) + ['gadjo.finders.XStaticFinder']
 
 LOCALE_PATHS = ( os.path.join(BASE_DIR, 'locale'), )
 
@@ -178,14 +181,14 @@ IDP_BACKENDS = plugins.register_plugins_idp_backends(())
 # Only https URLS are accepted.
 # Can be none, sp, idp or both
 
-PASSWORD_HASHERS += (
+PASSWORD_HASHERS = list(global_settings.PASSWORD_HASHERS) + [
         'authentic2.hashers.Drupal7PasswordHasher',
         'authentic2.hashers.SHA256PasswordHasher',
         'authentic2.hashers.SSHA1PasswordHasher',
         'authentic2.hashers.SMD5PasswordHasher',
         'authentic2.hashers.SHA1OLDAPPasswordHasher',
-        'authentic2.hashers.MD5OLDAPPasswordHasher',
-)
+        'authentic2.hashers.MD5OLDAPPasswordHasher'
+]
 
 # Admin tools
 ADMIN_TOOLS_INDEX_DASHBOARD = 'authentic2.dashboard.CustomIndexDashboard'

@@ -4,7 +4,7 @@ import os
 if 'PASSWORD_HASHERS' not in locals():
     from django.conf.global_settings import PASSWORD_HASHERS
 
-PASSWORD_HASHERS = ('django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',) + PASSWORD_HASHERS
+PASSWORD_HASHERS = ['django.contrib.auth.hashers.UnsaltedMD5PasswordHasher'] + list(PASSWORD_HASHERS)
 
 A2_CACHE_ENABLED = False
 
