@@ -615,7 +615,7 @@ class MenuJson(HomepageView):
             menu_entries.append({
                 'label': unicode(entry['label']),
                 'slug': entry.get('slug', ''),
-                'url': unicode(entry['href']),
+                'url': request.build_absolute_uri(unicode(entry['href'])),
             })
         return menu_entries
 
