@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: authentic2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-09 06:59+0200\n"
-"PO-Revision-Date: 2018-05-09 06:58+0200\n"
+"POT-Creation-Date: 2018-06-09 12:08+0200\n"
+"PO-Revision-Date: 2018-06-09 12:08+0200\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "Language: \n"
@@ -141,10 +141,9 @@ msgstr "libellé"
 msgid "Email"
 msgstr "Courriel"
 
-#: manager/ou_views.py:15 manager/templates/authentic2/manager/homepage.html:23
-#: manager/templates/authentic2/manager/ou_common.html:4
+#: manager/ou_views.py:15 manager/templates/authentic2/manager/ou_common.html:4
 #: manager/templates/authentic2/manager/ou_common.html:8
-#: manager/templates/authentic2/manager/ous.html:4 manager/views.py:559
+#: manager/templates/authentic2/manager/ous.html:4 manager/views.py:548
 msgid "Organizational units"
 msgstr "Collectivités"
 
@@ -170,7 +169,6 @@ msgstr ""
 "en définir une nouvelle."
 
 #: manager/role_views.py:53
-#: manager/templates/authentic2/manager/homepage.html:37
 #: manager/templates/authentic2/manager/role_add.html:6
 #: manager/templates/authentic2/manager/role_common.html:4
 #: manager/templates/authentic2/manager/role_common.html:8
@@ -178,7 +176,7 @@ msgstr ""
 #: manager/templates/authentic2/manager/roles.html:4
 #: manager/templates/authentic2/manager/user_detail.html:70
 #: manager/templates/authentic2/manager/user_ou_roles.html:8
-#: manager/templates/authentic2/manager/user_roles.html:8 manager/views.py:571
+#: manager/templates/authentic2/manager/user_roles.html:8 manager/views.py:564
 msgid "Roles"
 msgstr "Rôles"
 
@@ -204,7 +202,7 @@ msgstr "L'utilisateur n'avait pas ce rôle."
 
 #: manager/role_views.py:152 manager/role_views.py:208
 #: manager/role_views.py:274 manager/service_views.py:56
-#: manager/user_views.py:465
+#: manager/user_views.py:470
 msgid "You are not authorized"
 msgstr "Vous n'êtes pas autorisé."
 
@@ -256,9 +254,8 @@ msgid "Remove admin user"
 msgstr "Supprimer un rôle gestionnaire"
 
 #: manager/service_views.py:16
-#: manager/templates/authentic2/manager/homepage.html:44
 #: manager/templates/authentic2/manager/services.html:4
-#: manager/templates/authentic2/manager/services.html:8 manager/views.py:577
+#: manager/templates/authentic2/manager/services.html:8 manager/views.py:572
 msgid "Services"
 msgstr "Applications"
 
@@ -405,18 +402,6 @@ msgstr "Exporter le site"
 msgid "Import Site"
 msgstr "Importer un site"
 
-#: manager/templates/authentic2/manager/homepage.html:30
-#: manager/templates/authentic2/manager/user_add.html:10
-#: manager/templates/authentic2/manager/user_detail.html:24
-#: manager/templates/authentic2/manager/user_edit.html:7
-#: manager/templates/authentic2/manager/user_ou_roles.html:6
-#: manager/templates/authentic2/manager/user_roles.html:6
-#: manager/templates/authentic2/manager/users.html:4
-#: manager/templates/authentic2/manager/users.html:26 manager/user_views.py:45
-#: manager/views.py:565
-msgid "Users"
-msgstr "Utilisateurs"
-
 #: manager/templates/authentic2/manager/new-account-notification_body.txt:1
 #, python-format
 msgid ""
@@ -526,7 +511,7 @@ msgid "Edit role"
 msgstr "Éditer le rôle"
 
 #: manager/templates/authentic2/manager/role_edit.html:10
-#: manager/templates/authentic2/manager/user_detail.html:80
+#: manager/templates/authentic2/manager/user_detail.html:89
 msgid "Modify"
 msgstr "Modifier"
 
@@ -668,6 +653,17 @@ msgstr "Importation de site"
 #: manager/templates/authentic2/manager/site_import.html:14
 msgid "Import"
 msgstr "Importer"
+
+#: manager/templates/authentic2/manager/user_add.html:10
+#: manager/templates/authentic2/manager/user_detail.html:24
+#: manager/templates/authentic2/manager/user_edit.html:7
+#: manager/templates/authentic2/manager/user_ou_roles.html:6
+#: manager/templates/authentic2/manager/user_roles.html:6
+#: manager/templates/authentic2/manager/users.html:4
+#: manager/templates/authentic2/manager/users.html:26 manager/user_views.py:45
+#: manager/views.py:556
+msgid "Users"
+msgstr "Utilisateurs"
 
 #: manager/templates/authentic2/manager/user_change_email.html:6
 msgid ""
@@ -840,6 +836,10 @@ msgstr "Créé le %(date)s"
 msgid "Modified on %(date)s"
 msgstr "Dernière modification le %(date)s"
 
+#: manager/templates/authentic2/manager/user_detail.html:74
+msgid "All organizational units"
+msgstr "Toutes les collectivités"
+
 #: manager/templates/authentic2/manager/user_ou_roles.html:12
 #: manager/templates/authentic2/manager/user_roles.html:12
 msgid "Edit User Roles"
@@ -893,7 +893,7 @@ msgstr "Ne pas forcer un changement de mot de passe à la prochaine connexion"
 msgid "Force password change on next login"
 msgstr "Forcer le changement de mot de passe au prochain login"
 
-#: manager/user_views.py:177 manager/user_views.py:330
+#: manager/user_views.py:177 manager/user_views.py:335
 msgid "Change user password"
 msgstr "Changer le mot de passe"
 
@@ -901,7 +901,7 @@ msgstr "Changer le mot de passe"
 msgid "Impersonate this user"
 msgstr "Se re-connecter avec cet utilisateur"
 
-#: manager/user_views.py:183 manager/user_views.py:357
+#: manager/user_views.py:183 manager/user_views.py:362
 msgid "Change user email"
 msgstr "Changer l'adresse de courriel"
 
@@ -929,48 +929,48 @@ msgstr "Courriel vérifié"
 msgid "Email not verified"
 msgstr "Courriel non vérifié"
 
-#: manager/user_views.py:281
+#: manager/user_views.py:286
 msgid "Change"
 msgstr "Modifier"
 
-#: manager/user_views.py:282
+#: manager/user_views.py:287
 msgid "Edit user"
 msgstr "Éditer l'utilisateur"
 
-#: manager/user_views.py:336
+#: manager/user_views.py:341
 #, python-format
 msgid "New password sent to %s"
 msgstr "Nouveau mot de passe envoyé à %s."
 
-#: manager/user_views.py:338
+#: manager/user_views.py:343
 msgid "New password set"
 msgstr "Nouveau mot de passe défini."
 
-#: manager/user_views.py:361
+#: manager/user_views.py:366
 #, python-format
 msgid "A mail was sent to %s to verify it."
 msgstr "Un courrier électronique a été envoyé à %s pour la vérifier."
 
-#: manager/user_views.py:454
+#: manager/user_views.py:459
 #, python-brace-format
 msgid "User {user} has already the role {role}."
 msgstr "L'utilisateur {user} possède déjà le rôle {role}."
 
-#: manager/user_views.py:493
+#: manager/user_views.py:498
 msgid "Delete user"
 msgstr "Supprimer l'utilisateur"
 
-#: manager/views.py:436
+#: manager/views.py:437
 #, python-format
 msgid "Delete %s"
 msgstr "Supprimer l'objet « %s »"
 
-#: manager/views.py:533
+#: manager/views.py:534
 #, python-format
 msgid "Edit %s"
 msgstr "Éditer l'objet « %s »"
 
-#: manager/views.py:635
+#: manager/views.py:677
 msgid "File is not in the expected JSON format."
 msgstr "Le fichier n'est pas au format JSON attendu."
 
