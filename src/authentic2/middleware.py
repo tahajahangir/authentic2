@@ -104,6 +104,9 @@ class CollectIPMiddleware(object):
 
 class OpenedSessionCookieMiddleware(object):
     def process_response(self, request, response):
+        # do not emit cookie for API requests
+        if request.path.startswith('/api/'):
+            return response
         if not app_settings.A2_OPENED_SESSION_COOKIE_DOMAIN:
             return response
         name = app_settings.A2_OPENED_SESSION_COOKIE_NAME
