@@ -819,3 +819,10 @@ def test_api_get_role_list(app, admin_ou1, role_ou1, role_random):
     for role_dict in resp.json['results']:
         for field in role_fields:
             assert field in role_dict
+
+
+def test_no_opened_session_cookie_on_api(app, user, settings):
+    settings.A2_OPENED_SESSION_COOKIE_DOMAIN = 'localhost'
+    app.authorization = ('Basic', (user.username, user.username))
+    resp = app.get('/api/users/')
+    assert 'A2_OPENED_SESSION' not in app.cookies
