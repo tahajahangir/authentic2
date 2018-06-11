@@ -654,9 +654,11 @@ def get_registration_url(request, service_slug=None):
     return make_url('registration_register', params=params)
 
 
-def build_activation_url(request, email, next_url=None, **kwargs):
+def build_activation_url(request, email, next_url=None, ou=None, **kwargs):
     data = kwargs.copy()
     data['email'] = email
+    if ou:
+        data['ou'] = ou.pk
     data[REDIRECT_FIELD_NAME] = next_url
     registration_token = signing.dumps(data)
     activate_url = request.build_absolute_uri(
@@ -678,7 +680,7 @@ def send_registration_mail(request, email, ou, template_names=None, next_url=Non
         template_names = ['authentic2/activation_email']
 
     # registration_url
-    registration_url = build_activation_url(request, email=email, next_url=next_url, ou=ou.pk,
+    registration_url = build_activation_url(request, email=email, next_url=next_url, ou=ou,
                                             **kwargs)
 
     # existing accounts
