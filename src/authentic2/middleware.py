@@ -89,13 +89,18 @@ class LoggingCollectorMiddleware(object):
             request.exception = exception
 
 class CollectIPMiddleware(object):
-    def process_request(self, request):
+    def process_response(self, request, response):
+        # only collect IP if session is used
+        if request.session.is_empty():
+            return response
+
         ips = set(request.session.setdefault('ips', []))
         ip = request.META.get('REMOTE_ADDR', None)
         if ip and ip not in ips:
             ips.add(ip)
             request.session['ips'] = list(ips)
             request.session.modified = True
+        return response
 
 class OpenedSessionCookieMiddleware(object):
     def process_response(self, request, response):
