@@ -91,7 +91,7 @@ class LoggingCollectorMiddleware(object):
 class CollectIPMiddleware(object):
     def process_response(self, request, response):
         # only collect IP if session is used
-        if request.session.is_empty():
+        if not hasattr(request, 'session') or request.session.is_empty():
             return response
 
         ips = set(request.session.setdefault('ips', []))
