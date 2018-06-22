@@ -99,7 +99,13 @@ LOGGING = {
             'level': 'WARNING',
         },
         # lasso has the bad habit of logging everything as errors
-        'lasso': {
+        'Lasso': {
+            'filters': ['force_debug'],
+        },
+        'libxml2': {
+            'filters': ['force_debug'],
+        },
+        'libxmlsec': {
             'filters': ['force_debug'],
         },
         '': {
