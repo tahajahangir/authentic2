@@ -10,7 +10,6 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -289,8 +288,8 @@ class UserProfileTests(TestCase):
         self.assertEqual(set(form.fields), set(['next_url']))
 
 
+@override_settings(ROOT_URLCONF='cache_urls')
 class CacheTests(TestCase):
-    urls = 'cache_urls'
 
     @pytest.fixture(autouse=True)
     def cache_settings(self, settings):
