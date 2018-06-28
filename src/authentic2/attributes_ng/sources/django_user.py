@@ -34,7 +34,7 @@ def get_attribute_names(instance, ctx):
         name = 'django_user_' + str(attribute.name)
         description = attribute.label + u' (%s)' % name
         yield name, description
-    group_label = User._meta.get_field_by_name('groups')[0].verbose_name
+    group_label = User._meta.get_field('groups').verbose_name
     yield 'django_user_groups', group_label + u' (django_user_groups)'
     yield 'django_user_group_names', group_label + u' (django_user_group_names)'
     yield 'django_user_domain', _('User domain') + u' (django_user_domain)'

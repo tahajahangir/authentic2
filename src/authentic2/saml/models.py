@@ -371,7 +371,7 @@ class LibertyProvider(Service):
         verbose_name_plural = _('SAML providers')
 
 def get_all_custom_or_default(instance, name):
-    model = instance._meta.get_field_by_name(name)[0].rel.to
+    model = instance._meta.get_field(name).rel.to
     try:
         return model.objects.get(name='All')
     except ObjectDoesNotExist:

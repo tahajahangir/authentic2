@@ -19,10 +19,11 @@ if django.VERSION < (1, 8, 0):
     def get_fk_model(model, fieldname):
         '''returns None if not foreignkey, otherswise the relevant model'''
         try:
-            field_object, model, direct, m2m = model._meta.get_field_by_name(fieldname)
+            field_object = model._meta.get_field(fieldname)
+            direct = not field_object.auto_created or field_object.concrete
         except FieldDoesNotExist:
             return None
-        if not m2m and direct and isinstance(field_object, ForeignKey):
+        if not field_object.m2m and direct and isinstance(field_object, ForeignKey):
             return field_object.rel.to
         return None
 else:
