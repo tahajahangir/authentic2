@@ -11,7 +11,7 @@ DEBUG = False
 
 STATIC_ROOT = '/var/lib/authentic2/collectstatic/'
 STATICFILES_DIRS = ('/var/lib/authentic2/static',) + STATICFILES_DIRS
-TEMPLATE_DIRS = ('/var/lib/authentic2/templates',) + TEMPLATE_DIRS
+TEMPLATES[0]['DIRS'] = ['/var/lib/authentic2/templates'] + TEMPLATES[0]['DIRS']
 LOCALE_PATHS = ('/var/lib/authentic2/locale',) + LOCALE_PATHS
 
 ADMINS = (('root', 'root@localhost'),)
@@ -197,8 +197,12 @@ def extract_settings_from_environ():
 
     for path_env in PATH_ENVS:
         if path_env in os.environ:
-            old = globals().get(path_env)
-            globals()[path_env] = tuple(os.environ[path_env].split(':')) + tuple(old)
+            if path_env == 'TEMPLATE_DIRS':
+                old = globals()['TEMPLATES']['DIRS']
+                globals()['TEMPLATES']['DIRS'] = list(os.environ[path_env].split(':')) + old
+            else:
+                old = globals().get(path_env)
+                globals()[path_env] = tuple(os.environ[path_env].split(':')) + tuple(old)
 
     INT_ENVS = (
             'SESSION_COOKIE_AGE',
