@@ -13,7 +13,7 @@ DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
         'TEST': {
-            'NAME': 'a2-test',
+            'NAME': 'a2-test-%s' % os.environ.get("BRANCH_NAME", "").replace('/', '-'),
         },
     }
 }
