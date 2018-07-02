@@ -1,4 +1,4 @@
-@Library('eo-jenkins-lib@wip/publish_coverage_native') import eo.Utils
+@Library('eo-jenkins-lib@master') import eo.Utils
 
 pipeline {
     agent any
