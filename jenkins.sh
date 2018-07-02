@@ -2,7 +2,7 @@
 
 set -e
 
-for DIRECTORY in "htmlcov" "htmlcov-coverage-dj18-authentic-pg" "htmlcov-coverage-dj18-rbac-pg venv"
+for DIRECTORY in "htmlcov" "htmlcov-coverage-dj18-authentic-pg" "htmlcov-coverage-dj18-rbac-pg" "venv"
 do
     if [ -d "$DIRECTORY" ]; then
         rm -r $DIRECTORY
