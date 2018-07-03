@@ -252,3 +252,6 @@ class User(AbstractBaseUser, PermissionMixin):
 
     def can_reset_password(self):
         return self.has_usable_password()
+
+    def can_change_password(self):
+        return app_settings.A2_REGISTRATION_CAN_CHANGE_PASSWORD

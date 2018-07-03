@@ -182,7 +182,7 @@ class LDAPUser(get_user_model()):
             self.set_unusable_password()
 
     def has_usable_password(self):
-        return self.block['user_can_change_password']
+        return True
 
     def get_connection(self):
         ldap_password = self.get_password_in_session()
@@ -209,6 +209,9 @@ class LDAPUser(get_user_model()):
 
     def can_reset_password(self):
         return self.block['can_reset_password']
+
+    def can_change_password(self):
+        return app_settings.A2_REGISTRATION_CAN_CHANGE_PASSWORD and self.block['user_can_change_password']
 
 
 class LDAPBackend(object):

@@ -507,7 +507,8 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
             'allow_account_deletion': app_settings.A2_REGISTRATION_CAN_DELETE_ACCOUNT,
             'allow_profile_edit': EditProfile.can_edit_profile(),
             'allow_email_change': app_settings.A2_PROFILE_CAN_CHANGE_EMAIL,
-            'allow_password_change': app_settings.A2_REGISTRATION_CAN_CHANGE_PASSWORD,
+            # TODO: deprecated should be removed when publik-base-theme is updated
+            'allow_password_change': request.user.can_change_password(),
             'federation_management': federation_management,
         })
         hooks.call_hooks('modify_context_data', self, context_instance)

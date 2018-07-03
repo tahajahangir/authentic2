@@ -27,6 +27,9 @@ def password_change_view(request, *args, **kwargs):
         post_change_redirect = request.GET[REDIRECT_FIELD_NAME]
     elif post_change_redirect is None:
         post_change_redirect = reverse('account_management')
+    if not request.user.can_change_password():
+        messages.warning(request, _('Password change is forbidden'))
+        return redirect(request, post_change_redirect)
     if 'cancel' in request.POST:
         return redirect(request, post_change_redirect)
     kwargs['post_change_redirect'] = post_change_redirect

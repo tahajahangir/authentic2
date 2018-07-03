@@ -528,3 +528,25 @@ def test_reset_password_ldap_user(slapd, settings, app, db):
     with pytest.raises(ldap.INVALID_CREDENTIALS):
         slapd.get_connection().bind_s(DN, PASS)
     assert not User.objects.get().has_usable_password()
+
+
+def test_user_cannot_change_password(slapd, settings, app, db):
+    settings.LDAP_AUTH_SETTINGS = [{
+        'url': [slapd.ldap_url],
+        'binddn': slapd.root_bind_dn,
+        'bindpw': slapd.root_bind_password,
+        'basedn': 'o=orga',
+        'use_tls': False,
+        'user_can_change_password': False,
+    }]
+    User = get_user_model()
+    assert User.objects.count() == 0
+    # first login
+    response = app.get('/login/')
+    response.form['username'] = USERNAME
+    response.form['password'] = PASS
+    response = response.form.submit('login-password-submit').follow()
+    response = response.click('Your account')
+    assert 'Password' not in response
+    response = app.get('/accounts/password/change/')
+    assert response['Location'].endswith('/accounts/')
