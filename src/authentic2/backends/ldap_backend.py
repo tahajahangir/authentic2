@@ -1184,13 +1184,14 @@ class LDAPBackendPasswordLost(LDAPBackend):
                                                     ldap.SCOPE_SUBTREE, ldap_filter)
                             if not results:
                                 log.error(
-                                    'unable to find user %r based on external id %s',
-                                    unicode(user), external_id)
+                                    u'unable to find user %r based on external id %s',
+                                    user, external_id)
                                 continue
                             dn = results[0][0]
                     except ldap.LDAPError:
                         log.error(
-                            'unable to find user %r based on external id %s', unicode(user),
+                            u'unable to find user %r based on external id %s',
+                            user,
                             external_id)
                         continue
                     return self._return_user(dn, None, conn, block)
