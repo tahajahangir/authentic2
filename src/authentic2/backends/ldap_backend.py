@@ -58,6 +58,15 @@ for bundle_path in CA_BUNDLE_PATHS:
         break
 
 
+def map_bytes(d):
+    if isinstance(d, six.string_types):
+        return force_bytes(d)
+    elif isinstance(d, (list, tuple)):
+        return d.__class__(map_bytes(x) for x in d)
+    elif isinstance(d, dict):
+        return {map_bytes(k): map_bytes(v) for k, v in d.iteritems()}
+
+
 class LDAPUser(get_user_model()):
     SESSION_LDAP_DATA_KEY = 'ldap-data'
     _changed = False
@@ -1121,6 +1130,9 @@ class LDAPBackend(object):
                 if not isinstance(cls._DEFAULTS[d], bool) and d in cls._REQUIRED and not block[d]:
                     raise ImproperlyConfigured(
                         'LDAP_AUTH_SETTINGS: attribute %r is required but is empty')
+                # force_bytes all strings in iterable or dict
+                if isinstance(block[d], (list, tuple, dict)):
+                    block[d] = map_bytes(block[d])
         for i in cls._TO_ITERABLE:
             if isinstance(block[i], six.string_types):
                 block[i] = (block[i],)
