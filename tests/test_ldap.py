@@ -10,6 +10,7 @@ from ldaptools.slapd import Slapd, has_slapd
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured
 from django.core import mail
+from django.utils.encoding import force_text
 
 from authentic2.a2_rbac.utils import get_default_ou
 from django_rbac.utils import get_ou_model
@@ -23,7 +24,7 @@ pytestmark = pytest.mark.skipunless(has_slapd(), reason='slapd is not installed'
 USERNAME = u'etienne.michu'
 UID = 'etienne.michu'
 CN = 'Étienne Michu'
-DN = 'cn=%s,o=orga' % escape_dn_chars(CN)
+DN = 'cn=%s,o=ôrga' % escape_dn_chars(CN)
 PASS = 'passé'
 EMAIL = 'etienne.michu@example.net'
 
@@ -31,7 +32,12 @@ EMAIL = 'etienne.michu@example.net'
 @pytest.fixture
 def slapd(request):
     slapd = Slapd()
-    slapd.add_ldif('''dn: {dn}
+    slapd.add_db('o=ôrga')
+    slapd.add_ldif('''dn: o=ôrga
+objectClass: organization
+o: ôrga
+
+dn: {dn}
 objectClass: inetOrgPerson
 userPassword: {password}
 uid: {uid}
@@ -40,13 +46,13 @@ sn: Michu
 gn: Étienne
 mail: etienne.michu@example.net
 
-dn: cn=group1,o=orga
+dn: cn=group1,o=ôrga
 objectClass: groupOfNames
 member: {dn}
 
 '''.format(dn=DN, uid=UID, password=PASS))
     for i in range(100):
-        slapd.add_ldif('''dn: uid=michu{i},o=orga
+        slapd.add_ldif('''dn: uid=michu{i},o=ôrga
 objectClass: inetOrgPerson
 userPassword: {password}
 uid: michu{i}
@@ -56,7 +62,7 @@ gn: Étienne
 mail: etienne.michu@example.net
 
 '''.format(i=i, password=PASS))
-    group_ldif = '''dn: cn=group2,o=orga
+    group_ldif = '''dn: cn=group2,o=ôrga
 gidNumber: 10
 objectClass: posixGroup
 memberUid: {uid}
@@ -81,7 +87,7 @@ def test_connection(slapd):
 def test_simple(slapd, settings, client):
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
     }]
     result = client.post('/login/', {'login-password-submit': '1',
@@ -108,9 +114,9 @@ def test_simple(slapd, settings, client):
 def test_simple_with_binddn(slapd, settings, client):
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'binddn': DN,
+        'binddn': force_text(DN),
         'bindpw': PASS,
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
     }]
     result = client.post('/login/', {'login-password-submit': '1',
@@ -136,7 +142,7 @@ def test_simple_with_binddn(slapd, settings, client):
 def test_double_login(slapd, simple_user, settings, app):
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'is_superuser': True,
         'is_staff': True,
@@ -149,7 +155,7 @@ def test_double_login(slapd, simple_user, settings, app):
 def test_keep_password_in_session(slapd, settings, client):
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'keep_password_in_session': True,
     }]
@@ -178,7 +184,7 @@ def test_custom_ou(slapd, settings, client):
     ou = OU.objects.create(name='test', slug='test')
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'ou_slug': 'test',
     }]
@@ -201,7 +207,7 @@ def test_custom_ou(slapd, settings, client):
 def test_wrong_ou(slapd, settings, client):
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'ou_slug': 'test',
     }]
@@ -232,11 +238,11 @@ def test_group_mapping(slapd, settings, client):
 
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'create_group': True,
         'group_mapping': [
-            ('cn=group1,o=orga', ['Group1']),
+            [u'cn=group1,o=ôrga', ['Group1']],
         ],
     }]
     assert Group.objects.filter(name='Group1').count() == 0
@@ -254,11 +260,11 @@ def test_posix_group_mapping(slapd, settings, client):
 
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'create_group': True,
         'group_mapping': [
-            ('cn=group2,o=orga', ['Group2']),
+            [u'cn=group2,o=ôrga', ['Group2']],
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
     }]
@@ -278,10 +284,10 @@ def test_group_to_role_mapping(slapd, settings, client):
     Role.objects.get_or_create(name='Role1')
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'group_to_role_mapping': [
-            ('cn=group1,o=orga', ['Role1']),
+            ['cn=group1,o=ôrga', ['Role1']],
         ],
     }]
     response = client.post('/login/', {'login-password-submit': '1',
@@ -298,10 +304,10 @@ def test_posix_group_to_role_mapping(slapd, settings, client):
     Role.objects.get_or_create(name='Role2')
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'group_to_role_mapping': [
-            ('cn=group2,o=orga', ['Role2']),
+            ['cn=group2,o=ôrga', ['Role2']],
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
     }]
@@ -318,9 +324,9 @@ def test_group_su(slapd, settings, client):
 
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': 'o=ôrga',
         'use_tls': False,
-        'groupsu': ['cn=group1,o=orga'],
+        'groupsu': [u'cn=group1,o=ôrga'],
     }]
     response = client.post('/login/', {'login-password-submit': '1',
                                        'username': USERNAME,
@@ -337,9 +343,9 @@ def test_group_staff(slapd, settings, client):
 
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
-        'groupstaff': ['cn=group1,o=orga'],
+        'groupstaff': [u'cn=group1,o=ôrga'],
     }]
     response = client.post('/login/', {'login-password-submit': '1',
                                        'username': 'etienne.michu',
@@ -358,11 +364,11 @@ def test_get_users(slapd, settings):
     User = get_user_model()
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'create_group': True,
         'group_mapping': [
-            ('cn=group2,o=orga', ['Group2']),
+            [u'cn=group2,o=ôrga', ['Group2']],
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
     }]
@@ -408,11 +414,11 @@ def test_set_mandatory_roles(slapd, settings):
     User = get_user_model()
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'create_group': True,
         'group_mapping': [
-            ('cn=group2,o=orga', ['Group2']),
+            [u'cn=group2,o=ôrga', ['Group2']],
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
         'set_mandatory_roles': ['tech', 'admin'],
@@ -427,11 +433,11 @@ def test_nocreate_mandatory_roles(slapd, settings):
     User = get_user_model()
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'create_group': True,
         'group_mapping': [
-            ('cn=group2,o=orga', ['Group2']),
+            [u'cn=group2,o=ôrga', ['Group2']],
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
         'set_mandatory_roles': ['tech', 'admin'],
@@ -445,11 +451,16 @@ def test_nocreate_mandatory_roles(slapd, settings):
 def slapd_strict_acl(slapd):
     # forbid modifications by user themselves
     conn = slapd.get_connection_external()
+    result = conn.search_s(
+        'cn=config',
+        ldap.SCOPE_SUBTREE,
+        'olcSuffix=o=ôrga')
+    dn = result[0][0]
     conn.modify_s(
-        'olcDatabase={1}mdb,cn=config',
+        dn,
         [
             (ldap.MOD_REPLACE, 'olcAccess', [
-                '{0}to * by dn.subtree="o=orga" none by * manage'
+                '{0}to * by dn.subtree="o=ôrga" none by * manage'
             ])
         ])
     return slapd
@@ -459,11 +470,11 @@ def test_no_connect_with_user_credentials(slapd_strict_acl, db, settings, app):
     slapd = slapd_strict_acl
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'basedn': 'o=orga',
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'create_group': True,
         'group_mapping': [
-            ('cn=group2,o=orga', ['Group2']),
+            ['cn=group2,o=ôrga', ['Group2']],
         ],
         'group_filter': '(&(memberUid={uid})(objectClass=posixGroup))',
         'set_mandatory_roles': ['tech', 'admin'],
@@ -486,9 +497,9 @@ def test_no_connect_with_user_credentials(slapd_strict_acl, db, settings, app):
 def test_reset_password_ldap_user(slapd, settings, app, db):
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'binddn': slapd.root_bind_dn,
-        'bindpw': slapd.root_bind_password,
-        'basedn': 'o=orga',
+        'binddn': force_text(slapd.root_bind_dn),
+        'bindpw': force_text(slapd.root_bind_password),
+        'basedn': u'o=ôrga',
         'use_tls': False,
     }]
     User = get_user_model()
