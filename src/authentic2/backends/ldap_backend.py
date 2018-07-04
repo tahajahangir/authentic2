@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.utils.encoding import smart_bytes, smart_text, force_text
+from django.utils.encoding import force_bytes, force_text
 
 from authentic2.a2_rbac.models import Role
 
@@ -90,7 +90,7 @@ class LDAPUser(get_user_model()):
                 decrypted = crypto.aes_base64_decrypt(settings.SECRET_KEY, encrypted_bindpw,
                                                       raise_on_error=False)
                 if decrypted:
-                    decrypted = smart_text(decrypted)
+                    decrypted = force_text(decrypted)
                     self.ldap_data['block']['bindpw'] = decrypted
                     del self.ldap_data['block']['encrypted_bindpw']
 
@@ -100,7 +100,7 @@ class LDAPUser(get_user_model()):
         data['block'] = dict(data['block'])
         if data['block'].get('bindpw'):
             data['block']['encrypted_bindpw'] = crypto.aes_base64_encrypt(
-                settings.SECRET_KEY, smart_bytes(data['block']['bindpw']))
+                settings.SECRET_KEY, force_bytes(data['block']['bindpw']))
             del data['block']['bindpw']
         session[self.SESSION_LDAP_DATA_KEY] = data
 
@@ -133,7 +133,7 @@ class LDAPUser(get_user_model()):
         cache = self.ldap_data.setdefault('password', {})
         if password is not None:
             # Prevent eavesdropping of the password through the session storage
-            password = crypto.aes_base64_encrypt(settings.SECRET_KEY, smart_bytes(password))
+            password = crypto.aes_base64_encrypt(settings.SECRET_KEY, force_bytes(password))
         cache[self.dn] = password
         # ensure session is marked dirty
         self.update_request()
@@ -150,7 +150,7 @@ class LDAPUser(get_user_model()):
                     self.keep_password_in_session(None)
                     password = None
                 else:
-                    password = smart_text(password)
+                    password = force_text(password)
             return password
         else:
             self.keep_password_in_session(None)
@@ -159,7 +159,7 @@ class LDAPUser(get_user_model()):
     def check_password(self, raw_password):
         connection = self.ldap_backend.get_connection(self.block)
         try:
-            connection.simple_bind_s(self.dn, smart_bytes(raw_password))
+            connection.simple_bind_s(self.dn, force_bytes(raw_password))
         except ldap.INVALID_CREDENTIALS:
             return False
         except ldap.LDAPError, e:
@@ -359,8 +359,8 @@ class LDAPBackend(object):
                 return user
 
     def authenticate_block(self, block, username, password):
-        utf8_username = smart_bytes(username)
-        utf8_password = smart_bytes(password)
+        utf8_username = force_bytes(username)
+        utf8_password = force_bytes(password)
 
         for conn in self.get_connections(block):
             authz_ids = []
@@ -787,7 +787,7 @@ class LDAPBackend(object):
             if quote:
                 decoded.append((attribute, urllib.unquote(value)))
             else:
-                decoded.append((attribute, smart_bytes(value)))
+                decoded.append((attribute, force_bytes(value)))
         filters = [filter_format('(%s=%s)', (a, b)) for a, b in decoded]
         return '(&{0})'.format(''.join(filters))
 
@@ -805,7 +805,7 @@ class LDAPBackend(object):
             if isinstance(v, list):
                 v = v[0]
             if isinstance(v, unicode):
-                v = smart_bytes(v)
+                v = force_bytes(v)
             if quote:
                 v = urllib.quote(v)
             l.append(v)
@@ -973,7 +973,7 @@ class LDAPBackend(object):
                     modlist = [(ldap.MOD_REPLACE, key, [value])]
             else:
                 key = 'userPassword'
-                value = smart_bytes(new_password)
+                value = force_bytes(new_password)
                 modlist = [(ldap.MOD_REPLACE, key, [value])]
             conn.modify_s(dn, modlist)
         log.debug('modified password for dn %r', dn)
