@@ -368,7 +368,7 @@ class LDAPBackend(object):
 
             try:
                 if block['user_dn_template']:
-                    template = str(block['user_dn_template'])
+                    template = force_bytes(block['user_dn_template'])
                     escaped_username = escape_dn_chars(utf8_username)
                     authz_ids.append(template.format(username=escaped_username))
                 else:
@@ -480,7 +480,7 @@ class LDAPBackend(object):
 
     def create_username(self, block, attributes):
         '''Build a username using the configured template'''
-        username_template = unicode(block['username_template'])
+        username_template = force_text(block['username_template'])
         try:
             return username_template.format(realm=block['realm'], **attributes)
         except KeyError as e:
@@ -578,7 +578,7 @@ class LDAPBackend(object):
         if member_of_attribute:
             group_dns.update(attributes.get(member_of_attribute, []))
         if group_filter:
-            group_filter = str(group_filter)
+            group_filter = force_bytes(group_filter)
             params = attributes.copy()
             params['user_dn'] = dn
             query = FilterFormatter().format(group_filter, **params)
@@ -705,7 +705,7 @@ class LDAPBackend(object):
         ou_slug = block['ou_slug']
         OU = get_ou_model()
         if ou_slug:
-            ou_slug = unicode(ou_slug)
+            ou_slug = force_text(ou_slug)
             try:
                 ou = OU.objects.get(slug=ou_slug)
             except OU.DoesNotExist:
@@ -753,16 +753,16 @@ class LDAPBackend(object):
         attribute_map = cls.normalize_ldap_results(results[0][1])
         # add mandatory attributes
         for key, mandatory_values in mandatory_attributes_values.iteritems():
-            key = str(key)
+            key = force_bytes(key)
             old = attribute_map.setdefault(key, [])
             new = set(old) | set(mandatory_values)
             attribute_map[key] = list(new)
         # apply mappings
         for from_attribute, to_attribute in attribute_mappings:
-            from_attribute = str(from_attribute)
+            from_attribute = force_bytes(from_attribute)
             if from_attribute not in attribute_map:
                 continue
-            to_attribute = str(to_attribute)
+            to_attribute = force_bytes(to_attribute)
             old = attribute_map.setdefault(to_attribute, [])
             new = set(old) | set(attribute_map[from_attribute])
             attribute_map[to_attribute] = list(new)
@@ -983,7 +983,7 @@ class LDAPBackend(object):
         new_attributes = {}
         for key in attributes:
             try:
-                new_attributes[key.lower()] = map(lambda x: unicode(x, encoding), attributes[key])
+                new_attributes[key.lower()] = map(lambda x: force_text(x, encoding), attributes[key])
             except UnicodeDecodeError:
                 log.debug('unable to decode attribute %r as UTF-8, converting to base64', key)
                 new_attributes[key.lower()] = map(base64.b64encode, attributes[key])
@@ -1104,15 +1104,15 @@ class LDAPBackend(object):
                         raise ImproperlyConfigured(
                             'LDAP_AUTH_SETTINGS: attribute %r must be a string' % d)
                     try:
-                        block[d] = str(block[d])
+                        block[d] = force_bytes(block[d])
                     except UnicodeEncodeError:
                         raise ImproperlyConfigured(
                             'LDAP_AUTH_SETTINGS: attribute %r must be a string' % d)
                 if isinstance(cls._DEFAULTS[d], bool) and not isinstance(block[d], bool):
                     raise ImproperlyConfigured(
                         'LDAP_AUTH_SETTINGS: attribute %r must be a boolean' % d)
-                if (isinstance(cls._DEFAULTS[d], (list, tuple))
-                        and not isinstance(block[d], (list, tuple))):
+                if (isinstance(cls._DEFAULTS[d], (list, tuple)) and 
+                        not isinstance(block[d], (list, tuple))):
                     raise ImproperlyConfigured(
                         'LDAP_AUTH_SETTINGS: attribute %r must be a list or a tuple' % d)
                 if isinstance(cls._DEFAULTS[d], dict) and not isinstance(block[d], dict):
@@ -1133,22 +1133,22 @@ class LDAPBackend(object):
             # we handle strings, list of strings and list of list or tuple whose first element is a
             # string
             if isinstance(block[key], six.string_types):
-                block[key] = str(block[key]).lower()
+                block[key] = force_bytes(block[key]).lower()
             elif isinstance(block[key], (list, tuple)):
                 new_seq = []
                 for elt in block[key]:
                     if isinstance(elt, six.string_types):
-                        elt = str(elt).lower()
+                        elt = force_bytes(elt).lower()
                     elif isinstance(elt, (list, tuple)):
                         elt = list(elt)
-                        elt[0] = str(elt[0]).lower()
+                        elt[0] = force_bytes(elt[0]).lower()
                         elt = tuple(elt)
                     new_seq.append(elt)
                 block[key] = tuple(new_seq)
             elif isinstance(block[key], dict):
                 newdict = {}
                 for subkey in block[key]:
-                    newdict[str(subkey).lower()] = block[key][subkey]
+                    newdict[force_bytes(subkey).lower()] = block[key][subkey]
                 block[key] = newdict
             else:
                 raise NotImplementedError(
@@ -1170,7 +1170,7 @@ class LDAPBackendPasswordLost(LDAPBackend):
         for user_external_id in user.userexternalid_set.all():
             external_id = user_external_id.external_id
             for block in config:
-                if user_external_id.source != unicode(block['realm']):
+                if user_external_id.source != force_text(block['realm']):
                     continue
                 for external_id_tuple in block['external_id_tuples']:
                     conn = self.ldap_backend.get_connection(block)
