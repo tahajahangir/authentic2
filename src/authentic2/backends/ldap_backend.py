@@ -228,7 +228,6 @@ class LDAPBackend(object):
         'group_dn_template': '',
         'member_of_attribute': '',
         'group_filter': '(&(member={user_dn})(objectClass=groupOfNames))',
-        'group': None,
         'groupsu': (),
         'groupstaff': (),
         'groupactive': (),
@@ -241,7 +240,6 @@ class LDAPBackend(object):
         'timeout': -1,
         'referrals': False,
         'disable_update': False,
-        'use_for_data': None,
         'bind_with_username': False,
         # always use the first URL to build the external id
         'use_first_url_for_external_id': True,
