@@ -11,7 +11,11 @@
       </p>
     {% endif %}
 
+    {% if expiration_days > 1 %}
     <p>{% blocktrans %}This link is valid for {{ expiration_days }} days.{% endblocktrans %}</>
+    {% else %}
+    <p>{% blocktrans %}This link is valid for 24 hours.{% endblocktrans %}</>
+    {% endif %}
 
     <p>{% blocktrans %}If you did not register on {{ site }}, ignore this email.{% endblocktrans %}</p>
   </body>
