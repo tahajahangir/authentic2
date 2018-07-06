@@ -859,3 +859,58 @@ def test_no_opened_session_cookie_on_api(app, user, settings):
     app.authorization = ('Basic', (user.username, user.username))
     resp = app.get('/api/users/')
     assert 'A2_OPENED_SESSION' not in app.cookies
+
+
+def test_validate_password_default(app):
+    for password, ok, length, lower, digit, upper in (
+            ('.',            False, False, False, False, False),
+            ('x' * 8,        False,  True,  True, False, False),
+            ('x' * 8 + '1',  False,  True,  True,  True, False),
+            ('x' * 8 + '1X',  True,  True,  True,  True,  True)):
+        response = app.post_json('/api/validate-password/', params={'password': password})
+        assert response.json['result'] == 1
+        assert response.json['ok'] is ok
+        assert len(response.json['checks']) == 4
+        assert response.json['checks'][0]['label'] == '8 characters'
+        assert response.json['checks'][0]['result'] is length
+        assert response.json['checks'][1]['label'] == '1 lowercase letter'
+        assert response.json['checks'][1]['result'] is lower
+        assert response.json['checks'][2]['label'] == '1 digit'
+        assert response.json['checks'][2]['result'] is digit
+        assert response.json['checks'][3]['label'] == '1 uppercase letter'
+        assert response.json['checks'][3]['result'] is upper
+
+
+def test_validate_password_regex(app, settings):
+    settings.A2_PASSWORD_POLICY_REGEX = '^.*ok.*$'
+    settings.A2_PASSWORD_POLICY_REGEX_ERROR_MSG = 'must contain "ok"'
+
+    response = app.post_json('/api/validate-password/', params={'password': 'x' * 8 + '1X'})
+    assert response.json['result'] == 1
+    assert response.json['ok'] is False
+    assert len(response.json['checks']) == 5
+    assert response.json['checks'][0]['label'] == '8 characters'
+    assert response.json['checks'][0]['result'] is True
+    assert response.json['checks'][1]['label'] == '1 lowercase letter'
+    assert response.json['checks'][1]['result'] is True
+    assert response.json['checks'][2]['label'] == '1 digit'
+    assert response.json['checks'][2]['result'] is True
+    assert response.json['checks'][3]['label'] == '1 uppercase letter'
+    assert response.json['checks'][3]['result'] is True
+    assert response.json['checks'][4]['label'] == 'must contain "ok"'
+    assert response.json['checks'][4]['result'] is False
+
+    response = app.post_json('/api/validate-password/', params={'password': 'x' * 8 + 'ok1X'})
+    assert response.json['result'] == 1
+    assert response.json['ok'] is True
+    assert len(response.json['checks']) == 5
+    assert response.json['checks'][0]['label'] == '8 characters'
+    assert response.json['checks'][0]['result'] is True
+    assert response.json['checks'][1]['label'] == '1 lowercase letter'
+    assert response.json['checks'][1]['result'] is True
+    assert response.json['checks'][2]['label'] == '1 digit'
+    assert response.json['checks'][2]['result'] is True
+    assert response.json['checks'][3]['label'] == '1 uppercase letter'
+    assert response.json['checks'][3]['result'] is True
+    assert response.json['checks'][4]['label'] == 'must contain "ok"'
+    assert response.json['checks'][4]['result'] is True

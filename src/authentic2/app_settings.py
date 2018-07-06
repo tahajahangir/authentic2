@@ -143,6 +143,9 @@ default_settings = dict(
     A2_PASSWORD_POLICY_MIN_LENGTH=Setting(default=8, definition='Minimum number of characters in a password'),
     A2_PASSWORD_POLICY_REGEX=Setting(default=None, definition='Regular expression for validating passwords'),
     A2_PASSWORD_POLICY_REGEX_ERROR_MSG=Setting(default=None, definition='Error message to show when the password do not validate the regular expression'),
+    A2_PASSWORD_POLICY_CLASS=Setting(
+        default='authentic2.passwords.DefaultPasswordChecker',
+        definition='path of a class to validate passwords'),
     A2_AUTH_PASSWORD_ENABLE=Setting(default=True, definition='Activate login/password authentication', names=('AUTH_PASSWORD',)),
     A2_LOGIN_FAILURE_COUNT_BEFORE_WARNING=Setting(default=0,
             definition='Failure count before logging a warning to '

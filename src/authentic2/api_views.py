@@ -25,6 +25,7 @@ from rest_framework.decorators import list_route, detail_route
 
 from django_filters.rest_framework import FilterSet
 
+from .passwords import get_password_checker
 from .custom_user.models import User
 from . import utils, decorators, attribute_kinds, app_settings, hooks
 from .models import Attribute, PasswordReset, Service
@@ -717,3 +718,29 @@ class CheckPasswordAPI(BaseRpcView):
 
 
 check_password = CheckPasswordAPI.as_view()
+
+
+class ValidatePasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True)
+
+
+class ValidatePasswordAPI(BaseRpcView):
+    permission_classes = ()
+    serializer_class = ValidatePasswordSerializer
+
+    def rpc(self, request, serializer):
+        password_checker = get_password_checker()
+        checks = []
+        result = {'result': 1, 'checks': checks}
+        ok = True
+        for check in password_checker(serializer.validated_data['password']):
+            ok = ok and check.result
+            checks.append({
+                'result': check.result,
+                'label': check.label,
+            })
+        result['ok'] = ok
+        return result, status.HTTP_200_OK
+
+
+validate_password = ValidatePasswordAPI.as_view()
