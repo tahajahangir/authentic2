@@ -40,7 +40,7 @@ def test_registration(app, db, settings, mailoutbox, external_redirect):
     response.form.set('password1', 'toto')
     response.form.set('password2', 'toto')
     response = response.form.submit()
-    assert 'password must contain at least 8 characters' in response.content
+    assert '8 characters' in response.content
 
     # set valid password
     response.form.set('password1', 'T0==toto')
