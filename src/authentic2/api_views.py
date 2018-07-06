@@ -630,7 +630,7 @@ class RolesAPI(ExceptionHandlerMixin, ModelViewSet):
 
     def perform_destroy(self, instance):
         if not self.request.user.has_perm(perm='a2_rbac.delete_role', obj=instance):
-            raise PermissionDenied(u'User %s can\'t create role %s' % (request.user, instance))
+            raise PermissionDenied(u'User %s can\'t create role %s' % (self.request.user, instance))
         super(RolesAPI, self).perform_destroy(instance)
 
 
