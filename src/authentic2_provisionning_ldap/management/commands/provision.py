@@ -1,5 +1,3 @@
-from optparse import make_option
-
 try:
     import ldap
     from ldap.dn import str2dn, dn2str
@@ -26,23 +24,21 @@ class Command(BaseCommand):
     can_import_django_settings = True
     output_transaction = True
     requires_model_validation = True
-    option_list = BaseCommand.option_list + (
-        make_option('--fake',
-            action='store_true',
-            default=False,
-            help='Do nothing, just simulate'),
-        make_option('--batch-size',
-            action='store',
-            type='int',
-            default=200,
-            help='Batch size'),
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument('target_resource', nargs='*')
+        parser.add_argument(
+            '--fake', action='store_true', default=False, help='Do nothing, just simulate'
+        )
+        parser.add_argument(
+            '--batch-size', action='store', type='int', default=200, help='Batch size'
+        )
 
     def handle(self, *args, **options):
         ressources = app_settings.RESSOURCES
-        if args:
+        if options['target_resource']:
             ressources = [ressource for ressource in ressources
-                    if ressource.get('name') in args]
+                    if ressource.get('name') in options['target_resource']]
         for ressource in ressources:
             self.sync_ressource(ressource, **options)
 

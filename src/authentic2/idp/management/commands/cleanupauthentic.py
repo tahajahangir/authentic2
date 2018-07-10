@@ -1,12 +1,12 @@
 import logging
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.db import models
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = 'Clean expired models of authentic2.'
 
-    def handle_noargs(self, **options):
+    def handle(self, **options):
         log = logging.getLogger(__name__)
 
         for app in models.get_apps():

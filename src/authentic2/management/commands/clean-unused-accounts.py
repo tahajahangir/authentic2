@@ -1,4 +1,3 @@
-from optparse import make_option
 import logging
 import datetime
 
@@ -20,25 +19,31 @@ def print_table(table):
         print line
 
 class Command(BaseCommand):
-    args = '<clean_threshold>'
     help = '''Clean unused accounts'''
 
-    option_list = BaseCommand.option_list + (
-            make_option("--alert-thresholds", 
-                help='list of durations before sending an alert '
-                    'message for unused account, default is none',
-                default = None),
-            make_option("--period", type='int',
-                help='period between two calls to '
-                    'clean-unused-accounts as days, default is 1',
-                default=1),
-            make_option("--fake", action='store_true', help='do nothing',
-                default=False),
-            make_option("--filter", help='filter to apply to the user queryset, '
-                'the Django filter key and value are separated by character =', action='append', default=[]),
-            make_option('--from-email', default=settings.DEFAULT_FROM_EMAIL,
-                help='sender address for notifications, default is DEFAULT_FROM_EMAIL from settings'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('clean_threshold', type=int)
+        parser.add_argument(
+            "--alert-thresholds",
+            help='list of durations before sending an alert '
+                 'message for unused account, default is none',
+            default=None)
+        parser.add_argument(
+            "--period", type=int,
+            help='period between two calls to '
+                 'clean-unused-accounts as days, default is 1',
+            default=1
+        )
+        parser.add_argument("--fake", action='store_true', help='do nothing', default=False)
+        parser.add_argument(
+            "--filter", help='filter to apply to the user queryset, '
+            'the Django filter key and value are separated by character =', action='append',
+            default=[]
+        )
+        parser.add_argument(
+            '--from-email', default=settings.DEFAULT_FROM_EMAIL,
+            help='sender address for notifications, default is DEFAULT_FROM_EMAIL from settings'
+        )
 
     def handle(self, *args, **options):
         log = logging.getLogger(__name__)
@@ -48,15 +53,11 @@ class Command(BaseCommand):
             log.exception('failure while cleaning unused accounts')
 
     def clean_unused_acccounts(self, *args, **options):
-        if len(args) < 1:
-            raise CommandError('missing clean_threshold')
         if options['period'] < 1:
             raise CommandError('period must be > 0')
-        try:
-            clean_threshold = int(args[0])
-            if clean_threshold < 1:
-                raise ValueError()
-        except ValueError:
+
+        clean_threshold = options['clean_threshold']
+        if clean_threshold < 1:
             raise CommandError('clean_threshold must be an integer > 0')
 
         if options['verbosity'] == '0':

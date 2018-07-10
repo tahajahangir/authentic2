@@ -1,6 +1,5 @@
 import json
 import pprint
-from optparse import make_option
 
 
 from django.core.management.base import BaseCommand, CommandError
@@ -17,29 +16,41 @@ class Command(BaseCommand):
     '''Load LDAP ldif file'''
     can_import_django_settings = True
     requires_model_validation = True
-    option_list = BaseCommand.option_list + (
-        make_option('--issuer', help='do automatic registration of the issuer'),
-        make_option('--openid-configuration', help='file containing the OpenID Connect '
-                    'configuration of the OP'),
-        make_option('--claim-mapping', default=[], action='append',
-                    help='mapping from claim to attribute'),
-        make_option('--delete-claim', default=[], action='append',
-                    help='delete mapping from claim to attribute'),
-        make_option('--client-id', help='registered client ID'),
-        make_option('--client-secret', help='register client secret'),
-        make_option('--scope', default=[], action='append',
-                    help='extra scopes, openid is automatic'),
-        make_option('--no-verify', default=False, action='store_true',
-                    help='do not verify TLS certificates'),
-        make_option('--show', default=False, action='store_true',
-                    help='show provider configuration'),
-        make_option('--ou-slug', help='slug of the ou, if absent default ou is used'),
-    )
-    args = '<name>'
     help = 'Register an OpenID Connect OP'
 
+    def add_arguments(self, parser):
+        parser.add_argument('name')
+        parser.add_argument('--issuer', help='do automatic registration of the issuer')
+        parser.add_argument(
+            '--openid-configuration',
+            help='file containing the OpenID Connect '
+                 'configuration of the OP'
+        )
+        parser.add_argument(
+            '--claim-mapping', default=[], action='append',
+            help='mapping from claim to attribute'
+        )
+        parser.add_argument(
+            '--delete-claim', default=[], action='append',
+            help='delete mapping from claim to attribute'
+        )
+        parser.add_argument('--client-id', help='registered client ID')
+        parser.add_argument('--client-secret', help='register client secret')
+        parser.add_argument(
+            '--scope', default=[], action='append',
+            help='extra scopes, openid is automatic')
+        parser.add_argument(
+            '--no-verify', default=False, action='store_true',
+            help='do not verify TLS certificates'
+        )
+        parser.add_argument(
+            '--show', default=False, action='store_true',
+            help='show provider configuration')
+        parser.add_argument('--ou-slug', help='slug of the ou, if absent default ou is used')
+
     @atomic
-    def handle(self, name, *args, **options):
+    def handle(self, *args, **options):
+        name = options['name']
         openid_configuration = options.get('openid_configuration')
         issuer = options.get('issuer')
         if openid_configuration:

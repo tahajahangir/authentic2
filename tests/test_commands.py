@@ -5,7 +5,7 @@ import json
 from django.core import management
 import py
 
-from authentic2.models import DeletedUser
+from authentic2.models import Attribute, DeletedUser
 from authentic2_auth_oidc.models import OIDCProvider
 from django_rbac.utils import get_ou_model
 
@@ -55,6 +55,24 @@ def test_load_ldif(db, monkeypatch, tmpdir):
     management.call_command(
         'load-ldif', ldif.strpath, result='result', extra_attribute={'ldap_attr': 'first_name'})
 
+    # test ExtraAttributeAction
+    class MockPArser(object):
+        def __init__(self, *args, **kwargs):
+            self.users = []
+            assert len(args) == 1
+            assert isinstance(args[0], file)
+            assert kwargs['options']['extra_attribute'] == {
+                'ldap_attr': Attribute.objects.get(name='first_name')}
+            assert kwargs['options']['result'] == 'result'
+
+        def parse(self):
+            pass
+
+    monkeypatch.setattr(oidc_cmd, 'DjangoUserLDIFParser', MockPArser)
+    management.call_command(
+        'load-ldif', '--extra-attribute', 'ldap_attr', 'first_name',
+        '--result', 'result', ldif.strpath)
+
 
 def test_oidc_register_issuer(db, tmpdir, monkeypatch):
     oidc_conf_f = py.path.local(__file__).dirpath('openid_configuration.json')
@@ -79,7 +97,8 @@ def test_oidc_register_issuer(db, tmpdir, monkeypatch):
 
     oidc_conf = py.path.local(__file__).dirpath('openid_configuration.json').strpath
     management.call_command(
-        'oidc-register-issuer', 'somename', openid_configuration=oidc_conf, issuer='issuer')
+        'oidc-register-issuer', '--openid-configuration', oidc_conf, '--issuer', 'issuer',
+        'somename')
 
     provider = OIDCProvider.objects.get(name='somename')
     assert provider.issuer == 'issuer'

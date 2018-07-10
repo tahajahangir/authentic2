@@ -1,4 +1,3 @@
-from optparse import make_option
 import sys
 import xml.etree.ElementTree as etree
 import os
@@ -227,60 +226,47 @@ class Command(BaseCommand):
     can_import_django_settings = True
     output_transaction = True
     requires_model_validation = True
-    option_list = BaseCommand.option_list + (
-        make_option(
-            '--idp',
-            action='store_true',
-            dest='idp',
-            default=False,
-            help='Do nothing'),
-        make_option(
-            '--sp',
-            action='store_true',
-            dest='sp',
-            default=False,
-            help='Do nothing'),
-        make_option(
-            '--sp-policy',
-            dest='sp_policy',
-            default=None,
-            help='SAML2 service provider options policy'),
-        make_option(
-            '--delete',
-            action='store_true',
-            dest='delete',
-            default=False,
-            help='Delete all providers defined in the metadata file (kind of uninstall)'),
-        make_option(
-            '--ignore-errors',
-            action='store_true',
-            dest='ignore-errors',
-            default=False,
-            help='If loading of one EntityDescriptor fails, continue loading'),
-        make_option(
-            '--source',
-            dest='source',
-            default=None,
-            help='Tag the loaded providers with the given source string, \
-existing providers with the same tag will be removed if they do not exist\
- anymore in the metadata file.'),
-        make_option(
-            '--reset-attributes',
-            action='store_true',
-            default=False,
+
+    help = 'Load the specified SAMLv2 metadata file'
+
+    def add_arguments(self, parser):
+        parser.add_argument('metadata_file_path')
+        parser.add_argument(
+            '--idp', action='store_true', dest='idp', default=False, help='Do nothing')
+        parser.add_argument(
+            '--sp', action='store_true', dest='sp', default=False, help='Do nothing')
+        parser.add_argument(
+            '--sp-policy', dest='sp_policy', default=None,
+            help='SAML2 service provider options policy'
+        )
+        parser.add_argument(
+            '--delete', action='store_true', dest='delete', default=False,
+            help='Delete all providers defined in the metadata file (kind of uninstall)'
+        )
+        parser.add_argument(
+            '--ignore-errors', action='store_true', dest='ignore-errors', default=False,
+            help='If loading of one EntityDescriptor fails, continue loading'
+        )
+        parser.add_argument(
+            '--source', dest='source', default=None,
+            help='Tag the loaded providers with the given source string, '
+                 'existing providers with the same tag will be removed if they do not exist '
+                 'anymore in the metadata file.'
+        )
+        parser.add_argument(
+            '--reset-attributes', action='store_true', default=False,
             help='When loading shibboleth attribute filter policies, start by '
-                 'removing all existing SAML attributes for each provider'),
-        make_option(
-            '--dont-load-attribute-consuming-service',
-            dest='load_attribute_consuming_service',
-            default=True,
-            action='store_false',
+                 'removing all existing SAML attributes for each provider'
+        )
+        parser.add_argument(
+            '--dont-load-attribute-consuming-service', dest='load_attribute_consuming_service',
+            default=True, action='store_false',
             help='Prevent loading of the attribute policy from '
-                 'AttributeConsumingService nodes in the metadata file.'),
-        make_option(
+                 'AttributeConsumingService nodes in the metadata file.'
+        )
+        parser.add_argument(
             '--shibboleth-attribute-filter-policy',
-            dest='attribute-filter-policy',
-            default=None,
+            dest='attribute-filter-policy', default=None,
             help='''Path to a file containing an Attribute Filter Policy for the
 Shibboleth IdP, that will be used to configure SAML attributes for
 each provider. The following schema is supported:
@@ -295,40 +281,34 @@ each provider. The following schema is supported:
     </AttributeFilterPolicy>
 
 Any other kind of attribute filter policy is unsupported.
-'''),
-        make_option(
-            '--create-disabled',
-            dest='create-disabled',
-            action='store_true',
-            default=False,
-            help='When creating a new provider, make it disabled by default.'),
-    )
-
-    args = '<metadata_file>'
-    help = 'Load the specified SAMLv2 metadata file'
+'''
+        )
+        parser.add_argument(
+            '--create-disabled', dest='create-disabled', action='store_true', default=False,
+            help='When creating a new provider, make it disabled by default.'
+        )
 
     @commit_on_success
     def handle(self, *args, **options):
         verbosity = int(options['verbosity'])
         source = options['source']
-        if not args:
-            raise CommandError('No metadata file on the command line')
+        metadata_file_path = options['metadata_file_path']
         # Check sources
         try:
             if source is not None:
                 source.decode('ascii')
         except:
             raise CommandError('--source MUST be an ASCII string value')
-        if args[0].startswith('http://') or args[0].startswith('https://'):
-            response = requests.get(args[0])
+        if metadata_file_path.startswith('http://') or metadata_file_path.startswith('https://'):
+            response = requests.get(metadata_file_path)
             if not response.ok:
-                raise CommandError('Unable to open url %s' % args[0])
+                raise CommandError('Unable to open url %s' % metadata_file_path)
             metadata_file = StringIO(response.content)
         else:
             try:
-                metadata_file = file(args[0])
+                metadata_file = file(metadata_file_path)
             except:
-                raise CommandError('Unable to open file %s' % args[0])
+                raise CommandError('Unable to open file %s' % metadata_file_path)
 
         try:
             doc = etree.parse(metadata_file)

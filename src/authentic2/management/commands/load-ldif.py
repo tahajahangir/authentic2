@@ -1,9 +1,9 @@
+import argparse
 import logging
-from optparse import make_option
 import json
 
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 
 
@@ -79,67 +79,64 @@ class DjangoUserLDIFParser(ldif.LDIFParser):
             with file(self.options['result'], 'w') as f:
                 json.dump(self.json, f)
 
-def extra_attribute_parse(option, opt_str, value, parser):
-    ldap_attribute, django_attribute = value
-    try:
-        attribute = Attribute.objects.get(name=django_attribute)
-    except Attribute.DoesNotExist:
-        raise CommandError('django attribute %s does not exist' % django_attribute)
-    parser.values.extra_attribute[ldap_attribute] = attribute
+
+class ExtraAttributeAction(argparse.Action):
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        ldap_attribute, django_attribute = values
+        try:
+            attribute = Attribute.objects.get(name=django_attribute)
+        except Attribute.DoesNotExist:
+            raise argparse.ArgumentTypeError(
+                'django attribute %s does not exist' % django_attribute)
+        res = getattr(namespace, self.dest, {})
+        res[ldap_attribute] = attribute
+        setattr(namespace, self.dest, res)
+
 
 class Command(BaseCommand):
     '''Load LDAP ldif file'''
     can_import_django_settings = True
     requires_model_validation = True
-    option_list = BaseCommand.option_list + (
-        make_option('--first-name',
-            default='givenName',
-            help='attribute used to set the first name'),
-        make_option('--last-name',
-            default='sn',
-            help='attribute used to set the last name'),
-        make_option('--email',
-            default='mail',
-            help='attribute used to set the email'),
-        make_option('--username',
-            default='uid',
-            help='attribute used to set the username'),
-        make_option('--password',
-            default='userPassword',
-            help='attribute to extract the password from, OpenLDAP hashing algorithm are recognized'),
-        make_option('--object-class',
-            default='inetOrgPerson',
-            help='object class of records to load'),
-        make_option('--extra-attribute',
-            default={},
-            action='callback',
-            nargs=2,
-            type='string',
-            callback=extra_attribute_parse,
-            help='object class of records to load'),
-        make_option('--result',
-            default=None,
-            help='file to store a JSON log of created users'),
-        make_option('--fake',
-            action='store_true',
-            help='file to store a JSON log of created users'),
-        make_option('--realm',
-            default=None,
-            help='realm for the new users'),
-        make_option('--callback',
-            default=None,
-            help='python file containing a function callback(user, dn, entry, options, dump) it can return models that will be saved'),
-        make_option('--callback-arg',
-            action='append',
-            help='arguments for the callback'),
-        )
-    args = '<ldif_file...>'
     help = 'Load/update LDIF files as users'
+
+    def add_arguments(self, parser):
+        parser.add_argument('ldif_file', nargs='+')
+        parser.add_argument(
+            '--first-name', default='givenName', help='attribute used to set the first name')
+        parser.add_argument(
+            '--last-name', default='sn', help='attribute used to set the last name')
+        parser.add_argument('--email', default='mail', help='attribute used to set the email')
+        parser.add_argument('--username', default='uid', help='attribute used to set the username')
+        parser.add_argument(
+            '--password', default='userPassword',
+            help='attribute to extract the password from, '
+                 'OpenLDAP hashing algorithm are recognized'
+        )
+        parser.add_argument(
+            '--object-class', default='inetOrgPerson', help='object class of records to load')
+        parser.add_argument(
+            '--extra-attribute', default={}, action=ExtraAttributeAction, nargs=2,
+            help='object class of records to load'
+        )
+        parser.add_argument(
+            '--result', default=None, help='file to store a JSON log of created users')
+        parser.add_argument(
+            '--fake', action='store_true', help='file to store a JSON log of created users'
+        )
+        parser.add_argument('--realm', default=None, help='realm for the new users')
+        parser.add_argument(
+            '--callback', default=None,
+            help='python file containing a function callback(user, dn, entry, options, dump)'
+                 ' it can return models that will be saved'
+        )
+        parser.add_argument('--callback-arg', action='append', help='arguments for the callback')
 
     @atomic
     def handle(self, *args, **options):
         options['verbosity'] = int(options['verbosity'])
-        for arg in args:
+        ldif_files = options.pop('ldif_file')
+        for arg in ldif_files:
             f = file(arg)
             parser = DjangoUserLDIFParser(f, options=options, command=self)
             parser.parse()
