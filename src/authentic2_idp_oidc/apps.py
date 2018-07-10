@@ -98,10 +98,13 @@ class AppConfig(django.apps.AppConfig):
                 return
             if method_name != 'synchronization':
                 return
-            uuid_map = getattr(request, 'uuid_map', {})
+            if not hasattr(request, 'uuid_map'):
+                return
+            uuid_map = request.uuid_map
+
             unknown_uuids = data['unknown_uuids']
             new_unknown_uuids = []
             for u in unknown_uuids:
-	        new_unknown_uuids.append(uuid_map[u])
+                new_unknown_uuids.append(uuid_map[u])
             new_unknown_uuids.extend(request.unknown_uuids)
             data['unknown_uuids'] = new_unknown_uuids

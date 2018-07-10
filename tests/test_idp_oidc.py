@@ -12,8 +12,11 @@ import utils
 
 from django.core.urlresolvers import reverse
 from django.utils.timezone import now
+from django.contrib.auth import get_user_model
 
-from authentic2_idp_oidc.models import OIDCClient, OIDCAuthorization, OIDCCode, OIDCAccessToken, OIDCClaim
+User = get_user_model()
+
+from authentic2_idp_oidc.models import OIDCClient, OIDCAuthorization, OIDCCode
 from authentic2_idp_oidc.utils import make_sub
 from authentic2.a2_rbac.utils import get_default_ou
 from authentic2.utils import make_url
@@ -84,6 +87,9 @@ OIDC_CLIENT_PARAMS = [
     {
         'frontchannel_logout_uri': 'https://example.com/southpark/logout/',
         'frontchannel_timeout': 3000,
+    },
+    {
+        'identifier_policy': OIDCClient.POLICY_PAIRWISE_REVERSIBLE,
     },
 ]
 
@@ -869,3 +875,24 @@ def test_oidclient_claims_data_migration():
     executor.loader.build_graph()
     client = OIDCClient.objects.first()
     assert OIDCClaim.objects.filter(client=client.id).count() == 5
+
+
+def test_api_synchronization(app, oidc_client):
+    oidc_client.has_api_access = True
+    oidc_client.save()
+    users = [User.objects.create(username='user-%s' % i) for i in range(10)]
+    for user in users[5:]:
+        user.delete()
+    deleted_subs = set(make_sub(oidc_client, user) for user in users[5:])
+
+    app.authorization = ('Basic', (oidc_client.client_id, oidc_client.client_secret))
+    status = 200
+    if oidc_client.identifier_policy not in (OIDCClient.POLICY_PAIRWISE_REVERSIBLE, OIDCClient.POLICY_UUID):
+        status = 401
+    response = app.post_json('/api/users/synchronization/',
+                             params={
+                                 'known_uuids': [make_sub(oidc_client, user) for user in users]},
+                             status=status)
+    if status == 200:
+        assert response.json['result'] == 1
+        assert set(response.json['unknown_uuids']) == deleted_subs
