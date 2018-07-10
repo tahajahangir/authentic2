@@ -436,6 +436,7 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
             for field_name in qs:
                 if field_name not in field_names:
                     field_names.append(field_name)
+        attributes = []
         for field_name in field_names:
             title = None
             if isinstance(field_name, (list, tuple)):
@@ -467,15 +468,19 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
                 if not title:
                     title = field.verbose_name
                 value = getattr(self.request.user, field_name, None)
+                attribute = models.Attribute(name=field_name, label=title)
 
+            raw_value = None
             if value:
                 if callable(value):
                     value = value()
                 if not isinstance(value, (list, tuple)):
                     value = (value,)
+                raw_value = value
                 value = map(unicode, value)
             if value or app_settings.A2_PROFILE_DISPLAY_EMPTY_FIELDS:
                 profile.append((title, value))
+                attributes.append({'attribute': attribute, 'values': raw_value})
 
         # Credentials management
         parameters = {'request': request,
@@ -498,6 +503,7 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
             'frontends_block': blocks,
             'frontends_block_by_id': blocks_by_id,
             'profile': profile,
+            'attributes': attributes,
             'allow_account_deletion': app_settings.A2_REGISTRATION_CAN_DELETE_ACCOUNT,
             'allow_profile_edit': EditProfile.can_edit_profile(),
             'allow_email_change': app_settings.A2_PROFILE_CAN_CHANGE_EMAIL,

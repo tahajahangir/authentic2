@@ -13,16 +13,16 @@
 {% block content %}
   <div id="a2-profile-blocks">
     <div id="a2-profile" class="a2-profile-block">
-      {% if profile %}
+      {% if attributes %}
         <dl>
-          {% for key, values in profile %}
-            <dt>{{ key|capfirst }}&nbsp;:</dt>
+          {% for attribute in attributes %}
+            <dt>{{ attribute.attribute.label|capfirst }}&nbsp;:</dt>
             <dd>
-              {% if values|length == 1 %}
-                {{ values.0 }}
+              {% if attribute.values|length == 1 %}
+                {{ attribute.values.0 }}
               {% else %}
                 <ul>
-                  {% for value in values %}
+                  {% for value in attribute.values %}
                     <li>{{ value }}</li>
                   {% endfor %}
                 </ul>
