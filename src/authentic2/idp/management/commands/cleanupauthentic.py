@@ -1,23 +1,22 @@
 import logging
 
+from django.apps import apps
 from django.core.management.base import BaseCommand
-from django.db import models
+
 
 class Command(BaseCommand):
     help = 'Clean expired models of authentic2.'
 
     def handle(self, **options):
         log = logging.getLogger(__name__)
-
-        for app in models.get_apps():
-            for model in models.get_models(app):
+        for app in apps.get_app_configs():
+            for model in app.get_models():
                 # only models from authentic2
-                if not model.__module__.startswith('authentic2'):
-                    continue
-                try:
-                    self.cleanup_model(model)
-                except:
-                    log.exception('cleanup of model %s failed', model)
+                if model.__module__.startswith('authentic2'):
+                    try:
+                        self.cleanup_model(model)
+                    except:
+                        log.exception('cleanup of model %s failed', model)
 
     def cleanup_model(self, model):
         manager = getattr(model, 'objects', None)

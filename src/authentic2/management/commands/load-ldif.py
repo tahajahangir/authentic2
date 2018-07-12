@@ -97,7 +97,7 @@ class ExtraAttributeAction(argparse.Action):
 class Command(BaseCommand):
     '''Load LDAP ldif file'''
     can_import_django_settings = True
-    requires_model_validation = True
+    requires_system_checks = True
     help = 'Load/update LDIF files as users'
 
     def add_arguments(self, parser):

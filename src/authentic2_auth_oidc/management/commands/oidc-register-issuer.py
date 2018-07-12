@@ -15,7 +15,7 @@ from django_rbac.utils import get_ou_model
 class Command(BaseCommand):
     '''Load LDAP ldif file'''
     can_import_django_settings = True
-    requires_model_validation = True
+    requires_system_checks = True
     help = 'Register an OpenID Connect OP'
 
     def add_arguments(self, parser):

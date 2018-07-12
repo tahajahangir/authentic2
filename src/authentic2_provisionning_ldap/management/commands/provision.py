@@ -23,7 +23,7 @@ DELETE = 3
 class Command(BaseCommand):
     can_import_django_settings = True
     output_transaction = True
-    requires_model_validation = True
+    requires_system_checks = True
 
     def add_arguments(self, parser):
         parser.add_argument('target_resource', nargs='*')

@@ -225,7 +225,7 @@ class Command(BaseCommand):
     and LibertyIdentityProvider files'''
     can_import_django_settings = True
     output_transaction = True
-    requires_model_validation = True
+    requires_system_checks = True
 
     help = 'Load the specified SAMLv2 metadata file'
 
