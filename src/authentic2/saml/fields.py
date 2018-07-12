@@ -40,7 +40,6 @@ except ImportError:
 
 
 class PickledObjectField(models.Field):
-    __metaclass__ = models.SubfieldBase
 
     def to_python(self, value):
         if isinstance(value, PickledObject):
@@ -53,6 +52,9 @@ class PickledObjectField(models.Field):
             except:
                 # If an error was raised, just return the plain value
                 return value
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def get_db_prep_save(self, value, connection):
         if value is not None and not isinstance(value, PickledObject):
@@ -117,7 +119,6 @@ class MultiSelectFormField(forms.MultipleChoiceField):
         return value
 
 class MultiSelectField(models.Field):
-    __metaclass__ = models.SubfieldBase
 
     def get_internal_type(self):
         return "CharField"
@@ -157,6 +158,9 @@ class MultiSelectField(models.Field):
         if isinstance(value, list):
             return value
         return value.split(",")
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def contribute_to_class(self, cls, name):
         super(MultiSelectField, self).contribute_to_class(cls, name)
