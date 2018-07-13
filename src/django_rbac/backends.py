@@ -1,6 +1,5 @@
 import copy
 
-import django
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import Q
@@ -13,29 +12,15 @@ except ImportError:
 
 from . import utils
 
-if django.VERSION < (1, 8, 0):
-    from django.db.models import ForeignKey
-
-    def get_fk_model(model, fieldname):
-        '''returns None if not foreignkey, otherswise the relevant model'''
-        try:
-            field_object = model._meta.get_field(fieldname)
-            direct = not field_object.auto_created or field_object.concrete
-        except FieldDoesNotExist:
-            return None
-        if not field_object.m2m and direct and isinstance(field_object, ForeignKey):
-            return field_object.rel.to
+def get_fk_model(model, fieldname):
+    try:
+        field = model._meta.get_field('ou')
+    except FieldDoesNotExist:
         return None
-else:
-    def get_fk_model(model, fieldname):
-        try:
-            field = model._meta.get_field('ou')
-        except FieldDoesNotExist:
+    else:
+        if not field.is_relation or not field.many_to_one:
             return None
-        else:
-            if not field.is_relation or not field.many_to_one:
-                return None
-            return field.related_model
+        return field.related_model
 
 
 class DjangoRBACBackend(object):

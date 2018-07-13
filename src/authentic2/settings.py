@@ -4,7 +4,6 @@ import logging.config
 from django.conf import global_settings
 import os
 
-import django
 
 from gadjo.templatetags.gadjo import xstatic
 from . import plugins, logger
@@ -277,8 +276,7 @@ MIGRATION_MODULES = {
         'menu': 'authentic2.menu_migrations',
         'dashboard': 'authentic2.dashboard_migrations',
 }
-if django.VERSION >= (1,8):
-    MIGRATION_MODULES['auth'] = 'authentic2.auth_migrations_18'
+MIGRATION_MODULES['auth'] = 'authentic2.auth_migrations_18'
 
 # Django REST Framework
 REST_FRAMEWORK = {

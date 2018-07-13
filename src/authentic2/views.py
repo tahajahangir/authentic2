@@ -7,7 +7,6 @@ import re
 import collections
 
 
-import django
 from django.conf import settings
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
@@ -297,8 +296,7 @@ def login(request, template_name='authentic2/login.html',
         'registration_authorized': getattr(settings, 'REGISTRATION_OPEN', True),
         'registration_url': registration_url,
     })
-    if django.VERSION >= (1, 8, 0):
-        context_instance['add_to_blocks'] = collections.defaultdict(lambda: [])
+    context_instance['add_to_blocks'] = collections.defaultdict(lambda: [])
 
     # Cancel button
     if request.method == "POST" \
@@ -413,8 +411,7 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
         request = self.request
 
         context_instance = RequestContext(request, ctx)
-        if django.VERSION >= (1, 8, 0):
-            context_instance['add_to_blocks'] = collections.defaultdict(lambda: [])
+        context_instance['add_to_blocks'] = collections.defaultdict(lambda: [])
         if request.method == "POST":
             for frontend in frontends:
                 if 'submit-%s' % frontend.id in request.POST:

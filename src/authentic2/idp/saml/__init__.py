@@ -1,4 +1,3 @@
-import django
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.core.checks import register, Warning, Tags
@@ -58,8 +57,5 @@ def check_authentic2_config(app_configs, **kwargs):
         )
     return errors
 
-if django.VERSION >= (1, 8):
-    check_authentic2_config = register(Tags.security,
-                                       deploy=True)(check_authentic2_config)
-else:
-    check_authentic2_config = register()(check_authentic2_config)
+check_authentic2_config = register(Tags.security,
+                                   deploy=True)(check_authentic2_config)

@@ -1,6 +1,5 @@
 import itertools
 
-import django
 from django.db.migrations.operations.base import Operation
 
 
@@ -24,14 +23,9 @@ class CreatePartialIndexes(Operation):
                 self.where.add('"%s" IS NULL' % column)
 
     def allowed(self, app_label, schema_editor, to_state):
-        if django.VERSION < (1, 8, 0):
-            to_model = to_state.render().get_model(app_label, self.model_name)
-            if not self.allowed_to_migrate(schema_editor.connection.alias, to_model):
-                return False
-        else:
-            to_model = to_state.apps.get_model(app_label, self.model_name)
-            if not self.allow_migrate_model(schema_editor.connection.alias, to_model):
-                return False
+        to_model = to_state.apps.get_model(app_label, self.model_name)
+        if not self.allow_migrate_model(schema_editor.connection.alias, to_model):
+            return False
         if schema_editor.connection.vendor == 'postgresql':
             return True
         return False
