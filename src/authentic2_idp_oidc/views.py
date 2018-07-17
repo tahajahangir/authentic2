@@ -5,7 +5,7 @@ import base64
 import time
 
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
-from django.utils.timezone import now, UTC
+from django.utils.timezone import now, utc
 from django.utils.http import urlencode
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -254,7 +254,7 @@ def authorize(request, *args, **kwargs):
             client=client, user=request.user, scopes=u' '.join(scopes),
             state=state, nonce=nonce, redirect_uri=redirect_uri,
             expired=start + datetime.timedelta(seconds=30),
-            auth_time=datetime.datetime.fromtimestamp(last_auth['when'], UTC()),
+            auth_time=datetime.datetime.fromtimestamp(last_auth['when'], utc),
             session_key=request.session.session_key)
         logger.info(u'sending code %s for scopes %s for service %s',
                     code.uuid, ' '.join(scopes),

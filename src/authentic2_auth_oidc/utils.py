@@ -5,7 +5,7 @@ import json
 
 import requests
 
-from django.utils.timezone import UTC
+from django.utils.timezone import utc
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 
@@ -111,7 +111,7 @@ KEY_TYPES = {
 def parse_timestamp(tstamp):
     if not isinstance(tstamp, int):
         raise ValueError('%s' % tstamp)
-    return datetime.datetime.fromtimestamp(tstamp, UTC())
+    return datetime.datetime.fromtimestamp(tstamp, utc)
 
 
 class IDToken(str):

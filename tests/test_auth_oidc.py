@@ -10,7 +10,7 @@ from jwcrypto.jwt import JWT
 
 from httmock import urlmatch, HTTMock
 
-from django.utils.timezone import UTC
+from django.utils.timezone import utc
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now
@@ -77,8 +77,8 @@ def test_idtoken():
     assert token.iss == payload_decoded['iss']
     assert token.aud == payload_decoded['aud']
     assert token.nonce == payload_decoded['nonce']
-    assert token.iat == datetime.datetime(2011, 7, 21, 20, 42, 50, tzinfo=UTC())
-    assert token.exp == datetime.datetime(2011, 7, 21, 20, 59, 30, tzinfo=UTC())
+    assert token.iat == datetime.datetime(2011, 7, 21, 20, 42, 50, tzinfo=utc)
+    assert token.exp == datetime.datetime(2011, 7, 21, 20, 59, 30, tzinfo=utc)
 
 
 @pytest.fixture
