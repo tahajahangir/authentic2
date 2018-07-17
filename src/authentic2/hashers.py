@@ -1,10 +1,10 @@
 import hashlib
 import math
 import base64
+from collections import OrderedDict
 
 from django.contrib.auth import hashers
 from django.utils.crypto import constant_time_compare
-from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_noop as _
 from django.utils.encoding import force_bytes
 from django.contrib.auth.hashers import make_password
@@ -78,7 +78,7 @@ class Drupal7PasswordHasher(hashers.BasePasswordHasher):
     def safe_summary(self, encoded):
         algorithm, iterations, salt, hash = encoded.split('$', 3)
         assert algorithm == self.algorithm
-        return SortedDict([
+        return OrderedDict([
             (_('algorithm'), algorithm),
             (_('iterations'), iterations),
             (_('salt'), hashers.mask_hash(salt)),
@@ -108,7 +108,7 @@ class CommonPasswordHasher(hashers.BasePasswordHasher):
     def safe_summary(self, encoded):
         algorithm, salt, hash = encoded.split('$', 2)
         assert algorithm == self.algorithm
-        return SortedDict([
+        return OrderedDict([
             (_('algorithm'), algorithm),
             (_('salt'), hashers.mask_hash(salt, show=2)),
             (_('hash'), hashers.mask_hash(hash)),
