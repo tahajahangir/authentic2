@@ -730,7 +730,7 @@ msgstr "Erreur de serveur"
 
 #: authentic2/templates/500.html:10
 msgid "We're sorry but a server error has occurred."
-msgstr "Nous sommes désolé mais nous constatons une erreur serveur."
+msgstr "Nous sommes désolés mais nous constatons une erreur serveur."
 
 #: authentic2/templates/admin/base_site.html:4
 msgid "Authentic site admin"
