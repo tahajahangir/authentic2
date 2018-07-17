@@ -229,7 +229,6 @@ class LDAPBackend(object):
         'binddn': '',
         'bindpw': '',
         'bindsasl': (),
-        'url': (),
         'user_dn_template': '',
         'user_filter': 'uid=%s',  # will be '(|(mail=%s)(uid=%s))' if A2_ACCEPT_EMAIL_AUTHENTICATION is set (see update_default)
         'sync_ldap_users_filter': '',
