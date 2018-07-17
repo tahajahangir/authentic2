@@ -544,9 +544,9 @@ def test_reset_password_ldap_user(slapd, settings, app, db):
 def test_user_cannot_change_password(slapd, settings, app, db):
     settings.LDAP_AUTH_SETTINGS = [{
         'url': [slapd.ldap_url],
-        'binddn': slapd.root_bind_dn,
-        'bindpw': slapd.root_bind_password,
-        'basedn': 'o=orga',
+        'binddn': force_text(slapd.root_bind_dn),
+        'bindpw': force_text(slapd.root_bind_password),
+        'basedn': u'o=ôrga',
         'use_tls': False,
         'user_can_change_password': False,
     }]
