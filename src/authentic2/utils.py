@@ -22,8 +22,7 @@ from django.contrib.auth import (REDIRECT_FIELD_NAME, login as auth_login, SESSI
                                  HASH_SESSION_KEY, BACKEND_SESSION_KEY, authenticate,
                                  get_user_model)
 from django import forms
-from django.forms.util import ErrorList
-from django.forms.utils import to_current_timezone
+from django.forms.utils import ErrorList, to_current_timezone
 from django.utils import timezone
 from django.utils import html, http
 from django.utils.translation import ugettext as _, ungettext

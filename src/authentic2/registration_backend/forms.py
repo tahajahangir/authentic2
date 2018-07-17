@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ModelForm, Form, CharField, PasswordInput, EmailField
 from django.utils.datastructures import SortedDict
 from django.db.models.fields import FieldDoesNotExist
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 
 from django.contrib.auth.models import BaseUserManager, Group
 from django.contrib.auth import forms as auth_forms, get_user_model, REDIRECT_FIELD_NAME
