@@ -109,7 +109,7 @@ setup(name="authentic2",
       },
       include_package_data=True,
       install_requires=[
-          'django>=1.8,<1.9',
+          'django>=1.8,<2.0',
           'requests>=2.3',
           'django-model-utils>=2.4',
           'dnspython>=1.10',
