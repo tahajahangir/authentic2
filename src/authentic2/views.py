@@ -9,7 +9,6 @@ import collections
 
 from django.conf import settings
 from django.shortcuts import render_to_response, render
-from django.template import RequestContext
 from django.template.loader import render_to_string, select_template
 from django.views.generic.edit import UpdateView, FormView
 from django.views.generic import RedirectView, TemplateView
@@ -290,12 +289,12 @@ def login(request, template_name='authentic2/login.html',
     registration_url = utils.get_registration_url(
         request, service_slug=request.GET.get(constants.SERVICE_FIELD_NAME))
 
-    context_instance = RequestContext(request, {
+    context = {
         'cancel': nonce is not None,
         'can_reset_password': app_settings.A2_USER_CAN_RESET_PASSWORD is not False,
         'registration_authorized': getattr(settings, 'REGISTRATION_OPEN', True),
         'registration_url': registration_url,
-    })
+    }
 
     # Cancel button
     if request.method == "POST" \
@@ -327,7 +326,7 @@ def login(request, template_name='authentic2/login.html',
             blocks.append(block)
         else: # New frontends API
             parameters = {'request': request,
-                          'context_instance': context_instance}
+                          'context': context}
             block = utils.get_backend_method(frontend, 'login', parameters)
             # If a login frontend method returns an HttpResponse with a status code != 200
             # this response is returned.
@@ -347,29 +346,29 @@ def login(request, template_name='authentic2/login.html',
         if not 'form' in block:
             continue
         frontend = block['frontend']
-        context = {
+        context.update({
                 'submit_name': 'submit-%s' % fid,
                 redirect_field_name: redirect_to,
                 'form': block['form']
-        }
+        })
         if hasattr(frontend, 'get_context'):
             context.update(frontend.get_context())
         sub_template_name = frontend.template()
         block['content'] = render_to_string(
                 sub_template_name, context,
-                context_instance=context_instance)
+                request=request)
 
     request.session.set_test_cookie()
 
     # legacy context variable
     rendered_forms = [(block['name'], block['content']) for block in blocks]
-
-    return render_to_response(template_name, {
+    context.update({
         'methods': rendered_forms,
         # new definition
         'blocks': collections.OrderedDict((block['id'], block) for block in blocks),
         redirect_field_name: redirect_to,
-    }, context_instance=context_instance)
+    })
+    return render(request, template_name, context)
 
 
 def service_list(request):
@@ -404,12 +403,11 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
         return super(ProfileView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        ctx = super(ProfileView, self).get_context_data(**kwargs)
+        context = super(ProfileView, self).get_context_data(**kwargs)
         frontends = utils.get_backends('AUTH_FRONTENDS')
 
         request = self.request
 
-        context_instance = RequestContext(request, ctx)
         if request.method == "POST":
             for frontend in frontends:
                 if 'submit-%s' % frontend.id in request.POST:
@@ -479,7 +477,7 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
 
         # Credentials management
         parameters = {'request': request,
-                      'context_instance': context_instance}
+                      'context': context}
         profiles = [utils.get_backend_method(frontend, 'profile', parameters)
                             for frontend in frontends]
         # Old frontends data structure for templates
@@ -494,7 +492,7 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
             for idp_backend in idp_backends:
                 if hasattr(idp_backend, 'federation_management'):
                     federation_management.extend(idp_backend.federation_management(request))
-        context_instance.update({
+        context.update({
             'frontends_block': blocks,
             'frontends_block_by_id': blocks_by_id,
             'profile': profile,
@@ -506,8 +504,8 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
             'allow_password_change': request.user.can_change_password(),
             'federation_management': federation_management,
         })
-        hooks.call_hooks('modify_context_data', self, context_instance)
-        return context_instance
+        hooks.call_hooks('modify_context_data', self, context)
+        return context
 
 profile = login_required(ProfileView.as_view())
 
@@ -581,14 +579,15 @@ def logout(request, next_url=None, default_next_url='auth_homepage',
 
 
 def login_password_profile(request, *args, **kwargs):
-    context_instance = kwargs.pop('context_instance', None) or RequestContext(request)
+    context = kwargs.pop('context', {})
     can_change_password = app_settings.A2_REGISTRATION_CAN_CHANGE_PASSWORD
     has_usable_password = request.user.has_usable_password()
+    context.update(
+        {'can_change_password': can_change_password,
+         'has_usable_password': has_usable_password})
     return render_to_string(['auth/login_password_profile.html',
                              'authentic2/login_password_profile.html'],
-                            {'can_change_password' : can_change_password,
-                             'has_usable_password' : has_usable_password},
-                            context_instance=context_instance)
+                            context, request=request)
 
 
 class LoggedInView(View):

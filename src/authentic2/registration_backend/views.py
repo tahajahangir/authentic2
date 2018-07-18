@@ -14,7 +14,6 @@ from django.views.generic.edit import FormView, CreateView
 from django.contrib.auth import get_user_model
 from django.forms import CharField, Form
 from django.core.urlresolvers import reverse_lazy
-from django.template import RequestContext
 from django.http import Http404, HttpResponseBadRequest
 
 from authentic2.utils import (import_module_or_class, redirect, make_url, get_fields_and_labels,
@@ -92,16 +91,14 @@ class BaseRegistrationView(FormView):
         return redirect(self.request, 'registration_complete')
 
     def get_context_data(self, **kwargs):
-        ctx = super(BaseRegistrationView, self).get_context_data(**kwargs)
-        request_context = RequestContext(self.request)
-        request_context.push(ctx)
+        context = super(BaseRegistrationView, self).get_context_data(**kwargs)
         parameters = {'request': self.request,
-                      'context_instance': request_context}
+                      'context': context}
         blocks = [utils.get_backend_method(backend, 'registration', parameters)
                   for backend in utils.get_backends('AUTH_FRONTENDS')]
-        request_context['frontends'] = collections.OrderedDict((block['id'], block)
-                                                               for block in blocks if block)
-        return request_context
+        context['frontends'] = collections.OrderedDict((block['id'], block)
+                                                       for block in blocks if block)
+        return context
 
 
 class RegistrationView(cbv.ValidateCSRFMixin, BaseRegistrationView):

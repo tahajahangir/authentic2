@@ -17,7 +17,7 @@ class LoginPasswordBackend(object):
         return 'password'
 
     def login(self, request, *args, **kwargs):
-        context_instance = kwargs.get('context_instance', None)
+        context = kwargs.get('context', {})
         is_post = request.method == 'POST' and self.submit_name in request.POST
         data = request.POST if is_post else None
         form = forms.AuthenticationForm(request=request, data=data)
@@ -26,9 +26,7 @@ class LoginPasswordBackend(object):
         if app_settings.A2_USERNAME_LABEL:
             form.fields['username'].label = app_settings.A2_USERNAME_LABEL
         is_secure = request.is_secure
-        context = {
-            'submit_name': self.submit_name,
-        }
+        context['submit_name'] = self.submit_name
         if is_post:
             utils.csrf_token_check(request, form)
             if form.is_valid():
@@ -39,8 +37,7 @@ class LoginPasswordBackend(object):
                 return utils.login(request, form.get_user(), how,
                                    service_slug=request.GET.get(constants.SERVICE_FIELD_NAME))
         context['form'] = form
-        return render(request, 'authentic2/login_password_form.html', context,
-                      context_instance=context_instance)
+        return render(request, 'authentic2/login_password_form.html', context)
 
     def profile(self, request, *args, **kwargs):
         return views.login_password_profile(request, *args, **kwargs)

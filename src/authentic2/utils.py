@@ -34,7 +34,6 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.utils.formats import localize
 from django.contrib import messages
 from django.utils.functional import empty
-from django.template import RequestContext
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.shortcuts import render
@@ -592,11 +591,8 @@ def send_templated_mail(user_or_email, template_names, context=None, with_html=T
         user_or_email = user_or_email.email
     if not request:
         request = middleware.StoreRequestMiddleware().get_request()
-    if request:
-        ctx = RequestContext(request)
-        ctx.update(context or {})
-    else:
-        ctx = context or {}
+
+    ctx = context or {}
 
     subject_template_names = [template_name + '_subject.txt' for template_name in template_names]
     subject_template_names += legacy_subject_templates or []
@@ -611,7 +607,7 @@ def send_templated_mail(user_or_email, template_names, context=None, with_html=T
     html_body_template_names += legacy_html_body_templates or []
     if with_html:
         try:
-            html_body = render_to_string(html_body_template_names, ctx)
+            html_body = render_to_string(html_body_template_names, ctx, request=request)
         except TemplateDoesNotExist:
             html_body = None
     send_mail(subject, body, from_email or settings.DEFAULT_FROM_EMAIL, [user_or_email],

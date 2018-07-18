@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 from authentic2.saml.models import LibertyProvider
 
@@ -11,11 +10,10 @@ def consent_federation(request, nonce = '', next = None, provider_id = None):
     '''On a GET produce a form asking for consentment,
        On a POST handle the form and redirect to next'''
     if request.method == "GET":
-        return render_to_response('interaction/consent_federation.html',
+        return render(request, 'interaction/consent_federation.html',
             {'provider_id': request.GET.get('provider_id', ''),
              'nonce': request.GET.get('nonce', ''),
-             'next': request.GET.get('next', '')},
-            context_instance=RequestContext(request))
+             'next': request.GET.get('next', '')})
     else:
         next = '/'
         if 'next' in request.POST:
@@ -57,13 +55,12 @@ def consent_attributes(request, nonce = '', next = None, provider_id = None):
             name = request.GET.get('provider_id', '')
             if provider:
                 name = provider.name or name
-            return render_to_response('interaction/consent_attributes.html',
+            return render(request, 'interaction/consent_attributes.html',
                 {'provider_id': name,
                  'attributes': attributes,
                  'allow_selection': request.session['allow_attributes_selection'],
                  'nonce': request.GET.get('nonce', ''),
-                 'next': next},
-                context_instance=RequestContext(request))
+                 'next': next})
 
     elif request.method == "POST":
         if request.session['allow_attributes_selection']:

@@ -1,10 +1,9 @@
 import logging
 
 from django.utils.translation import ugettext as _
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import TemplateView
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -57,8 +56,7 @@ def handle_request(request):
 
     # No SSL entries and no user session, redirect account linking page
     if not user and not request.user.is_authenticated():
-        return render_to_response('auth/account_linking_ssl.html',
-                context_instance=RequestContext(request))
+        return render(request, 'auth/account_linking_ssl.html')
 
     # No SSL entries but active user session, perform account linking
     if not user and request.user.is_authenticated():
@@ -128,12 +126,10 @@ def post_account_linking(request):
         return render(request, 'auth/account_linking_ssl.html')
 
 def profile(request, template_name='ssl/profile.html', *args, **kwargs):
-    context_instance = kwargs.pop('context_instance', None) or \
-        RequestContext(request)
+    context = kwargs.pop('context', {})
     certificates = models.ClientCertificate.objects.filter(user=request.user)
-    ctx = { 'certificates': certificates }
-    return render_to_string(template_name, ctx,
-            context_instance=context_instance)
+    context.update({'certificates': certificates})
+    return render_to_string(template_name, context, request=request)
 
 def delete_certificate(request, certificate_pk):
     qs = models.ClientCertificate.objects.filter(pk=certificate_pk)

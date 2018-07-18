@@ -9,10 +9,9 @@ import datetime
 import requests
 
 from authentic2.compat_lasso import lasso
-from django.template import RequestContext
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.core.exceptions import ValidationError
 
 from authentic2.saml.models import (LibertyFederation, LibertyProvider,
@@ -181,14 +180,14 @@ def return_saml2_request(request, profile, title=''):
 
 def return_saml2(request, profile, field_name, title=''):
     '''Helper to handle SAMLv2 bindings to emit request and responses'''
-    context_instance = RequestContext(request)
     logger.debug('profile.msgBody: %r', profile.msgBody)
     logger.debug('profile.msgUrl: %r', profile.msgUrl)
     logger.debug('profile.msgRelayState: %r', profile.msgRelayState)
     logger.debug('field_name: %s', field_name)
     if profile.msgBody:
         if profile.msgUrl:
-            return render_to_response(
+            return render(
+                request,
                 'saml/post_form.html',
                 {
                     'title': title,
@@ -196,8 +195,7 @@ def return_saml2(request, profile, field_name, title=''):
                     'fieldname': field_name,
                     'body': profile.msgBody,
                     'relay_state': profile.msgRelayState
-                },
-                context_instance=context_instance)
+                })
         return HttpResponse(profile.msgBody, content_type='text/xml')
     elif profile.msgUrl:
         return HttpResponseRedirect(profile.msgUrl)
@@ -503,13 +501,12 @@ def error_page(request, message, back=None, logger=None, warning=False):
             back = '/'
     redirection_timeout = getattr(settings, 'REDIRECTION_TIMEOUT_AFTER_ERROR',
                                   2000)
-    return render_to_response('error.html',
-                              {
-                                  'msg': message,
-                                  'back': back,
-                                  'redir_timeout': redirection_timeout
-                              },
-                              context_instance=RequestContext(request))
+    return render(request, 'error.html',
+                  {
+                      'msg': message,
+                      'back': back,
+                      'redir_timeout': redirection_timeout
+                  })
 
 
 def redirect_next(request, next):
