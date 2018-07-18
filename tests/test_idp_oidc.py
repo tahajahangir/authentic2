@@ -16,7 +16,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-from authentic2_idp_oidc.models import OIDCClient, OIDCAuthorization, OIDCCode
+from authentic2_idp_oidc.models import OIDCClient, OIDCAuthorization, OIDCCode, OIDCAccessToken, OIDCClaim
 from authentic2_idp_oidc.utils import make_sub
 from authentic2.a2_rbac.utils import get_default_ou
 from authentic2.utils import make_url
