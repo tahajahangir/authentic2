@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-24 12:02+0100\n"
+"POT-Creation-Date: 2018-07-18 10:33+0200\n"
 "PO-Revision-Date: 2018-04-03 09:50+0200\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: None\n"
@@ -17,166 +17,183 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: src/authentic2_idp_oidc/__init__.py:20
-msgid "OpenID Connect authentication"
-msgstr "Authentification OpenID Connect"
-
-#: src/authentic2_idp_oidc/models.py:46 src/authentic2_idp_oidc/models.py:176
-#: src/authentic2_idp_oidc/models.py:237
+#: src/authentic2_idp_oidc/models.py:48 src/authentic2_idp_oidc/models.py:188
+#: src/authentic2_idp_oidc/models.py:249
 msgid "uuid"
 msgstr "identifiant unique interne"
 
-#: src/authentic2_idp_oidc/models.py:47
+#: src/authentic2_idp_oidc/models.py:49
 msgid "pairwise unreversible"
 msgstr "pseudonyme irréversible"
 
-#: src/authentic2_idp_oidc/models.py:48
+#: src/authentic2_idp_oidc/models.py:50
 msgid "pairwise reversible"
 msgstr "pseudonyme réversible"
 
-#: src/authentic2_idp_oidc/models.py:49
+#: src/authentic2_idp_oidc/models.py:51
 msgid "email"
 msgstr "courriel"
 
-#: src/authentic2_idp_oidc/models.py:55
+#: src/authentic2_idp_oidc/models.py:57
 msgid "RSA"
 msgstr "RSA"
 
-#: src/authentic2_idp_oidc/models.py:56
+#: src/authentic2_idp_oidc/models.py:58
 msgid "HMAC"
 msgstr "HMAC"
 
-#: src/authentic2_idp_oidc/models.py:61
+#: src/authentic2_idp_oidc/models.py:63
 msgid "authorization code"
 msgstr "code d'autorisation"
 
-#: src/authentic2_idp_oidc/models.py:62
+#: src/authentic2_idp_oidc/models.py:64
 msgid "implicit/native"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:69
+#: src/authentic2_idp_oidc/models.py:71
 msgid "authorization by service"
 msgstr "autoriser par service"
 
-#: src/authentic2_idp_oidc/models.py:70
+#: src/authentic2_idp_oidc/models.py:72
 msgid "authorization by ou"
 msgstr "autoriser par collectivité"
 
-#: src/authentic2_idp_oidc/models.py:71
+#: src/authentic2_idp_oidc/models.py:73
 msgid "none"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:76 src/authentic2_idp_oidc/models.py:145
+#: src/authentic2_idp_oidc/models.py:78 src/authentic2_idp_oidc/models.py:157
 msgid "client id"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:81
+#: src/authentic2_idp_oidc/models.py:83
 msgid "client secret"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:84
+#: src/authentic2_idp_oidc/models.py:86
 msgid "time during which the token is valid"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:91
+#: src/authentic2_idp_oidc/models.py:93
 msgid "authorization mode"
 msgstr "mode d'autorisation"
 
-#: src/authentic2_idp_oidc/models.py:93
+#: src/authentic2_idp_oidc/models.py:95
 msgid "authorization flow"
 msgstr "processus d'autorisation"
 
-#: src/authentic2_idp_oidc/models.py:97
+#: src/authentic2_idp_oidc/models.py:99
 msgid "redirect URIs"
 msgstr "URIs de redirection"
 
-#: src/authentic2_idp_oidc/models.py:100
+#: src/authentic2_idp_oidc/models.py:102
 msgid "post logout redirect URIs"
 msgstr "URIs de redirection après déconnexion"
 
-#: src/authentic2_idp_oidc/models.py:105
+#: src/authentic2_idp_oidc/models.py:107
 msgid "sector identifier URI"
 msgstr "URI d'identifiant de secteur"
 
-#: src/authentic2_idp_oidc/models.py:108
+#: src/authentic2_idp_oidc/models.py:110
 msgid "identifier policy"
 msgstr "politique des identifiants"
 
-#: src/authentic2_idp_oidc/models.py:114
+#: src/authentic2_idp_oidc/models.py:116
 msgid "IDToken signature algorithm"
 msgstr "algorithme de signature de l'IDToken"
 
-#: src/authentic2_idp_oidc/models.py:116
+#: src/authentic2_idp_oidc/models.py:118
 msgid "has API access"
 msgstr "doit accéder à l'API"
 
-#: src/authentic2_idp_oidc/models.py:125 src/authentic2_idp_oidc/models.py:156
-#: src/authentic2_idp_oidc/models.py:202 src/authentic2_idp_oidc/models.py:253
+#: src/authentic2_idp_oidc/models.py:121
+msgid "frontchannel logout URI"
+msgstr "URI de déconnexion frontchannel"
+
+#: src/authentic2_idp_oidc/models.py:124
+msgid "frontchannel timeout"
+msgstr "temps d'expiration pour la déconnexion frontchannel"
+
+#: src/authentic2_idp_oidc/models.py:134 src/authentic2_idp_oidc/models.py:168
+#: src/authentic2_idp_oidc/models.py:214 src/authentic2_idp_oidc/models.py:265
 msgid "created"
 msgstr "créé"
 
-#: src/authentic2_idp_oidc/models.py:128
+#: src/authentic2_idp_oidc/models.py:137
 msgid "modified"
 msgstr "modifié"
 
-#: src/authentic2_idp_oidc/models.py:143
+#: src/authentic2_idp_oidc/models.py:155
 msgid "client ct"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:149 src/authentic2_idp_oidc/models.py:183
-#: src/authentic2_idp_oidc/models.py:244
+#: src/authentic2_idp_oidc/models.py:161 src/authentic2_idp_oidc/models.py:195
+#: src/authentic2_idp_oidc/models.py:256
 msgid "user"
 msgstr "utilisateur"
 
-#: src/authentic2_idp_oidc/models.py:152 src/authentic2_idp_oidc/models.py:185
-#: src/authentic2_idp_oidc/models.py:246
+#: src/authentic2_idp_oidc/models.py:164 src/authentic2_idp_oidc/models.py:197
+#: src/authentic2_idp_oidc/models.py:258
 msgid "scopes"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:159 src/authentic2_idp_oidc/models.py:205
-#: src/authentic2_idp_oidc/models.py:256
+#: src/authentic2_idp_oidc/models.py:171 src/authentic2_idp_oidc/models.py:217
+#: src/authentic2_idp_oidc/models.py:268
 msgid "expire"
 msgstr "expiration"
 
-#: src/authentic2_idp_oidc/models.py:180 src/authentic2_idp_oidc/models.py:241
+#: src/authentic2_idp_oidc/models.py:192 src/authentic2_idp_oidc/models.py:253
+#: src/authentic2_idp_oidc/models.py:305
 msgid "client"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:188
+#: src/authentic2_idp_oidc/models.py:200
 msgid "state"
 msgstr "statut"
 
-#: src/authentic2_idp_oidc/models.py:191
+#: src/authentic2_idp_oidc/models.py:203
 msgid "nonce"
 msgstr ""
 
-#: src/authentic2_idp_oidc/models.py:193
+#: src/authentic2_idp_oidc/models.py:205
 msgid "redirect URI"
 msgstr "URI de redirection"
 
-#: src/authentic2_idp_oidc/models.py:195 src/authentic2_idp_oidc/models.py:248
+#: src/authentic2_idp_oidc/models.py:207 src/authentic2_idp_oidc/models.py:260
 msgid "session key"
 msgstr "clé de session"
 
-#: src/authentic2_idp_oidc/models.py:198
+#: src/authentic2_idp_oidc/models.py:210
 msgid "auth time"
 msgstr "date d'autorisation"
+
+#: src/authentic2_idp_oidc/models.py:308
+msgid "attribute name"
+msgstr "nom d'attribut"
+
+#: src/authentic2_idp_oidc/models.py:311
+msgid "attribute value"
+msgstr "valeur de l'attribut"
+
+#: src/authentic2_idp_oidc/models.py:314
+msgid "attribute scopes"
+msgstr "scopes liés à cet attribut"
 
 #: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:5
 #, python-format
 msgid "Do you want to be authenticated on service %(client_name)s ?"
-msgstr "Souhaitez-vous être authentifié sur le service %(client_name)s&nbsp;?"
+msgstr "Souhaitez-vous être authentifié sur le service %(client_name)s ?"
 
 #: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:7
 msgid "The following informations will be sent to the service:"
-msgstr "Les informations suivantes seront envoyées au service&nbsp;:"
+msgstr "Les informations suivantes seront envoyées au service :"
 
 #: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:11
 msgid "Your first and last name, your username"
 msgstr "Vos prénom, nom et identifiants"
 
 #: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:13
-msgid "Your email"
+msgid "Your email:"
 msgstr "Votre adresse de courriel :"
 
 #: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/authorization.html:19
@@ -187,6 +204,11 @@ msgstr "Accepter"
 msgid "Refuse"
 msgstr "Refuser"
 
-#: src/authentic2_idp_oidc/views.py:442
+#: src/authentic2_idp_oidc/templates/authentic2_idp_oidc/logout_fragment.html:2
+#, python-format
+msgid "Sending logout to %(name)s..."
+msgstr "Déconnexion de %(name)s..."
+
+#: src/authentic2_idp_oidc/views.py:449
 msgid "Invalid post logout URI"
 msgstr "URI de retour après déconnexion invalide"
