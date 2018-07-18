@@ -236,6 +236,9 @@ class LDAPBackend(object):
         'group_dn_template': '',
         'member_of_attribute': '',
         'group_filter': '(&(member={user_dn})(objectClass=groupOfNames))',
+        'groupsu': (),
+        'groupstaff': (),
+        'groupactive': (),
         'group_mapping': (),
         'group_to_role_mapping': (),
         'replicas': True,
@@ -1098,6 +1101,11 @@ class LDAPBackend(object):
                 raise ImproperlyConfigured(
                     'LDAP_AUTH_SETTINGS: missing required configuration option %r' % r)
 
+        # convert string to list of strings for settings accepting it
+        for i in cls._TO_ITERABLE:
+            if i in block and isinstance(block[i], six.string_types):
+                block[i] = (block[i],)
+
         for d in cls._DEFAULTS:
             if d not in block:
                 block[d] = cls._DEFAULTS[d]
@@ -1129,9 +1137,6 @@ class LDAPBackend(object):
                 # force_bytes all strings in iterable or dict
                 if isinstance(block[d], (list, tuple, dict)):
                     block[d] = map_bytes(block[d])
-        for i in cls._TO_ITERABLE:
-            if isinstance(block[i], six.string_types):
-                block[i] = (block[i],)
         # lowercase LDAP attribute names
         block['external_id_tuples'] = map(
             lambda t: map(str.lower, map(str, t)), block['external_id_tuples'])
