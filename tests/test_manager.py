@@ -148,8 +148,8 @@ def test_manager_stress_create_user(superuser_or_admin, app, mailoutbox):
         form.set('first_name', 'John')
         form.set('last_name', 'Doe')
         form.set('email', 'john.doe@gmail.com')
-        form.set('password1', 'password')
-        form.set('password2', 'password')
+        form.set('password1', 'ABcd1234')
+        form.set('password2', 'ABcd1234')
         form.submit().follow()
         app.get('/logout/').form.submit()
     assert User.objects.filter(ou_id=new_ou.id).count() == 100
@@ -198,8 +198,8 @@ def test_manager_create_user(superuser_or_admin, app, settings):
     form.set('first_name', 'John')
     form.set('last_name', 'Doe')
     form.set('email', 'john.doe@gmail.com')
-    form.set('password1', 'password')
-    form.set('password2', 'password')
+    form.set('password1', 'ABcd1234')
+    form.set('password2', 'ABcd1234')
     response = form.submit().follow()
     assert User.objects.filter(ou=ou1).count() == 1
 
@@ -209,8 +209,8 @@ def test_manager_create_user(superuser_or_admin, app, settings):
     form.set('first_name', 'John')
     form.set('last_name', 'Doe')
     form.set('email', 'john.doe@gmail.com')
-    form.set('password1', 'password')
-    form.set('password2', 'password')
+    form.set('password1', 'ABcd1234')
+    form.set('password2', 'ABcd1234')
     response = form.submit().follow()
     assert User.objects.filter(ou=ou1).count() == 2
 
@@ -221,8 +221,8 @@ def test_manager_create_user(superuser_or_admin, app, settings):
     form.set('first_name', 'John')
     form.set('last_name', 'Doe')
     form.set('email', 'john.doe@gmail.com')
-    form.set('password1', 'password')
-    form.set('password2', 'password')
+    form.set('password1', 'ABcd1234')
+    form.set('password2', 'ABcd1234')
     response = form.submit().follow()
     assert User.objects.filter(ou=ou2).count() == 1
 
@@ -232,8 +232,8 @@ def test_manager_create_user(superuser_or_admin, app, settings):
     form.set('first_name', 'John')
     form.set('last_name', 'Doe')
     form.set('email', 'john.doe@gmail.com')
-    form.set('password1', 'password')
-    form.set('password2', 'password')
+    form.set('password1', 'ABcd1234')
+    form.set('password2', 'ABcd1234')
     response = form.submit()
     assert User.objects.filter(ou=ou2).count() == 1
     assert 'Email already used' in response
@@ -244,8 +244,8 @@ def test_manager_create_user(superuser_or_admin, app, settings):
     form.set('first_name', 'Jane')
     form.set('last_name', 'Doe')
     form.set('email', 'john.doe2@gmail.com')
-    form.set('password1', 'password')
-    form.set('password2', 'password')
+    form.set('password1', 'ABcd1234')
+    form.set('password2', 'ABcd1234')
     response = form.submit().follow()
     assert User.objects.filter(ou=ou2).count() == 2
 
@@ -265,15 +265,15 @@ def test_manager_create_user(superuser_or_admin, app, settings):
     form.set('first_name', 'John')
     form.set('last_name', 'Doe')
     form.set('email', 'john.doe@gmail.com')
-    form.set('password1', 'password')
-    form.set('password2', 'password')
+    form.set('password1', 'ABcd1234')
+    form.set('password2', 'ABcd1234')
     response = form.submit()
     assert User.objects.filter(ou=ou1).count() == 0
     assert 'Email already used' in response
     form = response.form
     form.set('email', 'john.doe3@gmail.com')
-    form.set('password1', 'password')
-    form.set('password2', 'password')
+    form.set('password1', 'ABcd1234')
+    form.set('password2', 'ABcd1234')
     response = form.submit().follow()
     assert User.objects.filter(ou=ou1).count() == 1
 

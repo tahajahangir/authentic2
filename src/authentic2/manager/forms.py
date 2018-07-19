@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from authentic2.compat import get_user_model
 from authentic2.passwords import generate_password
 from authentic2.utils import send_templated_mail
+from authentic2.forms.fields import NewPasswordField, CheckPasswordField
 
 from django_rbac.models import Operation
 from django_rbac.utils import get_ou_model, get_role_model, get_permission_model
@@ -288,14 +289,11 @@ class UserChangePasswordForm(CssClass, forms.ModelForm):
         initial=False,
         label=_('Generate new password'),
         required=False)
-    password1 = forms.CharField(
+    password1 = NewPasswordField(
         label=_("Password"),
-        widget=forms.PasswordInput,
         required=False)
-    password2 = forms.CharField(
+    password2 = CheckPasswordField(
         label=_("Confirmation"),
-        widget=forms.PasswordInput,
-        help_text=_("Enter the same password as above, for verification."),
         required=False)
     send_mail = forms.BooleanField(
         initial=True,
