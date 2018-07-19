@@ -727,7 +727,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
 
 
 class ValidatePasswordSerializer(serializers.Serializer):
-    password = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, allow_blank=True)
 
 
 
