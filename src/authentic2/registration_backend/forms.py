@@ -19,7 +19,7 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 
-from authentic2.forms.fields import NewPasswordField, CheckPasswordField
+from authentic2.forms.fields import PasswordField, NewPasswordField, CheckPasswordField
 from .. import app_settings, compat, forms, utils, validators, models, middleware, hooks
 from authentic2.a2_rbac.models import OrganizationalUnit
 
@@ -164,10 +164,8 @@ class NotifyOfPasswordChange(object):
 
 
 class SetPasswordForm(NotifyOfPasswordChange, PasswordResetMixin, auth_forms.SetPasswordForm):
-    new_password1 = CharField(label=_("New password"),
-                                    widget=PasswordInput,
-                                    validators=[validators.validate_password],
-                                    help_text=validators.password_help_text())
+    new_password1 = NewPasswordField(label=_("New password"))
+    new_password2 = CheckPasswordField(label=_("New password confirmation"))
 
     def clean_new_password1(self):
         new_password1 = self.cleaned_data.get('new_password1')
@@ -178,10 +176,9 @@ class SetPasswordForm(NotifyOfPasswordChange, PasswordResetMixin, auth_forms.Set
 
 class PasswordChangeForm(NotifyOfPasswordChange, forms.NextUrlFormMixin, PasswordResetMixin,
                          auth_forms.PasswordChangeForm):
-    new_password1 = CharField(label=_("New password"),
-                                    widget=PasswordInput,
-                                    validators=[validators.validate_password],
-                                    help_text=validators.password_help_text())
+    old_password = PasswordField(label=_('Old password'))
+    new_password1 = NewPasswordField(label=_('New password'))
+    new_password2 = CheckPasswordField(label=_("New password confirmation"))
 
     def clean_new_password1(self):
         new_password1 = self.cleaned_data.get('new_password1')
