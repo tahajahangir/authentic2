@@ -1,21 +1,20 @@
 from __future__ import unicode_literals
-import string
-import re
-import six
 
 import smtplib
 
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_text
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-from django.utils.functional import lazy
 
 import socket
 import dns.resolver
 import dns.exception
 
-from . import app_settings, passwords
+from . import app_settings
+# keep those symbols here for retrocompatibility
+from .passwords import password_help_text, validate_password
+
 
 # copied from http://www.djangotips.com/real-email-validation
 class EmailValidator(object):
@@ -38,7 +37,6 @@ class EmailValidator(object):
             except socket.error:
                 pass
         return []
-
 
     def __call__(self, value):
         try:
@@ -85,20 +83,3 @@ class UsernameValidator(RegexValidator):
     def __init__(self, *args, **kwargs):
         self.regex = app_settings.A2_REGISTRATION_FORM_USERNAME_REGEX
         super(UsernameValidator, self).__init__(*args, **kwargs)
-
-
-def validate_password(password):
-    error = password_help_text(password, only_errors=True)
-    if error:
-        raise ValidationError(error)
-
-
-def password_help_text(password='', only_errors=False):
-    password_checker = passwords.get_password_checker()
-    criteria = [check.label for check in password_checker(password) if not (only_errors and check.result)]
-    if criteria:
-        return ugettext('In order to create a secure password, please use at least: %s') % (', '.join(criteria))
-    else:
-        return ''
-
-password_help_text = lazy(password_help_text, six.text_type)
