@@ -296,7 +296,6 @@ def login(request, template_name='authentic2/login.html',
         'registration_authorized': getattr(settings, 'REGISTRATION_OPEN', True),
         'registration_url': registration_url,
     })
-    context_instance['add_to_blocks'] = collections.defaultdict(lambda: [])
 
     # Cancel button
     if request.method == "POST" \
@@ -411,7 +410,6 @@ class ProfileView(cbv.TemplateNamesMixin, TemplateView):
         request = self.request
 
         context_instance = RequestContext(request, ctx)
-        context_instance['add_to_blocks'] = collections.defaultdict(lambda: [])
         if request.method == "POST":
             for frontend in frontends:
                 if 'submit-%s' % frontend.id in request.POST:

@@ -95,7 +95,6 @@ class BaseRegistrationView(FormView):
         ctx = super(BaseRegistrationView, self).get_context_data(**kwargs)
         request_context = RequestContext(self.request)
         request_context.push(ctx)
-        request_context['add_to_blocks'] = collections.defaultdict(lambda: [])
         parameters = {'request': self.request,
                       'context_instance': request_context}
         blocks = [utils.get_backend_method(backend, 'registration', parameters)
