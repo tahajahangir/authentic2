@@ -22,6 +22,7 @@ from rest_framework import permissions, status
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed
 from rest_framework.fields import CreateOnlyDefault
 from rest_framework.decorators import list_route, detail_route
+from rest_framework.authentication import SessionAuthentication
 
 from django_filters.rest_framework import FilterSet
 
@@ -720,12 +721,19 @@ class CheckPasswordAPI(BaseRpcView):
 check_password = CheckPasswordAPI.as_view()
 
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
+
+
 class ValidatePasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
 
 
+
 class ValidatePasswordAPI(BaseRpcView):
     permission_classes = ()
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     serializer_class = ValidatePasswordSerializer
 
     def rpc(self, request, serializer):
