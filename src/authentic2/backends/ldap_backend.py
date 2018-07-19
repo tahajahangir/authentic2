@@ -201,7 +201,7 @@ class LDAPUser(get_user_model()):
         # must be redone if session is older than current code update and new
         # options have been added to the setting dictionnary for LDAP
         # authentication
-        self.ldap_backend.update_default(self.block)
+        self.ldap_backend.update_default(self.block, validate=False)
         return self.ldap_backend.get_connection(self.block, credentials=credentials)
 
     def get_attributes(self):
@@ -1088,10 +1088,10 @@ class LDAPBackend(object):
         log.error('could not get a connection')
 
     @classmethod
-    def update_default(cls, block):
+    def update_default(cls, block, validate=True):
         '''Add missing key to block based on default values'''
         for key in block:
-            if key not in cls._VALID_CONFIG_KEYS:
+            if key not in cls._VALID_CONFIG_KEYS and validate:
                 raise ImproperlyConfigured(
                     '"{}" : invalid LDAP_AUTH_SETTINGS key, available are {}'.format(
                         key, cls._VALID_CONFIG_KEYS))
