@@ -7,6 +7,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME, forms as auth_forms
 from django.utils import html
 
 from authentic2.compat import get_user_model
+from authentic2.forms.fields import PasswordField
 
 from .. import app_settings
 from ..exponential_retry_timeout import ExponentialRetryTimeout
@@ -157,6 +158,8 @@ def modelform_factory(model, **kwargs):
 
 
 class AuthenticationForm(auth_forms.AuthenticationForm):
+    password = PasswordField(label=_('Password'))
+
     def __init__(self, *args, **kwargs):
         super(AuthenticationForm, self).__init__(*args, **kwargs)
         self.exponential_backoff = ExponentialRetryTimeout(
@@ -199,6 +202,12 @@ class AuthenticationForm(auth_forms.AuthenticationForm):
             if keys:
                 self.exponential_backoff.success(*keys)
         return self.cleaned_data
+
+    @property
+    def media(self):
+        media = super(AuthenticationForm, self).media
+        media.add_js(['authentic2/js/js_seconds_until.js'])
+        return media
 
 
 class SiteImportForm(forms.Form):
