@@ -9,10 +9,12 @@
   {{ block.super }}
   <link rel="stylesheet" href="{{ STATIC_URL }}authentic2/css/style.css" />
   {% renderblock "css" %}
+  {{ form.media.css }}
 {% endblock %}
 
 {% block extrascripts %}
   {{ block.super }}
+  {{ form.media.js }}
   {% comment %}block extra_scripts is kept for compatibility with old themes{% endcomment %}
   {% block extra_scripts %}
   {% endblock %}
