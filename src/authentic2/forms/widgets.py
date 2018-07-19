@@ -12,11 +12,14 @@ import re
 import uuid
 
 from django.forms.widgets import DateTimeInput, DateInput, TimeInput
+from django.forms.widgets import PasswordInput as BasePasswordInput
 from django.utils.formats import get_language, get_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from gadjo.templatetags.gadjo import xstatic
+
+from authentic2 import app_settings
 
 DATE_FORMAT_JS_PY_MAPPING = {
     'P': '%p',
@@ -197,3 +200,45 @@ class TimeWidget(PickerWidgetMixin, TimeInput):
         options['format'] = options.get('format', self.get_format())
 
         super(TimeWidget, self).__init__(attrs, options, usel10n)
+
+
+class PasswordInput(BasePasswordInput):
+    class Media:
+        js = ('authentic2/js/password.js',)
+        css = {
+            'all': ('authentic2/css/password.css',)
+        }
+
+    def render(self, name, value, attrs=None):
+        output = super(PasswordInput, self).render(name, value, attrs=attrs)
+        if attrs and app_settings.A2_PASSWORD_POLICY_SHOW_LAST_CHAR:
+            _id = attrs.get('id')
+            if _id:
+                output += u'''\n<script>a2_password_show_last_char(%s);</script>''' % json.dumps(_id)
+        return output
+
+
+class NewPasswordInput(PasswordInput):
+    def render(self, name, value, attrs=None):
+        output = super(NewPasswordInput, self).render(name, value, attrs=attrs)
+        if attrs:
+            _id = attrs.get('id')
+            if _id:
+                output += u'''\n<script>a2_password_validate(%s);</script>''' % json.dumps(_id)
+        return output
+
+
+class CheckPasswordInput(PasswordInput):
+    # this widget must be named xxx2 and the other widget xxx1, it's a
+    # convention, js code expect it.
+    def render(self, name, value, attrs=None):
+        output = super(CheckPasswordInput, self).render(name, value, attrs=attrs)
+        if attrs:
+            _id = attrs.get('id')
+            if _id and _id.endswith('2'):
+                other_id = _id[:-1] + '1'
+                output += u'''\n<script>a2_password_check_equality(%s, %s)</script>''' % (
+                    json.dumps(other_id),
+                    json.dumps(_id),
+                )
+        return output

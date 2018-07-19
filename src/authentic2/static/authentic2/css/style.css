@@ -76,3 +76,7 @@
 .a2-log-message {
   white-space: pre-wrap;
 }
+
+.a2-password-policy-rule {
+  padding: 0.3ex;
+}

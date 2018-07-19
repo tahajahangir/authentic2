@@ -7,6 +7,7 @@ import six
 from django.utils.translation import ugettext as _
 from django.utils.module_loading import import_string
 from django.utils.functional import lazy
+from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 
 from . import app_settings
@@ -110,14 +111,16 @@ def get_password_checker(*args, **kwargs):
 def validate_password(password):
     error = password_help_text(password, only_errors=True)
     if error:
-        raise ValidationError(error)
+        raise ValidationError(mark_safe(error))
 
 
 def password_help_text(password='', only_errors=False):
     password_checker = get_password_checker()
     criteria = [check.label for check in password_checker(password) if not (only_errors and check.result)]
     if criteria:
-        return _('In order to create a secure password, please use at least: %s') % (', '.join(criteria))
+        html_criteria = [u'<span class="a2-password-policy-rule">%s</span>' % criter for criter in criteria]
+        return _('In order to create a secure password, please use at least: '
+                 '<span class="a2-password-policy-container">%s</span>') % (''.join(html_criteria))
     else:
         return ''
 

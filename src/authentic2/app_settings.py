@@ -146,6 +146,7 @@ default_settings = dict(
     A2_PASSWORD_POLICY_CLASS=Setting(
         default='authentic2.passwords.DefaultPasswordChecker',
         definition='path of a class to validate passwords'),
+    A2_PASSWORD_POLICY_SHOW_LAST_CHAR=Setting(default=False, definition='Show last character in password fields'),
     A2_AUTH_PASSWORD_ENABLE=Setting(default=True, definition='Activate login/password authentication', names=('AUTH_PASSWORD',)),
     A2_LOGIN_FAILURE_COUNT_BEFORE_WARNING=Setting(default=0,
             definition='Failure count before logging a warning to '
