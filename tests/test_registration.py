@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 from urlparse import urlparse
 
 from django.core.urlresolvers import reverse
@@ -585,3 +586,19 @@ def test_registration_redirect_tuple(app, db, settings, mailoutbox, external_red
     response = response.form.submit()
     assert new_next_url in response.content
 
+
+def test_registration_activate_passwords_not_equal(app, db, settings, mailoutbox):
+    settings.LANGUAGE_CODE = 'en-us'
+    settings.A2_VALIDATE_EMAIL_DOMAIN = can_resolve_dns()
+    settings.A2_EMAIL_IS_UNIQUE = True
+
+    response = app.get(reverse('registration_register'))
+    response.form.set('email', 'testbot@entrouvert.com')
+    response = response.form.submit()
+    response = response.follow()
+    link = get_link_from_mail(mailoutbox[0])
+    response = app.get(link)
+    response.form.set('password1', 'azerty12AZ')
+    response.form.set('password2', 'AAAazerty12AZ')
+    response = response.form.submit()
+    assert "The two password fields didn&#39;t match." in response.content

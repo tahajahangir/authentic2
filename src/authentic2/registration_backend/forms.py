@@ -19,6 +19,7 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 
+from authentic2.forms.fields import NewPasswordField, CheckPasswordField
 from .. import app_settings, compat, forms, utils, validators, models, middleware, hooks
 from authentic2.a2_rbac.models import OrganizationalUnit
 
@@ -115,10 +116,8 @@ class RegistrationCompletionFormNoPassword(forms.BaseUserForm):
 
 
 class RegistrationCompletionForm(RegistrationCompletionFormNoPassword):
-    password1 = CharField(widget=PasswordInput, label=_("Password"),
-            validators=[validators.validate_password],
-            help_text=validators.password_help_text())
-    password2 = CharField(widget=PasswordInput, label=_("Password (again)"))
+    password1 = NewPasswordField(label=_('Password'))
+    password2 = CheckPasswordField(label=_("Password (again)"))
 
     def clean(self):
         """
