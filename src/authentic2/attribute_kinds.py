@@ -15,7 +15,8 @@ from rest_framework import serializers
 
 from .decorators import to_iter
 from .plugins import collect_from_plugins
-from . import app_settings, widgets
+from . import app_settings
+from .forms import widgets
 
 capfirst = allow_lazy(capfirst, unicode)
 
