@@ -92,7 +92,7 @@ class Authentic2TestCase(TestCase):
         scheme, netloc, path, query, fragment = urlparse.urlsplit(response.url)
         e_scheme, e_netloc, e_path, e_query, e_fragment = \
             urlparse.urlsplit(expected_url)
-        e_scheme = e_scheme if e_scheme else scheme or 'http'
+        e_scheme = e_scheme if e_scheme else scheme
         e_netloc = e_netloc if e_netloc else netloc
         expected_url = urlparse.urlunsplit((e_scheme, e_netloc, e_path,
                                             e_query, e_fragment))

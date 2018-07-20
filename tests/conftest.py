@@ -325,10 +325,11 @@ def assert_external_redirect(external_redirect):
     next_url, valid = external_redirect
     if valid:
         def check_location(response, default_return):
-            assert response['Location'] == next_url
+            assert next_url.endswith(response['Location'])
     else:
         def check_location(response, default_return):
-            assert response['Location'] == urlparse.urljoin('http://testserver/', default_return)
+            assert urlparse.urljoin('http://testserver/', default_return)\
+                           .endswith(response['Location'])
     return check_location
 
 

@@ -124,7 +124,7 @@ class CasTests(Authentic2TestCase):
         location = response['Location']
         url = location.split('?')[0]
         query = urlparse.parse_qs(location.split('?')[1])
-        self.assertEquals(url, 'http://testserver/login/')
+        self.assertTrue(url.endswith('/login/'))
         self.assertIn('nonce', query)
         self.assertIn('next', query)
         self.assertEquals(query['nonce'], [ticket.ticket_id])
@@ -169,7 +169,7 @@ class CasTests(Authentic2TestCase):
         location = response['Location']
         url = location.split('?')[0]
         query = urlparse.parse_qs(location.split('?')[1])
-        self.assertEquals(url, 'http://testserver/login/')
+        self.assertTrue(url.endswith('/login/'))
         self.assertIn('nonce', query)
         self.assertIn('next', query)
         self.assertEquals(query['nonce'], [ticket.ticket_id])
@@ -220,7 +220,7 @@ class CasTests(Authentic2TestCase):
         location = response['Location']
         url = location.split('?')[0]
         query = urlparse.parse_qs(location.split('?')[1])
-        self.assertEquals(url, 'http://testserver/login/')
+        self.assertTrue(url.endswith('/login/'))
         self.assertIn('nonce', query)
         self.assertIn('next', query)
         self.assertEquals(query['nonce'], [ticket.ticket_id])
@@ -269,7 +269,7 @@ class CasTests(Authentic2TestCase):
         location = response['Location']
         url = location.split('?')[0]
         query = urlparse.parse_qs(location.split('?')[1])
-        self.assertEquals(url, 'http://testserver/login/')
+        self.assertTrue(url.endswith('/login/'))
         self.assertIn('nonce', query)
         self.assertIn('next', query)
         self.assertEquals(query['nonce'], [ticket.ticket_id])
@@ -321,7 +321,7 @@ class CasTests(Authentic2TestCase):
         location = response['Location']
         url = location.split('?')[0]
         query = urlparse.parse_qs(location.split('?')[1])
-        self.assertEquals(url, 'http://testserver/login/')
+        self.assertTrue(url.endswith('/login/'))
         self.assertIn('nonce', query)
         self.assertIn('next', query)
         self.assertEquals(query['nonce'], [ticket.ticket_id])

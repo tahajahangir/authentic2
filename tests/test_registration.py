@@ -51,7 +51,7 @@ def test_registration(app, db, settings, mailoutbox, external_redirect):
         assert 'You have just created an account.' in response.content
         assert next_url in response.content
     else:
-        assert response['Location'] == 'http://testserver/'
+        assert urlparse(response['Location']).path == '/'
         response = response.follow()
         assert 'You have just created an account.' in response.content
     assert User.objects.count() == 1

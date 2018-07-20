@@ -16,7 +16,7 @@ def test_user_admin(db, app, superuser):
     Attribute.objects.create(label='Civilité', name='civilite', kind='title', required=False,
                              user_visible=True, user_editable=True, asked_on_registration=True,
                              multiple=False)
-    resp = app.get('/admin/custom_user/user/%s/' % superuser.pk)
+    resp = app.get('/admin/custom_user/user/%s/' % superuser.pk).maybe_follow()
     assert set(resp.form.fields.keys()) >= set(['username', 'first_name', 'last_name', 'civilite',
                                                 'siret', 'is_staff', 'is_superuser', 'ou', 'groups',
                                                 'date_joined_0', 'date_joined_1', 'last_login_0',
