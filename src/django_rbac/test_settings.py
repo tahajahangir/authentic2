@@ -18,5 +18,7 @@ INSTALLED_APPS = (
 
 import os
 
+ALLOWED_HOSTS = []
+
 if 'AUTHENTIC2_SETTINGS_FILE' in os.environ:
     execfile(os.environ['AUTHENTIC2_SETTINGS_FILE'])

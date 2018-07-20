@@ -17,3 +17,5 @@ DATABASES = {
         },
     }
 }
+
+ALLOWED_HOSTS = ALLOWED_HOSTS + ['example.net', 'cache1.example.com', 'cache2.example.com']
