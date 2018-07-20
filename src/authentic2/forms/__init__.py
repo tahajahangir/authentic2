@@ -8,8 +8,8 @@ from django.utils import html
 
 from authentic2.compat import get_user_model
 
-from . import models, app_settings
-from .exponential_retry_timeout import ExponentialRetryTimeout
+from .. import app_settings
+from ..exponential_retry_timeout import ExponentialRetryTimeout
 
 
 class EmailChangeFormNoPassword(forms.Form):
@@ -44,7 +44,7 @@ class NextUrlFormMixin(forms.Form):
     next_url = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
-        from .middleware import StoreRequestMiddleware
+        from authentic2.middleware import StoreRequestMiddleware
 
         next_url = kwargs.pop('next_url', None)
         request = StoreRequestMiddleware.get_request()
@@ -61,6 +61,8 @@ class BaseUserForm(forms.ModelForm):
     }
 
     def __init__(self, *args, **kwargs):
+        from authentic2 import models
+
         self.attributes = models.Attribute.objects.all()
         initial = kwargs.setdefault('initial', {})
         if kwargs.get('instance'):
@@ -73,6 +75,8 @@ class BaseUserForm(forms.ModelForm):
         super(BaseUserForm, self).__init__(*args, **kwargs)
 
     def clean(self):
+        from authentic2 import models
+
         # make sure verified fields are not modified
         for av in models.AttributeValue.objects.with_owner(
                 self.instance).filter(verified=True):
@@ -80,6 +84,8 @@ class BaseUserForm(forms.ModelForm):
         super(BaseUserForm, self).clean()
 
     def save_attributes(self):
+        from authentic2 import models
+
         verified_attributes = {}
         for av in models.AttributeValue.objects.with_owner(
                 self.instance).filter(verified=True):
@@ -111,6 +117,8 @@ def modelform_factory(model, **kwargs):
 
        For the user model also add attribute based fields.
     '''
+    from authentic2 import models
+
     form = kwargs.pop('form', None)
     fields = kwargs.get('fields') or []
     required = list(kwargs.pop('required', []) or [])
