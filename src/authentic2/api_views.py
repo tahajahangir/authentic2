@@ -675,6 +675,7 @@ role_memberships = RoleMembershipsAPI.as_view()
 class BaseOrganizationalUnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_ou_model()
+        fields = '__all__'
 
 
 class OrganizationalUnitAPI(ExceptionHandlerMixin, ModelViewSet):
