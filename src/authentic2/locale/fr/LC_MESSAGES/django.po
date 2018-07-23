@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-19 22:07+0200\n"
+"POT-Creation-Date: 2018-07-23 11:01+0200\n"
 "PO-Revision-Date: 2018-07-23 09:51+0200\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
@@ -303,7 +303,7 @@ msgstr "Mot de passe incorrect."
 msgid "A user with that username already exists."
 msgstr "Un utilisateur avec cet identidiant existe déjà."
 
-#: src/authentic2/forms/__init__.py:183
+#: src/authentic2/forms/__init__.py:185
 #, python-format
 msgid ""
 "You made too many login errors recently, you must wait <span class=\"js-"
@@ -312,23 +312,23 @@ msgstr ""
 "Vous avez fait trop d'erreurs de connexions, vous devez attendre <span class="
 "\"js-seconds-until\">%s</span> secondes avant de pouvoir à nouveau essayer."
 
-#: src/authentic2/forms/__init__.py:203
+#: src/authentic2/forms/__init__.py:205
 msgid "Site Export File"
 msgstr "Fichier d'export de site"
 
-#: src/authentic2/forms/fields.py:29
+#: src/authentic2/forms/fields.py:30
 msgid "Both passwords must match."
 msgstr "Les deux mots de passe doivent être identiques."
 
-#: src/authentic2/forms/fields.py:30
+#: src/authentic2/forms/fields.py:31
 msgid "Passwords match."
 msgstr "Les mots de passe sont identiques."
 
-#: src/authentic2/forms/fields.py:31
+#: src/authentic2/forms/fields.py:32
 msgid "Passwords do not match."
 msgstr "Les mots de passe ne sont pas identiques."
 
-#: src/authentic2/forms/widgets.py:125
+#: src/authentic2/forms/widgets.py:127
 msgid "Format:"
 msgstr "Format :"
 
@@ -588,10 +588,12 @@ msgid "1 uppercase letter"
 msgstr "1 majuscule"
 
 #: src/authentic2/passwords.py:122
+#, python-format
 msgid ""
 "In order to create a secure password, please use at least: <span class=\"a2-"
 "password-policy-container\">%s</span>"
-msgstr "Pour la sécurité du mot de passe veuillez avoir a minima : <span class=\"a2-"
+msgstr ""
+"Pour la sécurité du mot de passe veuillez avoir a minima : <span class=\"a2-"
 "password-policy-container\">%s</span>"
 
 #: src/authentic2/profile_urls.py:31
@@ -788,13 +790,13 @@ msgstr "Supprimer"
 #: src/authentic2/templates/authentic2/change_email.html:21
 #: src/authentic2/templates/authentic2/login_password_form.html:8
 #: src/authentic2/templates/authentic2/logout_confirm.html:20
-#: src/authentic2/templates/registration/password_change_form.html:22
+#: src/authentic2/templates/registration/password_change_form.html:26
 #: tests/test_idp_saml2.py:261
 msgid "Cancel"
 msgstr "Annuler"
 
 #: src/authentic2/templates/authentic2/accounts_edit.html:19
-#: src/authentic2/templates/registration/password_change_form.html:21
+#: src/authentic2/templates/registration/password_change_form.html:25
 #: src/authentic2/templates/registration/password_reset_confirm.html:16
 #: src/authentic2/templates/registration/password_reset_form.html:16
 #: src/authentic2/templates/registration/registration_completion_form.html:20
@@ -1286,7 +1288,7 @@ msgstr "Déconnexion"
 msgid "Logged out"
 msgstr "Déconnecté"
 
-#: src/authentic2/templates/registration/password_change_form.html:16
+#: src/authentic2/templates/registration/password_change_form.html:17
 msgid ""
 "To change your password you must provide your current password, then "
 "provide\n"
@@ -1295,6 +1297,10 @@ msgid ""
 msgstr ""
 "Pour modifier votre mot de passe vous devez fournir votre mot de passe "
 "actuel ainsi que le nouveau, puis confirmer ce dernier."
+
+#: src/authentic2/templates/registration/password_change_form.html:21
+msgid "You are going to define your account password."
+msgstr "Vous allez définir le mot de passe de votre compte."
 
 #: src/authentic2/templates/registration/password_reset_confirm.html:21
 msgid "Password reset failed"
@@ -1409,11 +1415,11 @@ msgid "Please fill the form to complete your registration"
 msgstr ""
 "Veuillez remplir le formulaire afin de finir la création de votre compte"
 
-#: src/authentic2/utils.py:557
+#: src/authentic2/utils.py:556
 msgid "The form was out of date, please try again."
 msgstr "Ce formulaire était périmé, veuillez ré-essayer."
 
-#: src/authentic2/utils.py:794
+#: src/authentic2/utils.py:793
 msgid ""
 "Your user is already switched, go to your account page and come back to your "
 "original user to do it again."
@@ -1421,42 +1427,42 @@ msgstr ""
 "Vous avez déjà procédé à une reconnexion, veuillez allez sur « Mon compte » "
 "pour vous reconnecter avec votre utilisateur d'origine."
 
-#: src/authentic2/utils.py:810
+#: src/authentic2/utils.py:809
 #, python-format
 msgid "Successfully switched to user %s"
 msgstr "Re-connexion avec l'utilisateur « %s » réussie"
 
-#: src/authentic2/utils.py:826
+#: src/authentic2/utils.py:825
 #, python-format
 msgid "Successfully switched back to user %s"
 msgstr "Re-connexion avec l'utilisateur « %s » réussie"
 
-#: src/authentic2/utils.py:830
+#: src/authentic2/utils.py:829
 msgid "No user to switch back to"
 msgstr "Pas d'utilisateur vers lequel se reconnecter"
 
-#: src/authentic2/utils.py:911
+#: src/authentic2/utils.py:910
 #, python-format
 msgid "%s day"
 msgid_plural "%s days"
 msgstr[0] "%s jour"
 msgstr[1] "%s jours"
 
-#: src/authentic2/utils.py:913
+#: src/authentic2/utils.py:912
 #, python-format
 msgid "%s hour"
 msgid_plural "%s hours"
 msgstr[0] "%s heure"
 msgstr[1] "%s heures"
 
-#: src/authentic2/utils.py:915
+#: src/authentic2/utils.py:914
 #, python-format
 msgid "%s minute"
 msgid_plural "%s minutes"
 msgstr[0] "%s minute"
 msgstr[1] "%s minutes"
 
-#: src/authentic2/utils.py:917
+#: src/authentic2/utils.py:916
 #, python-format
 msgid "%s second"
 msgid_plural "%s seconds"
