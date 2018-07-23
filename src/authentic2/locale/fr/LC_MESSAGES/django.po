@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-07-19 22:07+0200\n"
-"PO-Revision-Date: 2018-07-05 14:08+0200\n"
+"PO-Revision-Date: 2018-07-23 09:51+0200\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
 "Language: fr\n"
@@ -318,15 +318,15 @@ msgstr "Fichier d'export de site"
 
 #: src/authentic2/forms/fields.py:29
 msgid "Both passwords must match."
-msgstr "Les deux mots de passe doivent être égaux."
+msgstr "Les deux mots de passe doivent être identiques."
 
 #: src/authentic2/forms/fields.py:30
 msgid "Passwords match."
-msgstr "Les mots de passe sont égaux."
+msgstr "Les mots de passe sont identiques."
 
 #: src/authentic2/forms/fields.py:31
 msgid "Passwords do not match."
-msgstr "Les mots de passe ne sont pas égaux."
+msgstr "Les mots de passe ne sont pas identiques."
 
 #: src/authentic2/forms/widgets.py:125
 msgid "Format:"
