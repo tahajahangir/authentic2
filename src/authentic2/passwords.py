@@ -111,7 +111,7 @@ def get_password_checker(*args, **kwargs):
 def validate_password(password):
     error = password_help_text(password, only_errors=True)
     if error:
-        raise ValidationError(mark_safe(error))
+        raise ValidationError(_('This password is not accepted.'))
 
 
 def password_help_text(password='', only_errors=False):
