@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Authentic\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-23 11:01+0200\n"
-"PO-Revision-Date: 2018-07-23 09:51+0200\n"
+"POT-Creation-Date: 2018-07-23 11:07+0200\n"
+"PO-Revision-Date: 2018-07-23 11:08+0200\n"
 "Last-Translator: Mikaël Ates <mates@entrouvert.com>\n"
 "Language-Team: None\n"
 "Language: fr\n"
@@ -586,6 +586,10 @@ msgstr "1 chiffre"
 #: src/authentic2/passwords.py:99
 msgid "1 uppercase letter"
 msgstr "1 majuscule"
+
+#: src/authentic2/passwords.py:114
+msgid "This password is not accepted."
+msgstr "Ce mot de passe n'est pas accepté."
 
 #: src/authentic2/passwords.py:122
 #, python-format
