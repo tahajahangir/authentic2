@@ -206,7 +206,7 @@ class ValidatorsTest(TestCase):
         from authentic2.validators import validate_password
         from django.core.exceptions import ValidationError
 
-        with self.assertRaisesRegexp(ValidationError, 'pasbon'):
+        with self.assertRaisesRegexp(ValidationError):
             validate_password('aaa')
         validate_password('12345678')
 
