@@ -7,6 +7,7 @@ import six
 import django
 from django import forms
 from django.db import models
+from django.db.models.lookups import Exact, In
 from django.core.exceptions import ValidationError
 from django.utils.text import capfirst
 from django.contrib.humanize.templatetags.humanize \
@@ -39,6 +40,12 @@ except ImportError:
     pass
 
 
+def do_pickle(value):
+    if value is not None and not isinstance(value, PickledObject):
+        value = PickledObject(pickle.dumps(value))
+    return value
+
+
 class PickledObjectField(models.Field):
 
     def to_python(self, value):
@@ -57,30 +64,31 @@ class PickledObjectField(models.Field):
         return self.to_python(value)
 
     def get_db_prep_save(self, value, connection):
-        if value is not None and not isinstance(value, PickledObject):
-            value = PickledObject(pickle.dumps(value))
-        return value
+        return do_pickle(value)
 
     def get_internal_type(self):
         return 'TextField'
 
     def value_to_string(self, obj):
-	return PickledObject(pickle.dumps(obj))
+        return PickledObject(pickle.dumps(obj))
 
-    def get_db_prep_lookup(self, lookup_type, value, connection,
-            prepared=False):
-        if lookup_type == 'exact':
-            value = self.get_db_prep_save(value, connection)
-            return super(PickledObjectField, self) \
-                    .get_db_prep_lookup(lookup_type, value, connection,
-                            prepared=prepared)
-        elif lookup_type == 'in':
-            value = [self.get_db_prep_save(v, connection) for v in value]
-            return super(PickledObjectField, self) \
-                    .get_db_prep_lookup(lookup_type, value, connection,
-                            prepared=prepared)
-        else:
-            raise TypeError('Lookup type %s is not supported.' % lookup_type)
+
+class PickledObjectFieldExact(Exact):
+
+    def get_db_prep_lookup(self, value, connection):
+        value = do_pickle(value)
+        return super(PickledObjectFieldExact, self).get_db_prep_lookup(value, connection)
+
+
+class PickledObjectFieldIn(In):
+
+    def get_db_prep_lookup(self, value, connection):
+        value = [do_pickle(v) for v in value]
+        return super(PickledObjectField, self).get_db_prep_lookup(value, connection)
+
+
+PickledObjectField.register_lookup(PickledObjectFieldExact)
+PickledObjectField.register_lookup(PickledObjectFieldIn)
 
 # This is a modified copy of http://djangosnippets.org/snippets/1200/
 #
