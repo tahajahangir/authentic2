@@ -83,7 +83,7 @@ class PermissionQueryset(query.QuerySet):
         '''
         Role = utils.get_role_model()
         roles = Role.objects.for_user(user=user)
-        return self.filter(roles=roles)
+        return self.filter(roles__in=roles)
 
     def cleanup(self):
         count = 0

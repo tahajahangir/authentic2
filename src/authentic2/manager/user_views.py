@@ -419,7 +419,7 @@ class UserRolesView(HideOUColumnMixin, BaseSubTableView):
             User = get_user_model()
             Role = get_role_model()
             RoleParenting = get_role_parenting_model()
-            rp_qs = RoleParenting.objects.filter(child=roles)
+            rp_qs = RoleParenting.objects.filter(child__in=roles)
             qs = Role.objects.all()
             qs = qs.prefetch_related(models.Prefetch(
                 'child_relation', queryset=rp_qs, to_attr='via'))

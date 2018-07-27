@@ -60,20 +60,6 @@ def get_permission_model():
     '''Returns the currently configured permission model'''
     return get_swapped_model(constants.RBAC_PERMISSION_MODEL_SETTING)
 
-def get_objects_with_permission(user, operation_slug, model):
-    '''Returns a list of objects for which this user has the permission for the
-       given operation.
-    '''
-    Permission = get_permission_model()
-    OrganizationalUnit = get_ou_model()
-    permissions = Permission.objects.for_user(user).filter(operation__slug=operation_slug)
-    if permissions.filter(ou__isnull=True).exists():
-        return model.objects.all()
-    if model._meta.get_field('ou'):
-        ous = OrganizationalUnit.objects.filter(scoped_permission=permissions)
-        return model.objects.filer(ou=ous)
-    else:
-        return model.objects.none()
 
 def get_operation(operation_tpl):
     from . import models
