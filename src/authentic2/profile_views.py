@@ -81,7 +81,10 @@ class PasswordResetConfirmView(cbv.RedirectToNextURLViewMixin, FormView):
                                         'or has expired'))
         if not validlink:
             return utils.redirect(request, self.get_success_url())
-        if not self.user.can_reset_password():
+        can_reset_password = utils.get_user_flag(user=self.user,
+                                                 name='can_reset_password',
+                                                 default=self.user.has_usable_password())
+        if not can_reset_password:
             messages.warning(request, _('It\'s not possible to reset your password. Please '
                                         'contact an administrator.'))
             return utils.redirect(request, self.get_success_url())

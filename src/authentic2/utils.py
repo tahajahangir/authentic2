@@ -1054,3 +1054,26 @@ def send_email_change_email(user, email, request=None, context=None, template_na
 def update_model(obj, d):
     for attr, value in d.items():
         setattr(obj, attr, value)
+
+
+def get_user_flag(user, name, default=None):
+    '''Get a boolean flag settable at user, by a hook, globally or ou wide'''
+    from . import hooks
+
+    setting_value = getattr(app_settings, 'A2_USER_' + name.upper(), None)
+    if setting_value is not None:
+        return bool(setting_value)
+
+    user_value = getattr(user, name, None)
+    if user_value is not None:
+        return user_value
+
+    hook_value = hooks.call_hooks_first_result('user_' + name, user=user)
+    if hook_value is not None:
+        return bool(hook_value)
+
+    if user.ou and hasattr(user.ou, 'user_' + name):
+        ou_value = getattr(user.ou, 'user_' + name, None)
+        if ou_value is not None:
+            return ou_value
+    return default

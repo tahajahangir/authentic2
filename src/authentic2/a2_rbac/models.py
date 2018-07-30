@@ -44,6 +44,9 @@ class OrganizationalUnit(OrganizationalUnitAbstractBase):
                                   content_type_field='target_ct',
                                   object_id_field='target_id')
 
+    user_can_reset_password = models.NullBooleanField(
+        verbose_name=_('Users can reset password'))
+
     objects = managers.OrganizationalUnitManager()
 
     class Meta:

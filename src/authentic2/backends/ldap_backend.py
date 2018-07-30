@@ -216,6 +216,7 @@ class LDAPUser(get_user_model()):
         if hasattr(self, 'keep_pk'):
             self.pk = pk
 
+    @property
     def can_reset_password(self):
         return self.block['can_reset_password']
 

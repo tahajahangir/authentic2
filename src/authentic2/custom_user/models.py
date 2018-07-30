@@ -250,8 +250,5 @@ class User(AbstractBaseUser, PermissionMixin):
                         attribute.set_value(self, getattr(self, attr_name, None))
         return rc
 
-    def can_reset_password(self):
-        return self.has_usable_password()
-
     def can_change_password(self):
         return app_settings.A2_REGISTRATION_CAN_CHANGE_PASSWORD

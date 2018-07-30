@@ -49,6 +49,14 @@ class AppSettings(object):
             add_realms(self.A2_REALMS)
         return realms.items()
 
+    @property
+    def A2_USER_CAN_RESET_PASSWORD(self):
+        if hasattr(self.settings, 'A2_USER_CAN_RESET_PASSWORD'):
+            return self.settings.A2_USER_CAN_RESET_PASSWORD
+        if hasattr(self.settings, 'A2_CAN_RESET_PASSWORD'):
+            return self.settings.A2_CAN_RESET_PASSWORD
+        return self.defaults['A2_USER_CAN_RESET_PASSWORD'].default
+
     def __getattr__(self, key):
         if key not in self.defaults:
             raise AttributeError('unknown key %s' % key)
@@ -107,7 +115,7 @@ default_settings = dict(
                 definition='Include empty fields in profile view'),
     A2_HOMEPAGE_URL = Setting(default=None, definition='IdP has no homepage, '
         'redirect to this one.'),
-    A2_CAN_RESET_PASSWORD = Setting(default=True, definition='Allow online reset of passwords'),
+    A2_USER_CAN_RESET_PASSWORD = Setting(default=None, definition='Allow online reset of passwords'),
     A2_EMAIL_IS_UNIQUE = Setting(default=False,
         definition='Email of users must be unique'),
     A2_REGISTRATION_EMAIL_IS_UNIQUE = Setting(default=False,

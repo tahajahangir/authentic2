@@ -292,7 +292,7 @@ def login(request, template_name='authentic2/login.html',
 
     context_instance = RequestContext(request, {
         'cancel': nonce is not None,
-        'can_reset_password': app_settings.A2_CAN_RESET_PASSWORD,
+        'can_reset_password': app_settings.A2_USER_CAN_RESET_PASSWORD is not False,
         'registration_authorized': getattr(settings, 'REGISTRATION_OPEN', True),
         'registration_url': registration_url,
     })
