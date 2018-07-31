@@ -11,7 +11,6 @@ from django.contrib.contenttypes.models import ContentType
 
 from model_utils.managers import QueryManager
 
-from . import attribute_kinds
 from authentic2.a2_rbac.models import Role
 from authentic2.a2_rbac.utils import get_default_ou
 from django_rbac.utils import get_role_model_name
@@ -171,6 +170,7 @@ class Attribute(models.Model):
     user_attributes = QueryManager(user_editable=True)
 
     def get_form_field(self, **kwargs):
+        from . import attribute_kinds
         kwargs['label'] = self.label
         kwargs['required'] = self.required
         if self.description:
@@ -178,6 +178,7 @@ class Attribute(models.Model):
         return attribute_kinds.get_form_field(self.kind, **kwargs)
 
     def get_kind(self):
+        from . import attribute_kinds
         return attribute_kinds.get_kind(self.kind)
 
     def contribute_to_form(self, form, **kwargs):

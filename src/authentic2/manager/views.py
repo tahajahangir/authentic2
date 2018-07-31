@@ -4,7 +4,6 @@ import inspect
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.views.generic.base import ContextMixin
-from django.views.generic.edit import FormMixinBase
 from django.views.generic import (FormView, UpdateView, CreateView, DeleteView, TemplateView,
                                   DetailView, View)
 from django.views.generic.detail import SingleObjectMixin
@@ -33,7 +32,17 @@ from authentic2 import hooks
 from . import app_settings, utils
 
 
-class MediaMixinBase(MediaDefiningClass, FormMixinBase):
+# https://github.com/MongoEngine/django-mongoengine/blob/master/django_mongoengine/views/edit.py
+import django.views.generic.edit
+
+try:
+    FormMixin = django.views.generic.edit.FormMixinBase
+except AttributeError:
+    # django >= 1.10
+    FormMixin = django.views.generic.edit.FormMixin
+
+
+class MediaMixinBase(MediaDefiningClass, FormMixin):
     pass
 
 

@@ -20,7 +20,6 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.contrib import messages
 from django.utils.translation import ugettext as _
-from django.utils.http import urlencode, same_origin
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import (HttpResponseRedirect, HttpResponseForbidden,
