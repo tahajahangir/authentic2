@@ -1175,7 +1175,7 @@ class LDAPBackend(object):
 
 
 class LDAPBackendPasswordLost(LDAPBackend):
-    def authenticate(self, user=None, **kwargs):
+    def authenticate(self, user=None):
         if not user:
             return
         config = self.get_config()
