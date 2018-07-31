@@ -105,6 +105,7 @@ class PickerWidgetMixin(object):
         return format
 
     def render(self, name, value, attrs=None):
+        attrs = attrs or {}
         final_attrs = self.build_attrs(attrs)
         final_attrs['class'] = "controls input-append date"
         rendered_widget = super(PickerWidgetMixin, self).render(name, value, final_attrs)
