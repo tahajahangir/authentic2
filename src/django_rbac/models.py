@@ -125,7 +125,7 @@ Operation._meta.natural_key = ['slug']
 
 class PermissionAbstractBase(models.Model):
     operation = models.ForeignKey(
-        to='Operation',
+        to=Operation,
         verbose_name=_('operation'))
     ou = models.ForeignKey(
         to=utils.get_ou_model_name(),

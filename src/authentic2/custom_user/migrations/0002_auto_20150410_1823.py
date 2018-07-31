@@ -13,6 +13,8 @@ class ThirdPartyAlterField(migrations.AlterField):
         super(ThirdPartyAlterField, self).state_forwards(self.app_label, state)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        if hasattr(from_state, 'clear_delayed_apps_cache'):
+            from_state.clear_delayed_apps_cache()
         super(ThirdPartyAlterField, self).database_forwards(self.app_label,
                 schema_editor, from_state, to_state)
 

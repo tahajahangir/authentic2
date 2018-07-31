@@ -44,6 +44,8 @@ class CreatePartialIndexes(Operation):
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        if hasattr(from_state, 'clear_delayed_apps_cache'):
+            from_state.clear_delayed_apps_cache()
         if not self.allowed(app_label, schema_editor, to_state):
             return
         for i, (where, non_null_columns) in enumerate(self.indexes()):

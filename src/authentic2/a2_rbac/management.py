@@ -125,7 +125,3 @@ def update_content_types_roles():
             ct_admin_role.permissions.add(view_user_perm)
         ct_admin_role.permissions.add(search_ou_perm)
         ct_admin_role.add_child(admin_role)
-
-post_migrate.connect(
-    signal_handlers.post_migrate_update_rbac,
-    sender=apps.get_app_config('a2_rbac'))
