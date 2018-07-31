@@ -132,9 +132,10 @@ class UserAddView(BaseAddView):
         return reverse('a2-manager-user-detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
-        kwargs['cancel_url'] = '../..'
-        kwargs['ou'] = self.ou
-        return super(UserAddView, self).get_context_data(**kwargs)
+        context = super(UserAddView, self).get_context_data(**kwargs)
+        context['cancel_url'] = '../..'
+        context['ou'] = self.ou
+        return context
 
     def form_valid(self, form):
         response = super(UserAddView, self).form_valid(form)
