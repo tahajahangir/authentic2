@@ -106,7 +106,7 @@ class RoleQuerySet(query.QuerySet):
         return self.filter(members=user).parents().distinct()
 
     def parents(self, include_self=True, annotate=False):
-        qs = self.model.objects.filter(child_relation__child=self)
+        qs = self.model.objects.filter(child_relation__child__in=self)
         if include_self:
             qs = self | qs
         qs = qs.distinct()
@@ -115,7 +115,7 @@ class RoleQuerySet(query.QuerySet):
         return qs
 
     def children(self, include_self=True, annotate=False):
-        qs = self.model.objects.filter(parent_relation__parent=self)
+        qs = self.model.objects.filter(parent_relation__parent__in=self)
         if include_self:
             qs = self | qs
         qs = qs.distinct()
@@ -126,7 +126,7 @@ class RoleQuerySet(query.QuerySet):
     def all_members(self):
         User = get_user_model()
         prefetch = Prefetch('roles', queryset=self, to_attr='direct')
-        return (User.objects.filter(Q(roles=self) | Q(roles__parent_relation__parent=self))
+        return (User.objects.filter(Q(roles__in=self) | Q(roles__parent_relation__parent__in=self))
                 .distinct()
                 .prefetch_related(prefetch))
 

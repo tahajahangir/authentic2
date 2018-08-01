@@ -448,7 +448,7 @@ class OUSearchForm(FormWithRequest):
                 # get possible OUs from this list
                 related_query_name = self.queryset.model._meta.get_field('ou').related_query_name()
                 objects_ou_qs = get_ou_model().objects.filter(
-                    **{related_query_name: self.queryset}).distinct()
+                    **{"%s__in" % related_query_name: self.queryset}).distinct()
                 # to combine queryset with distinct, each queryset must have the distinct flag
                 self.ou_qs = (self.ou_qs.distinct() | objects_ou_qs)
 
