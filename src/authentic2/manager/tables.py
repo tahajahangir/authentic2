@@ -113,9 +113,9 @@ class OuUserRolesTable(tables.Table):
                              kwargs={'pk': A('pk')},
                              accessor='name', verbose_name=_('label'))
     via = tables.TemplateColumn(
-        '''{% for rel in row.record.via %}{{ rel.child }} {% if not forloop.last %}, {% endif %}{% endfor %}''',
+        '''{% for rel in record.via %}{{ rel.child }} {% if not forloop.last %}, {% endif %}{% endfor %}''',
         verbose_name=_('Inherited from'), orderable=False)
-    member = tables.TemplateColumn('''{% load i18n %}<input class="role-member{% if not row.record.member and row.record.via %} indeterminate{% endif %}" name='role-{{ row.record.pk }}' type='checkbox' {% if row.record.member %}checked{% endif %} {% if not row.record.has_perm %}disabled title="{% trans "You are not authorized to manage this role" %}"{% endif %}/>''',
+    member = tables.TemplateColumn('''{% load i18n %}<input class="role-member{% if not record.member and record.via %} indeterminate{% endif %}" name='role-{{ record.pk }}' type='checkbox' {% if record.member %}checked{% endif %} {% if not record.has_perm %}disabled title="{% trans "You are not authorized to manage this role" %}"{% endif %}/>''',
                                   verbose_name=_('Member'), order_by=('member', 'via', 'name'))
 
 
@@ -132,7 +132,7 @@ class UserRolesTable(tables.Table):
                              accessor='name', verbose_name=_('label'))
     ou = tables.Column()
     via = tables.TemplateColumn(
-        '''{% if not row.record.member %}{% for rel in row.record.child_relation.all %}{{ rel.child }} {% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}''',
+        '''{% if not record.member %}{% for rel in record.child_relation.all %}{{ rel.child }} {% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}''',
         verbose_name=_('Inherited from'), orderable=False)
 
     class Meta:
