@@ -167,6 +167,9 @@ class User(AbstractBaseUser, PermissionMixin):
     def __repr__(self):
         return '<User: %r>' % unicode(self)
 
+    def clean(self):
+        pass
+
     def clean_fields(self, exclude=None):
         errors = {}
 
