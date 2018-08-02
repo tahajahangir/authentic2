@@ -66,6 +66,13 @@ class ModelBackend(ModelBackend):
             else:
                 user_login_failure(user.get_username())
 
+    def get_user(self, user_id):
+        UserModel = get_user_model()
+        try:
+            return UserModel._default_manager.get(pk=user_id)
+        except UserModel.DoesNotExist:
+            return None
+
     def get_saml2_authn_context(self):
         import lasso
         return lasso.SAML2_AUTHN_CONTEXT_PASSWORD
