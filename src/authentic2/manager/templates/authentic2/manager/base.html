@@ -1,6 +1,7 @@
 {% extends "gadjo/base.html" %}
 {% load i18n staticfiles %}
 
+{% block gadjo-js %}{% endblock %}
 {% block bodyargs %} class="{% block bodyclasses %}{% endblock %}"{% endblock %}
 
 {% block page-title %}{% firstof manager_site_title site_title "Authentic2" %}{% endblock %}

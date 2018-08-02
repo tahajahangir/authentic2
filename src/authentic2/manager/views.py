@@ -20,6 +20,8 @@ from django_tables2 import SingleTableView, SingleTableMixin
 
 from django_select2.views import AutoResponseView
 
+from gadjo.templatetags.gadjo import xstatic
+
 from django_rbac.utils import get_ou_model
 
 from authentic2.data_transfer import export_site, import_site, DataImportError, ImportContext
@@ -50,7 +52,9 @@ class MediaMixin(object):
     class Media:
         js = (
             reverse_lazy('a2-manager-javascript-catalog'),
-            'xstatic/jquery.js',
+            xstatic('jquery.js', 'jquery.min.js'),
+            xstatic('jquery-ui.js', 'jquery-ui.min.js'),
+            'js/gadjo.js',
             'jquery/js/jquery.form.js',
             'admin/js/urlify.js',
             'authentic2/js/purl.js',
