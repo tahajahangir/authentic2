@@ -34,6 +34,9 @@ class LoginPasswordBackend(object):
                     how = 'password-on-https'
                 else:
                     how = 'password'
+                if form.cleaned_data.get('remember_me'):
+                    request.session['remember_me'] = True
+                    request.session.set_expiry(app_settings.A2_USER_REMEMBER_ME)
                 return utils.login(request, form.get_user(), how,
                                    service_slug=request.GET.get(constants.SERVICE_FIELD_NAME))
         context['form'] = form

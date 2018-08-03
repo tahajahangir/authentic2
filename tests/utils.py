@@ -16,7 +16,7 @@ skipif_sqlite = pytest.mark.skipif('sqlite' in settings.DATABASES['default']['EN
                                    reason='this test does not work with sqlite')
 
 
-def login(app, user, path=None, password=None):
+def login(app, user, path=None, password=None, remember_me=None):
     if path:
         login_page = app.get(path, status=302).maybe_follow()
     else:
@@ -26,6 +26,8 @@ def login(app, user, path=None, password=None):
     form.set('username', user.username if hasattr(user, 'username') else user)
     # password is supposed to be the same as username
     form.set('password', password or user.username)
+    if remember_me is not None:
+        form.set('remember_me', bool(remember_me))
     response = form.submit(name='login-password-submit').follow()
     if path:
         assert response.request.path == path

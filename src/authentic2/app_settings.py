@@ -193,6 +193,10 @@ default_settings = dict(
         default={},
         definition='Exclusion filter (as in QuerySet.exclude() to apply to User queryset before '
                    'authentication'),
+    A2_USER_REMEMBER_ME=Setting(
+        default=None,
+        definition='Session duration as seconds when using the remember me '
+                  'checkbox. Truthiness activates the checkbox.'),
     A2_LOGIN_REDIRECT_AUTHENTICATED_USERS_TO_HOMEPAGE=Setting(
         default=False,
         definition='Redirect authenticated users to homepage'),

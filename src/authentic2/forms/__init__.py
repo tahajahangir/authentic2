@@ -159,6 +159,11 @@ def modelform_factory(model, **kwargs):
 
 class AuthenticationForm(auth_forms.AuthenticationForm):
     password = PasswordField(label=_('Password'))
+    remember_me = forms.BooleanField(
+        initial=False,
+        required=False,
+        label=_('Remember me'),
+        help_text=_('Do not ask for authentication next time'))
 
     def __init__(self, *args, **kwargs):
         super(AuthenticationForm, self).__init__(*args, **kwargs)
@@ -166,6 +171,9 @@ class AuthenticationForm(auth_forms.AuthenticationForm):
             key_prefix='login-exp-backoff-',
             duration=app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_DURATION,
             factor=app_settings.A2_LOGIN_EXPONENTIAL_RETRY_TIMEOUT_FACTOR)
+
+        if not app_settings.A2_USER_REMEMBER_ME:
+            del self.fields['remember_me']
 
         if self.request:
             self.remote_addr = self.request.META['REMOTE_ADDR']

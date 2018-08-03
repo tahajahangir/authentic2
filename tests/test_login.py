@@ -76,3 +76,44 @@ def test_encoded_utf8_in_next_url(app, db):
     response = response.follow()
     needle = 'next=%s' % quote(url)
     assert needle in response.content
+
+
+def test_session_expire(app, simple_user, freezer):
+    freezer.move_to('2018-01-01')
+    # Verify session work as usual
+    login(app, simple_user)
+    response = app.get('/')
+    assert simple_user.first_name in response
+    freezer.move_to('2018-01-15')
+    response = app.get('/')
+    assert simple_user.first_name not in response
+
+
+def test_session_remember_me_ok(app, settings, simple_user, freezer):
+    settings.A2_USER_REMEMBER_ME = 3600 * 24 * 30
+    freezer.move_to('2018-01-01')
+    # Verify session are longer
+    login(app, simple_user, remember_me=True)
+
+    response = app.get('/')
+    assert simple_user.first_name in response
+
+    # less than 30 days, session is still alive
+    freezer.move_to('2018-01-30')
+    response = app.get('/')
+    assert simple_user.first_name in response
+
+
+def test_session_remember_me_nok(app, settings, simple_user, freezer):
+    settings.A2_USER_REMEMBER_ME = 3600 * 24 * 30
+    freezer.move_to('2018-01-01')
+    # Verify session are longer
+    login(app, simple_user, remember_me=True)
+
+    response = app.get('/')
+    assert simple_user.first_name in response
+
+    # more than 30 days, session is dead
+    freezer.move_to('2018-01-31')
+    response = app.get('/')
+    assert simple_user.first_name not in response
