@@ -3,6 +3,7 @@ import importlib
 import json
 
 from django.core import management
+from django.utils.timezone import now
 import py
 
 from authentic2.models import Attribute, DeletedUser
@@ -24,7 +25,7 @@ def test_changepassword(db, simple_user, monkeypatch):
 
 
 def test_clean_unused_account(simple_user):
-    simple_user.last_login = datetime.datetime.now() - datetime.timedelta(days=2)
+    simple_user.last_login = now() - datetime.timedelta(days=2)
     simple_user.save()
     management.call_command('clean-unused-accounts', '1')
     assert DeletedUser.objects.get(user=simple_user)
