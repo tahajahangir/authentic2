@@ -680,3 +680,10 @@ def test_manager_ou(app, superuser_or_admin, ou1):
     assert len(ou_homepage.pyquery('span.true')) == 1
     assert len(ou_homepage.pyquery('tr[data-pk="%s"] td.default span.true' % ou2.pk)) == 0
     assert len(ou_homepage.pyquery('tr[data-pk="%s"] td.default span.true' % old_default.pk)) == 1
+
+
+def test_return_on_logout(superuser, app):
+    '''Verify we will return to /manage/ after logout/login cycle'''
+    manager_home_page = login(app, superuser, reverse('a2-manager-homepage'))
+    response = manager_home_page.click('Logout').maybe_follow()
+    assert response.request.query_string == 'next=/manage/'

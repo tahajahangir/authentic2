@@ -7,7 +7,7 @@
 {% block page-title %}{% firstof manager_site_title site_title "Authentic2" %}{% endblock %}
 {% block site-title %}{% firstof manager_site_title site_title "Authentic2" %}{% endblock %}
 
-{% block logout-url %}{% url 'auth_logout' %}{% endblock %}
+{% block logout-url %}{% url 'auth_logout' %}?next={{ request.get_full_path|urlencode }}{% endblock %}
 
 {% block appbar %}
   <h2>{% block page_title %}{{ title }}{% endblock %}</h2>
