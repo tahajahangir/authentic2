@@ -204,7 +204,10 @@ class TimeWidget(PickerWidgetMixin, TimeInput):
 
 class PasswordInput(BasePasswordInput):
     class Media:
-        js = ('authentic2/js/password.js',)
+        js = (
+            xstatic('jquery', 'jquery.min.js'),
+            'authentic2/js/password.js',
+        )
         css = {
             'all': ('authentic2/css/password.css',)
         }
