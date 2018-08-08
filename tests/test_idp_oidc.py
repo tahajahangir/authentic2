@@ -11,8 +11,11 @@ from jwcrypto.jwk import JWKSet, JWK
 import utils
 
 from django.core.urlresolvers import reverse
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
 from django.utils.timezone import now
 from django.contrib.auth import get_user_model
+
 
 User = get_user_model()
 
@@ -856,9 +859,6 @@ def test_registration_service_slug(oidc_settings, app, simple_oidc_client, simpl
 
 
 def test_oidclient_claims_data_migration():
-    from django.db import connection
-    from django.db.migrations.executor import MigrationExecutor
-
     executor = MigrationExecutor(connection)
     app = 'authentic2_idp_oidc'
     migrate_from = [(app, '0009_auto_20180313_1156')]
@@ -875,6 +875,54 @@ def test_oidclient_claims_data_migration():
     executor.loader.build_graph()
     client = OIDCClient.objects.first()
     assert OIDCClaim.objects.filter(client=client.id).count() == 5
+
+
+def test_oidclient_preferred_username_as_identifier_data_migration():
+    executor = MigrationExecutor(connection)
+    app = 'authentic2_idp_oidc'
+    migrate_from = [(app, '0010_oidcclaim')]
+    migrate_to = [(app, '0011_auto_20180808_1546')]
+    executor.migrate(migrate_from)
+    executor.loader.build_graph()
+    old_apps = executor.loader.project_state(migrate_from).apps
+    OIDCClient = old_apps.get_model('authentic2_idp_oidc', 'OIDCClient')
+    OIDCClaim = old_apps.get_model('authentic2_idp_oidc', 'OIDCClaim')
+    client1 = OIDCClient.objects.create(name='test', slug='test', redirect_uris='https://example.net/')
+    client2 = OIDCClient.objects.create(name='test1', slug='test1', redirect_uris='https://example.net/')
+    client3 = OIDCClient.objects.create(name='test2', slug='test2', redirect_uris='https://example.net/')
+    client4 = OIDCClient.objects.create(name='test3', slug='test3', redirect_uris='https://example.net/')
+    for client in (client1, client2, client3, client4):
+        if client.name == 'test1':
+            continue
+        if client.name == 'test3':
+            OIDCClaim.objects.create(client=client, name='preferred_username', value='django_user_full_name', scopes='profile')
+        else:
+            OIDCClaim.objects.create(client=client, name='preferred_username', value='django_user_username', scopes='profile')
+        OIDCClaim.objects.create(client=client, name='given_name', value='django_user_first_name', scopes='profile')
+        OIDCClaim.objects.create(client=client, name='family_name', value='django_user_last_name', scopes='profile')
+        if client.name == 'test2':
+            continue
+        OIDCClaim.objects.create(client=client, name='email', value='django_user_email', scopes='email')
+        OIDCClaim.objects.create(client=client, name='email_verified', value='django_user_email_verified', scopes='email')
+    executor.migrate(migrate_to)
+    executor.loader.build_graph()
+    client = OIDCClient.objects.first()
+    for client in OIDCClient.objects.all():
+        claims = client.oidcclaim_set.all()
+        if client.name == 'test':
+            assert claims.count() == 5
+            assert sorted(claims.values_list('name', flat=True)) == [u'email', u'email_verified', u'family_name', u'given_name', u'preferred_username']
+            assert sorted(claims.values_list('value', flat=True)) == [u'django_user_email', u'django_user_email_verified', u'django_user_first_name', u'django_user_identifier', u'django_user_last_name']
+        elif client.name == 'test2':
+            assert claims.count() == 3
+            assert sorted(claims.values_list('name', flat=True)) == [u'family_name', u'given_name', u'preferred_username']
+            assert sorted(claims.values_list('value', flat=True)) == [u'django_user_first_name', u'django_user_last_name', u'django_user_username']
+        elif client.name == 'test3':
+            assert claims.count() == 5
+            assert sorted(claims.values_list('name', flat=True)) == [u'email', u'email_verified', u'family_name', u'given_name', u'preferred_username']
+            assert sorted(claims.values_list('value', flat=True)) == [u'django_user_email', u'django_user_email_verified', u'django_user_first_name', u'django_user_full_name', u'django_user_last_name']
+        else:
+            assert claims.count() == 0
 
 
 def test_api_synchronization(app, oidc_client):

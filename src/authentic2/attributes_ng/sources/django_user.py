@@ -76,7 +76,7 @@ def get_attributes(instance, ctx):
     if user.username:
         splitted = user.username.rsplit('@', 1)
         ctx['django_user_domain'] = splitted[1] if '@' in user.username else ''
-        ctx['django_user_identifier'] = splitted[0] if '@' in user.username else ''
+        ctx['django_user_identifier'] = splitted[0]
     ctx['django_user_full_name'] = user.get_full_name()
     Role = get_role_model()
     roles = Role.objects.for_user(user)

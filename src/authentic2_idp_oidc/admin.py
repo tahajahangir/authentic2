@@ -32,7 +32,7 @@ class OIDCClaimInlineAdmin(admin.TabularInline):
         # values on the GET (display of the creation form)
         if request.method == 'GET' and not obj:
             initial.extend([
-                {'name': 'preferred_username', 'value': 'django_user_username', 'scopes': 'profile'},
+                {'name': 'preferred_username', 'value': 'django_user_identifier', 'scopes': 'profile'},
                 {'name': 'given_name', 'value': 'django_user_first_name', 'scopes': 'profile'},
                 {'name': 'family_name', 'value': 'django_user_last_name', 'scopes': 'profile'},
                 {'name': 'email', 'value': 'django_user_email', 'scopes': 'email'},
