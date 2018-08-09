@@ -135,6 +135,7 @@ class RegistrationCompletionView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.token = request.token
+        self.authentication_method = self.token.get('authentication_method', 'email')
         self.email = request.token['email']
         if 'ou' in self.token:
             self.ou = OrganizationalUnit.objects.get(pk=self.token['ou'])
@@ -265,7 +266,9 @@ class RegistrationCompletionView(CreateView):
     def get(self, request, *args, **kwargs):
         if len(self.users) == 1 and self.email_is_unique:
             # Found one user, EMAIL is unique, log her in
-            simulate_authentication(request, self.users[0], method='email', service_slug=self.service)
+            simulate_authentication(request, self.users[0],
+                                    method=self.authentication_method,
+                                    service_slug=self.service)
             return redirect(request, self.get_success_url())
         confirm_data = self.token.get('confirm_data', False)
 
@@ -300,7 +303,8 @@ class RegistrationCompletionView(CreateView):
             uid = request.POST['uid']
             for user in self.users:
                 if str(user.id) == uid:
-                    simulate_authentication(request, user, method='email',
+                    simulate_authentication(request, user,
+                                            method=self.authentication_method,
                                             service_slug=self.service)
                     return redirect(request, self.get_success_url())
         return super(RegistrationCompletionView, self).post(request, *args, **kwargs)
@@ -332,8 +336,9 @@ class RegistrationCompletionView(CreateView):
 
     def registration_success(self, request, user, form):
         hooks.call_hooks('event', name='registration', user=user, form=form, view=self,
+                         authentication_method=self.authentication_method,
                          token=request.token, service=self.service)
-        simulate_authentication(request, user, method='email',
+        simulate_authentication(request, user, method=self.authentication_method,
                                 service_slug=self.service)
         messages.info(self.request, _('You have just created an account.'))
         self.send_registration_success_email(user)

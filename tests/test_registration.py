@@ -602,3 +602,38 @@ def test_registration_activate_passwords_not_equal(app, db, settings, mailoutbox
     response.form.set('password2', 'AAAazerty12AZ')
     response = response.form.submit()
     assert "The two password fields didn&#39;t match." in response.content
+
+
+def test_authentication_method(app, db, rf, hooks):
+    activation_url = utils.build_activation_url(
+        rf.post('/accounts/register/'),
+        email='john.doe@example.com',
+        next_url='/',
+        first_name='John',
+        last_name='Doe',
+        no_password=True,
+        confirm_data=False)
+    app.get(activation_url)
+
+    assert len(hooks.calls['event']) == 2
+    assert hooks.calls['event'][-2]['kwargs']['name'] == 'registration'
+    assert hooks.calls['event'][-2]['kwargs']['authentication_method'] == 'email'
+    assert hooks.calls['event'][-1]['kwargs']['name'] == 'login'
+    assert hooks.calls['event'][-1]['kwargs']['how'] == 'email'
+
+    activation_url = utils.build_activation_url(
+        rf.post('/accounts/register/'),
+        email='jane.doe@example.com',
+        next_url='/',
+        first_name='Jane',
+        last_name='Doe',
+        no_password=True,
+        authentication_method='another',
+        confirm_data=False)
+    app.get(activation_url)
+
+    assert len(hooks.calls['event']) == 4
+    assert hooks.calls['event'][-2]['kwargs']['name'] == 'registration'
+    assert hooks.calls['event'][-2]['kwargs']['authentication_method'] == 'another'
+    assert hooks.calls['event'][-1]['kwargs']['name'] == 'login'
+    assert hooks.calls['event'][-1]['kwargs']['how'] == 'another'
