@@ -118,6 +118,7 @@ DEFAULT_ATTRIBUTE_KINDS = [
         'field_class': forms.BooleanField,
         'serialize': lambda x: str(int(bool(x))),
         'deserialize': lambda x: bool(int(x)),
+        'rest_framework_field_class': serializers.NullBooleanField,
     },
     {
         'label': _('date'),

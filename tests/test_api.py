@@ -141,6 +141,16 @@ def test_api_users_list(app, user):
     assert resp.json['next'] is None
 
 
+def test_api_users_boolean_attribute(app, superuser):
+    from authentic2.models import Attribute, AttributeValue
+    at = Attribute.objects.create(
+            kind='boolean', name='boolean', label='boolean', required=True)
+    superuser.attributes.boolean = True
+    app.authorization = ('Basic', (superuser.username, superuser.username))
+    resp = app.get('/api/users/%s/' % superuser.uuid)
+    assert resp.json['boolean'] is True
+
+
 def test_api_users_list_by_authorized_service(app, superuser):
     from authentic2.models import Service
 
