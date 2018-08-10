@@ -405,6 +405,7 @@ class SubTableViewMixin(TableHookMixin, FormatsContextData, ModelNameMixin, Perm
                         SingleTableMixin, ContextMixin):
     '''Helper class for views showing a table of objects related to one object'''
     context_object_name = 'object'
+    paginate_by = None
 
 
 class SimpleSubTableView(TitleMixin, SubTableViewMixin, TemplateView):
