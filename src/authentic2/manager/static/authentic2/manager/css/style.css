@@ -188,6 +188,11 @@ form input[type="checkbox"] {
   margin-left: 50%;
 }
 
+#id_last_name_p::after, #id_password2_p::after {
+  content: "";
+  display: block;
+  clear: both;
+}
 
 #id_generate_password_p label, #id_reset_password_at_next_login_p label,
 #id_send_mail_p label, #id_is_superuser_p label {
