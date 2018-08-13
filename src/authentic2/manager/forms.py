@@ -266,6 +266,7 @@ class UserChangePasswordForm(CssClass, forms.ModelForm):
         new_password = None
         if self.cleaned_data.get('generate_password'):
             new_password = generate_password()
+            self.cleaned_data['send_mail'] = True
         elif self.cleaned_data.get('password1'):
             new_password = self.cleaned_data["password1"]
 
