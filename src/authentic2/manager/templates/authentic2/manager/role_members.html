@@ -24,7 +24,7 @@
     <a class="disabled" title="{% trans "This role is technical, you cannot delete it." %}" href="#">{% trans "Delete" %}</a>
   {% endif %}
   {% if view.can_change and not object.is_internal %}
-    <a rel="popup" href="{% url "a2-manager-role-edit" pk=object.pk %}">{% trans "Edit" %}</a>
+    <a href="{% url "a2-manager-role-edit" pk=object.pk %}">{% trans "Edit" %}</a>
   {% else %}
     {% if not view.can_change %}
       <a class="disabled" title="{% trans "Permission denied" %}" href="#">{% trans "Edit" %}</a>
