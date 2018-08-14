@@ -596,11 +596,11 @@ def send_templated_mail(user_or_email, template_names, context=None, with_html=T
 
     subject_template_names = [template_name + '_subject.txt' for template_name in template_names]
     subject_template_names += legacy_subject_templates or []
-    subject = render_to_string(subject_template_names, ctx).strip()
+    subject = render_to_string(subject_template_names, ctx, request=request).strip()
 
     body_template_names = [template_name + '_body.txt' for template_name in template_names]
     body_template_names += legacy_body_templates or []
-    body = render_to_string(body_template_names, ctx)
+    body = render_to_string(body_template_names, ctx, request=request)
 
     html_body = None
     html_body_template_names = [template_name + '_body.html' for template_name in template_names]
