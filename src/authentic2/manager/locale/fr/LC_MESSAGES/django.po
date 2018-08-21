@@ -378,7 +378,7 @@ msgstr "Exporter"
 
 #: manager/templates/authentic2/manager/form.html:33
 msgid "The form contains some errors, please fix them."
-msgstr "Ce formulaire contient des erreurs, corrigez les."
+msgstr "Ce formulaire contient des erreurs, veuillez les corriger."
 
 #: manager/templates/authentic2/manager/form.html:68
 msgid "Save"
