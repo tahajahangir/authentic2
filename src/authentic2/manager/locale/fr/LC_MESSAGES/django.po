@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: authentic2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-09 12:08+0200\n"
-"PO-Revision-Date: 2018-06-09 12:08+0200\n"
+"PO-Revision-Date: 2018-08-21 15:08+0200\n"
 "Last-Translator: Benjamin Dauvergne <bdauvergne@entrouvert.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "Language: \n"
@@ -56,7 +56,7 @@ msgstr "Vous devez au moins définir soit un identifiant soit un courriel."
 
 #: manager/forms.py:221
 msgid "Email already used."
-msgstr "Ce couriel est déjà utilisé."
+msgstr "Ce courriel est déjà utilisé."
 
 #: manager/forms.py:232
 msgid "The two password fields didn't match."
