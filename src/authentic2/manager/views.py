@@ -679,7 +679,7 @@ class SiteExport(View):
 site_export = SiteExport.as_view()
 
 
-class SiteImportView(FormView):
+class SiteImportView(MediaMixin, FormView):
     form_class = SiteImportForm
     template_name = 'authentic2/manager/site_import.html'
     success_url = reverse_lazy('a2-manager-homepage')
