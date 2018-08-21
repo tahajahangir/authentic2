@@ -5,11 +5,13 @@
 
 {% block appbar %}
   {{ block.super }}
+  <span class="actions">
   {% if view.can_add %}
     <a href="{% url "a2-manager-role-add" %}" rel="popup">{% trans "Add role" %}</a>
   {% else %}
     <a href="#" class="disabled" rel="popup">{% trans "Add role" %}</a>
   {% endif %}
+  </span>
 {% endblock %}
 
 {% block sidebar %}

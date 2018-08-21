@@ -5,6 +5,7 @@
 
 {% block appbar %}
   {{ block.super }}
+  <span class="actions">
   {% if view.can_delete %}
     <a rel="popup" href="{% url "a2-manager-user-delete" pk=object.pk %}">{% trans "Delete" %}</a>
   {% else %}
@@ -16,6 +17,7 @@
   {% else %}
     <a class="disabled" title="{% trans "You do not have the rights to edit this user." %}" href="#">{% trans "Edit" %}</a>
   {% endif %}
+  </span>
 {% endblock %}
 
 {% block breadcrumb %}

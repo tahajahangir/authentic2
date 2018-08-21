@@ -18,6 +18,7 @@
 
 {% block appbar %}
   {{ block.super }}
+  <span class="actions">
   {% if not object.is_internal and view.can_delete %}
     <a rel="popup" href="{% url "a2-manager-role-delete" pk=object.pk %}">{% trans "Delete" %}</a>
   {% else %}
@@ -35,6 +36,7 @@
   {% if perms.a2_rbac.admin_permission %}
     <a href="{% url "a2-manager-role-permissions" pk=object.pk %}">{% trans "Permissions" %}</a>
   {% endif %}
+  </span>
 {% endblock %}
 
 

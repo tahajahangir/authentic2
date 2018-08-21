@@ -5,6 +5,7 @@
 
 {% block appbar %}
   {{ block.super }}
+  <span class="actions">
     {% if add_ou %}
      <a
         href="{% url "a2-manager-user-add" ou_pk=add_ou.pk %}"
@@ -19,6 +20,7 @@
          {% trans "Add user" %}
      </a>
    {% endif %}
+  </span>
 {% endblock %}
 
 {% block breadcrumb %}

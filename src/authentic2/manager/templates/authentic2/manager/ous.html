@@ -9,9 +9,11 @@
 
 {% block appbar %}
   {{ block.super }}
+  <span class="actions">
   {% if view.can_add %}
     <a href="{% url "a2-manager-ou-add" %}" rel="popup">{% trans "Add organizational unit" %}</a>
   {% endif %}
+  </span>
 {% endblock %}
 
 {% block sidebar %}
