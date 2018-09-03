@@ -12,7 +12,7 @@ pipeline {
             steps {
                 script {
                     if (env.JOB_NAME == 'authentic2' && env.GIT_BRANCH == 'origin/master') {
-                        sh 'sudo -H -u eobuilder /usr/local/bin/eobuilder -d jessie authentic'
+                        sh 'sudo -H -u eobuilder /usr/local/bin/eobuilder authentic'
                     }
                 }
             }
