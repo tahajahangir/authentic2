@@ -339,7 +339,11 @@ class BaseUserSerializer(serializers.ModelSerializer):
                 })
                 if not at.required:
                     # setting an attribute to null will delete it
-                    kwargs['allow_null'] = True
+                    # NullBooleanField and BooleanField does not support allow_null
+                    if field_class is serializers.BooleanField:
+                        field_class = serializers.NullBooleanField
+                    elif field_class is not serializers.NullBooleanField:
+                        kwargs['allow_null'] = True
                     # if not stated otherwise by the definition of the kind, string alike fields
                     # accept blank values when not required
                     if (issubclass(field_class, serializers.CharField) and 'allow_blank' not in
